@@ -1,0 +1,88 @@
+#!bash
+
+#Load needed R
+module load R/3.3.0
+module load sratoolkit/2.7.0
+mothurRv=/mnt/EXT/Schloss-data/bin/mothur
+DOWNDIR=data/raw/baxter
+WORKDIR=data/process/baxter
+REF=data/references
+
+# Need to add in a bunch of stuff on the study and what they were looking for.
+# Might adjust parameters to those set by authors of original manuscript
+# (Baxter, N et al 2016).  The SRA project ID is SRP062005.
+
+# Download the repository and keep only needed files
+
+git clone https://github.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015.git $WORKDIR/tempdata
+rm -rf $WORKDIR/tempdata/*.docx $WORKDIR/tempdata/*.md $WORKDIR/tempdata/Makefile $WORKDIR/tempdata/*.Rmd $WORKDIR/tempdata/*.csl $WORKDIR/tempdata/*bibtex $WORKDIR/tempdata/.gitignore $WORKDIR/tempdata/.Rprofile $WORKDIR/tempdata/.git
+rm -r $WORKDIR/tempdata/results
+
+mv $WORKDIR/tempdata/data/metadata.tsv $WORKDIR/
+mv $WORKDIR/tempdata/data/glne007.files $WORKDIR/
+
+rm -r $WORKDIR/data
+rm -r $WORKDIR/code
+rm -r $WORKDIR/tempdata
+
+
+# Download the data set
+wget -r -q -np -nd -k -P $DOWNDIR ftp://ftp-trace.ncbi.nih.gov/sra/sra-instant/reads/ByStudy/sra/SRP/SRP062/SRP062005/
+
+# Convert to fasta files that will be used
+for sample in $DOWNDIR/*.sra
+do
+	fastq-dump --split-files $sample -O $WORKDIR
+
+done
+
+# Rename files file to reflect where fastq files are
+sed -ie 's/SRR/data\/process\/baxter\/SRR/g' data/process/baxter/glne007.files
+
+
+# Run mothur for sequencing processing on combined file
+$mothurRv "#make.contigs(file=$WORKDIR/glne007.files);
+	summary.seqs(fasta=current, processors=4);
+	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275);
+	summary.seqs(fasta=current);
+	unique.seqs(fasta=current);
+	count.seqs(name=current, group=current);
+	align.seqs(fasta=current, reference=$REF/silva.seed.align);
+	summary.seqs(fasta=current, count=current);
+	screen.seqs(fasta=current, count=current, start=13862, end=23444, maxhomop=8);
+	filter.seqs(fasta=current, vertical=T, trump=.);
+	unique.seqs(fasta=current, count=current);
+	summary.seqs(fasta=current, count=current);
+	pre.cluster(fasta=current, count=current, diffs=2);
+	chimera.vsearch(fasta=current, count=current, dereplicate=t);
+	remove.seqs(fasta=current, accnos=current);
+	classify.seqs(fasta=current, count=current, reference=$REF/trainset14_032015.pds.fasta, taxonomy=$REF/trainset14_032015.pds.tax, cutoff=80);
+	remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota);
+	remove.groups(fasta=current, count=current, taxonomy=current, groups=mock1-mock2-mock5-mock6-mock7);
+	cluster.split(fasta=current, count=current, taxonomy=current, method=opti, metric=mcc, taxlevel=5, cutoff=0.03, processors=4);
+	make.shared(list=current, count=current, label=0.03);
+	classify.otu(list=current, count=current, taxonomy=current, label=0.03);
+	get.oturep(fasta=current, count=current, list=current, label=0.03, method=abundance)"
+
+
+# Match metadata with the shared file
+R -e "source('code/baxter.R')"
+
+# Use mothur to generate the summary statistic data needed
+$mothurRv "#sub.sample(shared=$WORKDIR/baxter.shared, label=0.03);
+	dist.shared(shared=$WORKDIR/baxter.shared, calc=braycurtis, label=0.03, subsample=T, iters=100, processors=8);
+	summary.single(shared=$WORKDIR/baxter.shared, calc=nseqs-sobs-shannon-shannoneven, subsample=T)"
+
+mv $WORKDIR/*.cons.taxonomy $WORKDIR/baxter.taxonomy
+mv $WORKDIR/*0.03.rep.fasta $WORKDIR/baxter.rep.seqs
+
+# Remove uneccesary files
+rm $WORKDIR/glne007.*
+rm $WORKDIR/*.fastq
+rm $WORKDIR/*.rabund
+
+
+
+
+
+
