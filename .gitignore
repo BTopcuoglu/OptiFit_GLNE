@@ -2,3 +2,8 @@ data/mothur/raw/*
 data/temp/*
 .DS_Store
 *Rproj*
+data/process/*fasta
+data/process/*count_table
+data/mothur/*
+data/raw/*
+data/references/*
