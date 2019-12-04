@@ -9,7 +9,7 @@
 configfile: "config/config.yaml"
 
 # Function for aggregating list of raw sequencing files.
-mothurSamples = list(set(glob_wildcards(os.path.join('data/mothur/raw/', '{sample}_{readNum, R[12]}_001.fastq.gz')).sample))
+mothurSamples = list(set(glob_wildcards(os.path.join('data/mothur/raw/baxter/', '{sample}_{readNum, R[12]}_001.fastq.gz')).sample))
 
 # Master rule for controlling workflow.
 rule all:
@@ -43,7 +43,7 @@ rule all:
 #
 ##################################################################
 
-# Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from 
+# Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
 # SILVA database for use as reference alignment.
 rule get16SReferences:
 	input:
@@ -53,7 +53,7 @@ rule get16SReferences:
 		rdpFasta="data/mothur/references/trainset16_022016.pds.fasta",
 		rdpTax="data/mothur/references/trainset16_022016.pds.tax"
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script}"
 
@@ -66,7 +66,7 @@ rule get16SMock:
 	output:
 		mockV4="data/mothur/references/zymo.mock.16S.v4.fasta"
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script}"
 
@@ -76,7 +76,7 @@ rule get16SMock:
 
 ##################################################################
 #
-# Part 2: Generate Shared Files 
+# Part 2: Generate Shared Files
 #
 ##################################################################
 
@@ -84,7 +84,7 @@ rule get16SMock:
 rule make16SShared:
 	input:
 		script="code/bash/mothurShared.sh",
-		raw=expand('data/mothur/raw/{mothurSamples}_{readNum}_001.fastq.gz',
+		raw=expand('data/mothur/raw/baxter/{mothurSamples}_{readNum}_001.fastq.gz',
 			mothurSamples = mothurSamples, readNum = config["readNum"]),
 		refs=rules.get16SReferences.output
 	output:
@@ -93,9 +93,9 @@ rule make16SShared:
 		errorFasta="data/mothur/process/errorinput.fasta",
 		errorCount="data/mothur/process/errorinput.count_table"
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
-		"bash {input.script} data/mothur/raw/ {input.refs}"
+		"bash {input.script} data/mothur/raw/baxter/ {input.refs}"
 
 
 # Splitting master shared file into individual shared file for: i) samples, ii) controls, and iii) mocks.
@@ -111,7 +111,7 @@ rule split16SShared:
 		mockGroups='-'.join(config["mothurMock"]), # Concatenates all mock group names with hyphens
 		controlGroups='-'.join(config["mothurControl"]) # Concatenates all control group names with hyphens
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {params.mockGroups} {params.controlGroups}"
 
@@ -124,7 +124,7 @@ rule count16SShared:
 	output:
 		count="data/mothur/process/{group}.final.count.summary"
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.shared}"
 
@@ -141,7 +141,7 @@ rule subsample16SShared:
 	params:
 		subthresh=config["subthresh"]
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.shared} {input.count} {params.subthresh}"
 
@@ -151,7 +151,7 @@ rule subsample16SShared:
 
 ##################################################################
 #
-# Part 3: Diversity Metrics 
+# Part 3: Diversity Metrics
 #
 ##################################################################
 
@@ -162,7 +162,7 @@ rule rarefy16SReads:
 	output:
 		rarefaction="data/mothur/process/sample.final.groups.rarefaction"
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.shared}"
 
@@ -179,7 +179,7 @@ rule calc16SAlphaDiversity:
 		subthresh=config["subthresh"],
 		alpha='-'.join(config["mothurAlpha"]) # Concatenates all alpha metric names with hyphens
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.shared} {input.count} {params.subthresh} {params.alpha}"
 
@@ -197,7 +197,7 @@ rule calc16SBetaDiversity:
 		subthresh=config["subthresh"],
 		beta='-'.join(config["mothurBeta"]) # Concatenates all beta metric names with hyphens
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.shared} {input.count} {params.subthresh} {params.beta}"
 
@@ -207,7 +207,7 @@ rule calc16SBetaDiversity:
 
 ##################################################################
 #
-# Part 4: Ordination 
+# Part 4: Ordination
 #
 ##################################################################
 
@@ -220,12 +220,12 @@ rule calc16SPCoA:
 		loadings="data/mothur/process/sample.final.{beta}.0.03.lt.ave.pcoa.loadings",
 		axes="data/mothur/process/sample.final.{beta}.0.03.lt.ave.pcoa.axes"
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.dist}"
 
 
-# Calculates non-metric multi-dimensional scaling (NMDS) ordination for visualizing beta diversity. 
+# Calculates non-metric multi-dimensional scaling (NMDS) ordination for visualizing beta diversity.
 rule calc16SNMDS:
 	input:
 		script="code/bash/mothurNMDS.sh",
@@ -236,7 +236,7 @@ rule calc16SNMDS:
 	params:
 		seed=config["seed"]
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.dist} {params.seed}"
 
@@ -246,7 +246,7 @@ rule calc16SNMDS:
 
 ##################################################################
 #
-# Part 5: Quality Control 
+# Part 5: Quality Control
 #
 ##################################################################
 
@@ -262,7 +262,7 @@ rule calc16SError:
 	params:
 		mockGroups='-'.join(config["mothurMock"]) # Concatenates all mock group names with hyphens
 	conda:
-		"envs/mothur.yaml"
+		"envs/glne.yaml"
 	shell:
 		"bash {input.script} {input.errorFasta} {input.errorCount} {input.mockV4} {params.mockGroups}"
 
@@ -272,7 +272,7 @@ rule calc16SError:
 
 ##################################################################
 #
-# Part 6: Cleaning 
+# Part 6: Cleaning
 #
 ##################################################################
 

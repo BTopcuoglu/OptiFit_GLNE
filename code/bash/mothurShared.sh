@@ -28,6 +28,16 @@ echo PROGRESS: Assembling, quality controlling, clustering, and classifying sequ
 # Making output dir
 mkdir -p "${OUTDIR}"
 
+# Convert to fasta files that will be used
+for sample in data/mothur/raw/baxter/*.sra
+do
+	fastq-dump --split-files $sample -O data/mothur/raw/baxter/
+
+done
+
+# Rename files file to reflect where fastq files are
+sed -ie 's/SRR/data\/process\/baxter\/SRR/g' data/raw/baxter/glne007.files
+
 # Making contigs from fastq.gz files, aligning reads to references, removing any non-bacterial sequences, calculating distance matrix, making shared file, and classifying OTUs
 mothur "#make.file(type=gz, inputdir="${SAMPLEDIR}", outputdir="${OUTDIR}");
 	make.contigs(file=current);
