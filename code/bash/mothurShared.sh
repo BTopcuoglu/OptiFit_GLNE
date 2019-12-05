@@ -31,16 +31,11 @@ mkdir -p "${OUTDIR}"
 # Convert to fasta files that will be used
 for sample in data/mothur/raw/baxter/*.sra
 do
-	fastq-dump --split-files $sample -O data/mothur/raw/baxter/
-
+	fastq-dump --split-files $sample -O data/process/baxter
 done
 
-# Rename files file to reflect where fastq files are
-sed -ie 's/SRR/data\/process\/baxter\/SRR/g' data/raw/baxter/glne007.files
-
 # Making contigs from fastq.gz files, aligning reads to references, removing any non-bacterial sequences, calculating distance matrix, making shared file, and classifying OTUs
-mothur "#make.file(type=gz, inputdir="${SAMPLEDIR}", outputdir="${OUTDIR}");
-	make.contigs(file=current);
+mothur "#make.contigs(file=data/process/baxter/glne007.files);
 	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
 	unique.seqs(fasta=current);
 	count.seqs(name=current, group=current);
@@ -58,6 +53,26 @@ mothur "#make.file(type=gz, inputdir="${SAMPLEDIR}", outputdir="${OUTDIR}");
 	make.shared(list=current, count=current, label=0.03);
 	classify.otu(list=current, count=current, taxonomy=current, label=0.03);
 	get.oturep(fasta=current, count=current, list=current, label=0.03, method=abundance)"
+
+
+	mothur "#make.contigs(file=$WORKDIR/glne007.files);
+		summary.seqs(fasta=current, processors=4);
+		screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275);
+		summary.seqs(fasta=current);
+		unique.seqs(fasta=current);
+		count.seqs(name=current, group=current);
+		align.seqs(fasta=current, reference=$REF/silva.seed.align);
+		summary.seqs(fasta=current, count=current);
+		screen.seqs(fasta=current, count=current, start=13862, end=23444, maxhomop=8);
+		filter.seqs(fasta=current, vertical=T, trump=.);
+		unique.seqs(fasta=current, count=current);
+		summary.seqs(fasta=current, count=current);
+		pre.cluster(fasta=current, count=current, diffs=2);
+		chimera.vsearch(fasta=current, count=current, dereplicate=t);
+		remove.seqs(fasta=current, accnos=current);
+		classify.seqs(fasta=current, count=current, reference=$REF/trainset14_032015.pds.fasta, taxonomy=$REF/trainset14_032015.pds.tax, cutoff=80);
+		remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota);
+		remove.groups(fasta=current, count=current, taxonomy=current, groups=mock1-mock2-mock5-mock6-mock7)"
 
 
 

@@ -8,9 +8,6 @@
 # Configuration file containing all user-specified settings
 configfile: "config/config.yaml"
 
-# Function for aggregating list of raw sequencing files.
-mothurSamples = list(set(glob_wildcards(os.path.join('data/mothur/raw/baxter/', '{sample}_{readNum, R[12]}_001.fastq.gz')).sample))
-
 # Master rule for controlling workflow.
 rule all:
 	input:
@@ -58,22 +55,6 @@ rule get16SReferences:
 		"bash {input.script}"
 
 
-# Downloading the Zymo mock sequence files and extracting v4 region for error estimation.
-rule get16SMock:
-	input:
-		script="code/bash/mothurMock.sh",
-		silvaV4=rules.get16SReferences.output.silvaV4
-	output:
-		mockV4="data/mothur/references/zymo.mock.16S.v4.fasta"
-	conda:
-		"envs/glne.yaml"
-	shell:
-		"bash {input.script}"
-
-
-
-
-
 ##################################################################
 #
 # Part 2: Generate Shared Files
@@ -84,8 +65,6 @@ rule get16SMock:
 rule make16SShared:
 	input:
 		script="code/bash/mothurShared.sh",
-		raw=expand('data/mothur/raw/baxter/{mothurSamples}_{readNum}_001.fastq.gz',
-			mothurSamples = mothurSamples, readNum = config["readNum"]),
 		refs=rules.get16SReferences.output
 	output:
 		shared="data/mothur/process/final.shared",
@@ -95,25 +74,8 @@ rule make16SShared:
 	conda:
 		"envs/glne.yaml"
 	shell:
-		"bash {input.script} data/mothur/raw/baxter/ {input.refs}"
+		"bash {input.script} data/process/baxter/ {input.refs}"
 
-
-# Splitting master shared file into individual shared file for: i) samples, ii) controls, and iii) mocks.
-# This is used for optimal subsampling during downstream steps.
-rule split16SShared:
-	input:
-		script="code/bash/mothurSplitShared.sh",
-		shared=rules.make16SShared.output.shared
-	output:
-		shared=expand("data/mothur/process/{group}.final.shared",
-			group = config["mothurGroups"])
-	params:
-		mockGroups='-'.join(config["mothurMock"]), # Concatenates all mock group names with hyphens
-		controlGroups='-'.join(config["mothurControl"]) # Concatenates all control group names with hyphens
-	conda:
-		"envs/glne.yaml"
-	shell:
-		"bash {input.script} {params.mockGroups} {params.controlGroups}"
 
 
 # Counting number of reads in each of the new shared files.
