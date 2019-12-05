@@ -1,6 +1,6 @@
 #! /bin/bash
-# mothurShared.sh
-# William L. Close
+# mothurLOO.sh
+# Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 
@@ -9,51 +9,24 @@
 ##################
 
 # Set the variables to be used in this script
-export SAMPLEDIR=${1:?ERROR: Need to define SAMPLEDIR.}
-export FILE=${2:?ERROR: Need to define SAMPLEDIR.}
-export SILVAV4=${3:?ERROR: Need to define SILVAV4.}
-export RDPFASTA=${4:?ERROR: Need to define RDPFASTA.}
-export RDPTAX=${5:?ERROR: Need to define RDPTAX.}
+export GROUPS=${1:?ERROR: Need to define GROUPS.}
+export FASTA=${2:?ERROR: Need to define FASTA.}
+export COUNT=${3:?ERROR: Need to define COUNT.}
+export TAXONOMY=${4:?ERROR: Need to define TAXONOMY.}
+export NUM=${5:?ERROR: Need to define NUM.}
 
 # Other variables
-export OUTDIR=data/process/baxter/intermediate
-
-
+export OUTDIR=data/process/
+export WORKDIR=data/process/baxter/final
 
 ###################
 # Run QC Analysis #
 ###################
 
-echo PROGRESS: Assembling, quality controlling, clustering, and classifying sequences.
-
-# Making output dir
-mkdir -p "${OUTDIR}"
-
-# Convert to fasta files that will be used
-for sample in data/mothur/raw/baxter/*.sra
-do
-	fastq-dump --split-files $sample -O data/process/baxter
-done
-
-# Making contigs from fastq.gz files, aligning reads to references, removing any non-bacterial sequences, calculating distance matrix, making shared file, and classifying OTUs
-mothur "#make.contigs(file=data/process/baxter/glne007.files, outputdir="${OUTDIR}");
-	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
-	unique.seqs(fasta=current);
-	count.seqs(name=current, group=current);
-	align.seqs(fasta=current, reference="${SILVAV4}");
-	screen.seqs(fasta=current, count=current, start=13862, end=23444, maxhomop=8);
-	filter.seqs(fasta=current, vertical=T, trump=.);
-	unique.seqs(fasta=current, count=current);
-	pre.cluster(fasta=current, count=current, diffs=2);
-	chimera.vsearch(fasta=current, count=current, dereplicate=T);
-	remove.seqs(fasta=current, accnos=current);
-	classify.seqs(fasta=current, count=current, reference="${RDPFASTA}", taxonomy="${RDPTAX}", cutoff=80);
-	remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota);
-	remove.groups(fasta=current, count=current, taxonomy=current, groups=mock1-mock2-mock5-mock6-mock7)"
 
 # Now let's extract fasta, taxonomy and count for the removed group and build subsampled shared for the removed sample.
 
-mothur "#get.groups(groups=data/process/baxter/glne007.contigs.good.groups, fasta=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.fasta, count=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.count_table, taxonomy=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pds.wang.pick.pick.taxonomy,  groups=2003650);
+mothur "#get.groups(groups="${GROUPS}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${NUM}");
 dist.seqs(fasta=current, cutoff=0.03);
 cluster(column=current, count=current);
 make.shared(list=current, count=current, label=0.03);
@@ -90,9 +63,6 @@ sub.sample(shared=current, label=0.03)"
 
 # The generated subsampled file will have all the samples except the left-out-one.
 
-# We are now ready to use OptiFit to fit left out sample to the rest.
-
-mothur cluster.fit(fasta=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.sample.fasta, column=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.sample.dist, count=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.pick.sample.count_table, reffasta=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.fasta, refcolumn=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.dist, reflist=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.list, method=closed)
 
 
 

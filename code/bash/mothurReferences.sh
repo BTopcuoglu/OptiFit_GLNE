@@ -59,6 +59,5 @@ tar xvzf "${OUTDIR}"/tmp/Trainset16_022016.pds.tgz -C "${OUTDIR}"/tmp/
 # Move the taxonomy files out of the tmp dir
 mv "${OUTDIR}"/tmp/trainset16_022016.pds/trainset16_022016* "${OUTDIR}"/
 
-
 # Cleaning up reference dir
 rm -rf "${OUTDIR}"/tmp/
