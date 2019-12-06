@@ -31,8 +31,8 @@ rule get16SReferences:
 		script="code/bash/mothurReferences.sh"
 	output:
 		silvaV4="data/mothur/references/silva.v4.align",
-		rdpFasta="data/mothur/references/trainset16_022016.pds.fasta",
-		rdpTax="data/mothur/references/trainset16_022016.pds.tax"
+		rdpFasta="data/mothur/references/trainset14_032015.pds.fasta",
+		rdpTax="data/mothur/references/trainset14_032015.pds.tax"
 	conda:
 		"envs/glne.yaml"
 	shell:
