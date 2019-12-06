@@ -16,12 +16,12 @@ export TAXONOMY=${4:?ERROR: Need to define TAXONOMY.}
 export NUM=${5:?ERROR: Need to define NUM.}
 
 # Other variables
-export OUTDIR=data/process/
 export WORKDIR=data/process/baxter/final
+export OUTDIR=data/process/
 
-###################
-# Run QC Analysis #
-###################
+########################################################
+# Generate shared file for only one sample  #
+########################################################
 
 
 # Now let's extract fasta, taxonomy and count for the removed group and build subsampled shared for the removed sample.
@@ -35,7 +35,7 @@ sub.sample(shared=current, label=0.03)"
 
 # Change the name of the files generated to represent that they only have 1 SAMPLE
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.dist data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.{num}.dist
+mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.dist data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick."${NUM}".dist
 
 mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.list data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.sample.list
 
@@ -53,15 +53,22 @@ mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precl
 
 mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.fasta data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.sample.fasta
 
+
+
+########################################################
+# Generate shared file for all samples but the one #
+########################################################
+
+# The generated subsampled file will have all the samples except the left-out-one.
+
 # Now let's remove that 1 sample from rest of the samples by removing from original count, fasta and taxa files.
 
-mothur "#remove.groups(groups=data/process/baxter/glne007.contigs.good.groups, fasta=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.fasta, count=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.count_table, taxonomy=data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pds.wang.pick.pick.taxonomy,  groups=2003650);
+mothur "#remove.groups(groups="${GROUPS}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${NUM}");
 dist.seqs(fasta=current, cutoff=0.03);
 cluster(column=current, count=current);
 make.shared(list=current, count=current, label=0.03);
 sub.sample(shared=current, label=0.03)"
 
-# The generated subsampled file will have all the samples except the left-out-one.
 
 
 

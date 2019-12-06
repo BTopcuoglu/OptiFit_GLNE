@@ -37,7 +37,7 @@
 ######################################################################
 
 
-pipeline <- function(dataset, model, split_number, outcome=NA, hyperparameters=NULL, perm=T){
+pipeline <- function(dataset, test, model, outcome=NA, hyperparameters=NULL){
 
   # -----------------------Get outcome variable----------------------------->
   # If no outcome specified, use first column in dataset
@@ -55,6 +55,11 @@ pipeline <- function(dataset, model, split_number, outcome=NA, hyperparameters=N
   # Scale all features between 0-1
   preProcValues <- preProcess(dataset, method = "range")
   dataTransformed <- predict(preProcValues, dataset)
+  
+  test <- test %>% 
+    select(-Group)
+  
+  testTransformed <- predict(preProcValues, test)
   # ----------------------------------------------------------------------->
 
   # Get outcome variables
@@ -124,76 +129,23 @@ pipeline <- function(dataset, model, split_number, outcome=NA, hyperparameters=N
                               ntree=1000) # not tuning ntree
   }
   else{
-    print(model)
-    trained_model <-  train(f,
-                            data=dataTransformed,
-                            method = method,
-                            trControl = cv,
-                            metric = "ROC",
-                            tuneGrid = grid)
+  print("Did not define a model algorithm to use!")
   }
-  # Stop walltime for running model
-  seconds <- toc()
-  # Save elapsed time
-  train_time <- seconds$toc-seconds$tic
-  # Save wall-time
-  write.csv(train_time, file=paste0("data/temp/traintime_", model, "_", split_number, ".csv"), row.names=F)
-  # ------------- Output the cvAUC and testAUC for 1 datasplit ---------------------->
+
+  # ------------- Output the cvAUC ---------------------------------------------------->
   # Mean cv AUC value over repeats of the best cost parameter during training
   cv_auc <- getTrainPerf(trained_model)$TrainROC
-  # Save all results of hyper-parameters and their corresponding meanAUCs over 100 internal repeats
-  results_individual <- trained_model$results
   # ---------------------------------------------------------------------------------->
 
-  # -------------------------- Feature importances ----------------------------------->
-  #   if linear: Output the weights of features of linear models
-  #   else: Output the feature importances based on random permutation for non-linear models
-  # Here we look at the top 20 important features
-  if(perm==T){
-    if(model=="L1_Linear_SVM" || model=="L2_Linear_SVM" || model=="L2_Logistic_Regression"){
-      # We will use the permutation_importance function here to:
-      #     1. Predict held-out test-data
-      #     2. Calculate ROC and AUROC values on this prediction
-      #     3. Get the feature importances for correlated and uncorrelated feautures
-      roc_results <- permutation_importance(trained_model, testTransformed, first_outcome, outcome)
-      test_auc <- roc_results[[1]]  # Predict the base test importance
-      feature_importance_non_cor <- roc_results[2] # save permutation results
-      # Get feature weights
-      feature_importance_cor <- trained_model$finalModel$W
-    }
-    else{
-      # We will use the permutation_importance function here to:
-      #     1. Predict held-out test-data
-      #     2. Calculate ROC and AUROC values on this prediction
-      #     3. Get the feature importances for correlated and uncorrelated feautures
-      roc_results <- permutation_importance(trained_model, testTransformed, first_outcome, outcome)
-      test_auc <- roc_results[[1]] # Predict the base test importance
-      feature_importance_non_cor <- roc_results[2] # save permutation results of non-cor
-      feature_importance_cor <- roc_results[3] # save permutation results of cor
-    }
-  }else{
-    print("No permutation test being performed.")
-    if(model=="L1_Linear_SVM" || model=="L2_Linear_SVM" || model=="L2_Logistic_Regression"){
-      # Get feature weights
-      feature_importance_non_cor <- trained_model$finalModel$W
-      # Get feature weights
-      feature_importance_cor <- trained_model$finalModel$W
-    }else{
-      # Get feature weights
-      feature_importance_non_cor <- NULL
-      # Get feature weights
-      feature_importance_cor <- NULL
-    }
-    # Calculate the test-auc for the actual pre-processed held-out data
-    rpartProbs <- predict(trained_model, testTransformed, type="prob")
-    test_roc <- roc(ifelse(testTransformed[,outcome] == first_outcome, 1, 0), rpartProbs[[1]])
-    test_auc <- test_roc$auc
-  } 
+  # -------------------------- Predict the held-out sample---------------------------->
 
+  # Calculate the test-auc for the actual pre-processed held-out data
+  rpartProbs <- predict(trained_model, testTransformed, type="prob")
+    
   # ---------------------------------------------------------------------------------->
 
   # ----------------------------Save metrics as vector ------------------------------->
   # Return all the metrics
-  results <- list(cv_auc, test_auc, results_individual, feature_importance_non_cor, feature_importance_cor, trained_model)
+  results <- list(cv_auc, rpartProbs, trained_model)
   return(results)
 }

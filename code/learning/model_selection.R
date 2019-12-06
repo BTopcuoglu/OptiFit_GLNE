@@ -12,11 +12,8 @@
 # Dependencies and Outputs:
 #    Filenames to put to function:
 #       1. "L2_Logistic_Regression"
-#       2. "L2_Linear_SVM"
-#       3. "RBF_SVM"
-#       4. "Decision_Tree"
-#       5. "Random_Forest"
-#       6. "XGBoost"
+#       2. "Random_Forest"
+
 
 # Usage:
 # Call as source when using the function. The function is:
@@ -144,42 +141,6 @@ tuning_grid <- function(train_data, model, outcome, hyperparameters=NULL){
                          epsilon = 0.01) #default epsilon recommended from liblinear
     method <- "regLogistic"
   }
-  else if (model=="L1_Linear_SVM"){ #
-    if(is.null(hyperparameters)){
-       hyperparameters <- list()
-       hyperparameters$cost <- c(0.0001, 0.001, 0.01, 0.015, 0.025, 0.05, 0.1, 0.5, 1) # maybe change these default parameters?
-    }
-    grid <- expand.grid(cost = hyperparameters$cost,
-                        Loss = "L2")
-    method <- "svmLinear4" # I wrote this function in caret
-  }
-  else if (model=="L2_Linear_SVM"){
-    if(is.null(hyperparameters)){
-       hyperparameters <- list()
-       hyperparameters$cost <- c(0.0001, 0.0005, 0.001, 0.0025, 0.005, 0.01, 0.025, 0.05, 0.1, 0.5, 1) # maybe change these default parameters?
-    }
-    grid <- expand.grid(cost = hyperparameters$cost,
-                        Loss = "L2")
-    method <- "svmLinear3" # I changed this function in caret
-  }
-  else if (model=="RBF_SVM"){
-    if(is.null(hyperparameters)){
-       hyperparameters <- list()
-       hyperparameters$sigma <- c(0.00000001, 0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1) # maybe change these default parameters?
-       hyperparameters$C <- c(0.0000001, 0.000001, 0.00001, 0.0001, 0.001, 0.01, 0.1, 1, 10) # maybe change these default parameters?
-    }
-    grid <-  expand.grid(sigma = hyperparameters$sigma,
-                         C = hyperparameters$C)
-    method <-"svmRadial"
-  }
-  else if (model=="Decision_Tree"){
-    if(is.null(hyperparameters)){
-       hyperparameters <- list()
-       hyperparameters$maxdepth <- c(1,2,3,4,5,6)
-    }
-    grid <-  expand.grid(maxdepth = hyperparameters$maxdepth) # maybe change these default parameters?
-    method <-"rpart2"
-  }
   else if (model=="Random_Forest"){
     if(is.null(hyperparameters)){
       # get number of features
@@ -197,26 +158,6 @@ tuning_grid <- function(train_data, model, outcome, hyperparameters=NULL){
     }
     grid <-  expand.grid(mtry = hyperparameters$mtry)
     method = "rf"
-  }
-  else if (model=="XGBoost"){
-   if(is.null(hyperparameters)){
-       hyperparameters <- list()
-       hyperparameters$nrounds <- 500 # maybe change these default parameters?
-       hyperparameters$gamma <- 0 # maybe change these default parameters?
-       hyperparameters$eta <- c(0.001, 0.01, 0.1, 1) # maybe change these default parameters?
-       hyperparameters$max_depth <- 8 # maybe change these default parameters?
-       hyperparameters$colsample_bytree <- 0.8 # maybe change these default parameters?
-       hyperparameters$min_child_weight <- 1 # maybe change these default parameters?
-       hyperparameters$subsample <- c(0.4, 0.5, 0.6, 0.7) # maybe change these default parameters?
-    }
-    grid <-  expand.grid(nrounds=hyperparameters$nrounds,
-                         gamma=hyperparameters$gamma,
-                         eta=hyperparameters$eta,
-                         max_depth=hyperparameters$max_depth,
-                         colsample_bytree=hyperparameters$colsample_bytree,
-                         min_child_weight=hyperparameters$min_child_weight,
-                         subsample=hyperparameters$subsample)
-    method <- "xgbTree"
   }
   else {
     print("Model not available")
