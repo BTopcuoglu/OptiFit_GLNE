@@ -16,7 +16,7 @@
 #export RDPTAX=${5:?ERROR: Need to define RDPTAX.}
 
 # Other variables
-export SILVAV4=data/mothur/references/silva.seed.align
+export SILVAV4=data/mothur/references/silva.v4.align
 export RDPFASTA=data/mothur/references/trainset16_022016.pds.fasta
 export RDPTAX=data/mothur/references/trainset16_022016.pds.tax
 export OUTDIR=data/process/baxter/intermediate
@@ -37,7 +37,7 @@ mothur "#make.contigs(file=data/process/baxter/glne007.files, outputdir="${OUTDI
 	unique.seqs(fasta=current);
 	count.seqs(name=current, group=current);
 	align.seqs(fasta=current, reference="${SILVAV4}");
-	screen.seqs(fasta=current, count=current, start=13862, end=23444, maxhomop=8);
+	screen.seqs(fasta=current, count=current, start=1968, end=11550, maxhomop=8);
 	filter.seqs(fasta=current, vertical=T, trump=.);
 	unique.seqs(fasta=current, count=current);
 	pre.cluster(fasta=current, count=current, diffs=2);
