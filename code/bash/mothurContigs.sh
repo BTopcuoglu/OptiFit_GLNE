@@ -28,13 +28,13 @@ export FINAL= data/process/baxter/final
 echo PROGRESS: Creating contigs for all the samples
 
 # Making output dir
-mkdir -p "${OUTDIR}"
+#mkdir -p "${OUTDIR}"
 
 # Convert to fasta files that will be used
-for sample in data/mothur/raw/baxter/*.sra
-do
-	fastq-dump --split-files $sample -O data/process/baxter
-done
+#for sample in data/mothur/raw/baxter/*.sra
+#do
+#	fastq-dump --split-files $sample -O data/process/baxter
+#done
 
 # Making contigs from fastq files, aligning reads to references, removing any non-bacterial sequences, calculating distance matrix, making shared file.
 
