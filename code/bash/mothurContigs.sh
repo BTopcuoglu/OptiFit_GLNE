@@ -20,7 +20,6 @@ export OUTDIR=data/process/baxter/intermediate
 export FINAL=data/process/baxter/final
 
 
-
 ###################
 # Run QC Analysis #
 ###################
