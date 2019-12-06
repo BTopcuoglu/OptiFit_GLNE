@@ -9,11 +9,11 @@
 ##################
 
 # Set the variables to be used in this script
-export SAMPLEDIR=${1:?ERROR: Need to define SAMPLEDIR.}
-export FILE=${2:?ERROR: Need to define SAMPLEDIR.}
-export SILVAV4=${3:?ERROR: Need to define SILVAV4.}
-export RDPFASTA=${4:?ERROR: Need to define RDPFASTA.}
-export RDPTAX=${5:?ERROR: Need to define RDPTAX.}
+#export SAMPLEDIR=${1:?ERROR: Need to define SAMPLEDIR.}
+#export FILE=${2:?ERROR: Need to define SAMPLEDIR.}
+#export SILVAV4=${3:?ERROR: Need to define SILVAV4.}
+#export RDPFASTA=${4:?ERROR: Need to define RDPFASTA.}
+#export RDPTAX=${5:?ERROR: Need to define RDPTAX.}
 
 # Other variables
 export OUTDIR=data/process/baxter/intermediate
