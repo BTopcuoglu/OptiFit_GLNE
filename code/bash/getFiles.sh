@@ -38,3 +38,6 @@ for sample in data/mothur/raw/baxter/*.sra
 do
 	fastq-dump --split-files $sample -O "${OUTDIR}"
 done
+
+# Rename files file to reflect where fastq files are
+sed -ie 's/SRR/data\/process\/baxter\/SRR/g' data/process/baxter/glne007.files
