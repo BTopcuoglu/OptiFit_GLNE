@@ -16,6 +16,9 @@
 #export RDPTAX=${5:?ERROR: Need to define RDPTAX.}
 
 # Other variables
+export SILVAV4=data/mothur/references/silva.v4.align
+export RDPFASTA=data/mothur/references/trainset16_022016.pds.fasta
+export RDPTAX=data/mothur/references/trainset16_022016.pds.tax
 export OUTDIR=data/process/baxter/intermediate
 export FINAL=data/process/baxter/final
 
@@ -28,14 +31,6 @@ echo PROGRESS: Creating contigs for all the samples
 
 # Making output dir
 mkdir -p "${OUTDIR}"
-
-# Convert to fasta files that will be used
-#for sample in data/mothur/raw/baxter/*.sra
-#do
-#	fastq-dump --split-files $sample -O data/process/baxter
-#done
-
-# Making contigs from fastq files, aligning reads to references, removing any non-bacterial sequences, calculating distance matrix, making shared file.
 
 mothur "#make.contigs(file=data/process/baxter/glne007.files, outputdir="${OUTDIR}");
 	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
