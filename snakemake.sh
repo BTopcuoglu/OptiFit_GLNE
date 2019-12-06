@@ -7,23 +7,23 @@
 ###############################
 
 # Name
-#SBATCH --job-name=clusterSnakemake
+#SBATCH --job-name=mothurContigs.sh
 
 # Resources
 # For MPI, increase ntasks-per-node
 # For multithreading, increase cpus-per-task
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=1
+#SBATCH --cpus-per-task=8
 #SBATCH --mem-per-cpu=4000mb
-#SBATCH --time=48:00:00
+#SBATCH --time=10:00:00
 
 # Account
-#SBATCH --account=ACCOUNT
+#SBATCH --account=pschloss
 #SBATCH --partition=standard
 
 # Logs
-#SBATCH --mail-user=EMAIL
+#SBATCH --mail-user=begumtop@umich.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
 #SBATCH --output=logs/slurm/%x-%j.out
 
@@ -45,8 +45,4 @@ fi
 #                   #
 #####################
 
-# Making log directory
-mkdir -p logs/slurm/
-
-# Initiating snakemake and running workflow in cluster mode
-snakemake --use-conda --profile config/slurm/ --latency-wait 90
+bash code/bash/mothurContigs.sh
