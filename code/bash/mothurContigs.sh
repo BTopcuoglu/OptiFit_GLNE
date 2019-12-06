@@ -16,7 +16,7 @@
 #export RDPTAX=${5:?ERROR: Need to define RDPTAX.}
 
 # Other variables
-export SILVAV4=data/mothur/references/silva.v4.align
+export SILVAV4=data/mothur/references/silva.seed.align
 export RDPFASTA=data/mothur/references/trainset16_022016.pds.fasta
 export RDPTAX=data/mothur/references/trainset16_022016.pds.tax
 export OUTDIR=data/process/baxter/intermediate
