@@ -17,7 +17,7 @@
 
 # Other variables
 export OUTDIR=data/process/baxter/intermediate
-export FINAL= data/process/baxter/final
+export FINAL=data/process/baxter/final
 
 
 
@@ -28,7 +28,7 @@ export FINAL= data/process/baxter/final
 echo PROGRESS: Creating contigs for all the samples
 
 # Making output dir
-#mkdir -p "${OUTDIR}"
+mkdir -p "${OUTDIR}"
 
 # Convert to fasta files that will be used
 #for sample in data/mothur/raw/baxter/*.sra
