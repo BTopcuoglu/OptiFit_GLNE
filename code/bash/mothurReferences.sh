@@ -28,7 +28,7 @@ echo PROGRESS: Preparing SILVA database v4 sequence alignment files.
 # Downloading the prepared SILVA database from the mothur website
 # This version is from v132 and described at http://blog.mothur.org/2018/01/10/SILVA-v132-reference-files/
 # v132 contains 8,517 bacterial sequences
-wget -N -P "${OUTDIR}"/tmp/ https://www.mothur.org/w/images/7/71/Silva.seed_v132.tgz
+wget -N -P "${OUTDIR}"/tmp/ http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
 
 # Decompressing the database
 tar xvzf "${OUTDIR}"/tmp/Silva.seed_v132.tgz -C "${OUTDIR}"/tmp/
@@ -51,13 +51,13 @@ echo PROGRESS: Preparing Ribosomal Database Project taxonomy files.
 
 # Downloading the prepared RDP database from the mothur website
 # For more information see http://blog.mothur.org/2017/03/15/RDP-v16-reference_files/
-wget -N -P "${OUTDIR}"/tmp/ https://www.mothur.org/w/images/c/c3/Trainset16_022016.pds.tgz
+wget -N -P "${OUTDIR}"/tmp/ http://mothur.org/w/images/8/88/Trainset14_032015.pds.tgz
 
 # Decompressing the database
-tar xvzf "${OUTDIR}"/tmp/Trainset16_022016.pds.tgz -C "${OUTDIR}"/tmp/
+tar xvzf "${OUTDIR}"/tmp/Trainset14_032015.pds.tgz -C "${OUTDIR}"/tmp/
 
 # Move the taxonomy files out of the tmp dir
-mv "${OUTDIR}"/tmp/trainset16_022016.pds/trainset16_022016* "${OUTDIR}"/
+mv "${OUTDIR}"/tmp/trainset14_032015.pds/trainset14_032015* "${OUTDIR}"/
 
 # Cleaning up reference dir
 rm -rf "${OUTDIR}"/tmp/
