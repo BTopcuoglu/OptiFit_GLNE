@@ -11,6 +11,5 @@ export NUM=2003650
 # We are now ready to use OptiFit to fit left out sample to the rest.
 
 mothur "#cluster.fit(fasta="${WORKDIR}"/sample."${NUM}".fasta, column="${WORKDIR}"/sample."${NUM}".dist, count="${WORKDIR}"/sample."${NUM}".count_table, reffasta="${WORKDIR}"/without."${NUM}".fasta, refcolumn="${WORKDIR}"/without."${NUM}".dist, reflist="${WORKDIR}"/without.opti_mcc."${NUM}".list, method=closed);
-cluster(column=current, count=current);
 make.shared(list=current, count=current, label=0.03);
 sub.sample(shared=current, label=0.03)"
