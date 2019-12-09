@@ -57,8 +57,8 @@ echo PROGRESS: Cleaning up working directory.
 
 cp "${OUTDIR}"/glne007.contigs.good.groups "${FINAL}"/full.groups
 
-cp "${OUTDIR}"/data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.fasta "${FINAL}"/full.fasta
+cp "${OUTDIR}"/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.fasta "${FINAL}"/full.fasta
 
-cp "${OUTDIR}"/data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.count_table "${FINAL}"/full.count_table
+cp "${OUTDIR}"/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.count_table "${FINAL}"/full.count_table
 
-cp "${OUTDIR}"/data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pds.wang.pick.pick.taxonomy "${FINAL}"/full.taxonomy
+cp "${OUTDIR}"/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pds.wang.pick.pick.taxonomy "${FINAL}"/full.taxonomy
