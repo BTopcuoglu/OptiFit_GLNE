@@ -5,7 +5,7 @@
 # University of Michigan
 
 
-export WORKDIR=data/process/
+export WORKDIR=data/process
 export NUM=2003650
 
 # We are now ready to use OptiFit to fit left out sample to the rest.
