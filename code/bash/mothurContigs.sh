@@ -17,8 +17,8 @@
 
 # Other variables
 export SILVAV4=data/mothur/references/silva.v4.align
-export RDPFASTA=data/mothur/references/trainset16_022016.pds.fasta
-export RDPTAX=data/mothur/references/trainset16_022016.pds.tax
+export RDPFASTA=data/mothur/references/trainset14_032015.pds.fasta
+export RDPTAX=data/mothur/references/trainset14_032015.pds.tax
 export OUTDIR=data/process/baxter/intermediate
 export FINAL=data/process/baxter/final
 
