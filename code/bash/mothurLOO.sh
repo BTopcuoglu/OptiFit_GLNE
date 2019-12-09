@@ -89,4 +89,4 @@ mv data/process/baxter/final/full.pick.opti_mcc.sensspec "${OUTDIR}"/without.opt
 
 mv data/process/baxter/final/full.pick.opti_mcc.shared "${OUTDIR}"/without.opti_mcc."${NUM}".shared
 
-mv data/process/baxter/final/full.pick.opti_mcc.0.03.subwithout.shared "${OUTDIR}"/without.opti_mcc.0.03."${NUM}".subsample.shared
+mv data/process/baxter/final/full.pick.opti_mcc.0.03.subsample.shared "${OUTDIR}"/without.opti_mcc.0.03."${NUM}".subsample.shared
