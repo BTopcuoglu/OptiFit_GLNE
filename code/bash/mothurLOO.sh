@@ -58,4 +58,4 @@ dist.seqs(fasta=current, cutoff=0.03);
 cluster(column=current, count=current);
 make.shared(list=current, count=current, label=0.03);
 sub.sample(shared=current, label=0.03);
-cluster.fit(fasta="${WORKDIR}"/sample."${NUM}".fasta, column="${WORKDIR}"/sample."${NUM}".dist, count="${WORKDIR}"/sample."${NUM}".dist, reffasta=current, refcolumn=current, reflist=current, method=closed)"
+cluster.fit(fasta="${WORKDIR}"/sample."${NUM}".fasta, column="${WORKDIR}"/sample."${NUM}".dist, count="${WORKDIR}"/sample."${NUM}".count_table, reffasta=current, refcolumn=current, reflist=current, method=closed)"
