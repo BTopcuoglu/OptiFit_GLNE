@@ -45,6 +45,7 @@ mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/sample."${NUM}".taxo
 
 mv data/process/baxter/final/full.pick.dist "${OUTDIR}"/sample."${NUM}".dist
 
+
 ########################################################
 # Generate shared file for all samples but the one #
 ########################################################
@@ -57,5 +58,22 @@ mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}
 dist.seqs(fasta=current, cutoff=0.03);
 cluster(column=current, count=current);
 make.shared(list=current, count=current, label=0.03);
-sub.sample(shared=current, label=0.03);
-cluster.fit(fasta="${WORKDIR}"/sample."${NUM}".fasta, column="${WORKDIR}"/sample."${NUM}".dist, count="${WORKDIR}"/sample."${NUM}".count_table, reffasta=current, refcolumn=current, reflist=current, method=closed)"
+sub.sample(shared=current, label=0.03)"
+
+mv data/process/baxter/final/full.pick.fasta "${OUTDIR}"/without."${NUM}".fasta
+
+mv data/process/baxter/final/full.pick.count_table "${OUTDIR}"/without."${NUM}".count_table
+
+mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/without."${NUM}".taxonomy
+
+mv data/process/baxter/final/full.pick.dist "${OUTDIR}"/without."${NUM}".dist
+
+mv data/process/baxter/final/full.pick.opti_mcc.list "${OUTDIR}"/without.opti_mcc."${NUM}".list
+
+mv data/process/baxter/final/full.pick.opti_mcc.steps "${OUTDIR}"/without.opti_mcc."${NUM}".steps
+
+mv data/process/baxter/final/full.pick.opti_mcc.sensspec "${OUTDIR}"/without.opti_mcc."${NUM}".sensspec
+
+mv data/process/baxter/final/full.pick.opti_mcc.shared "${OUTDIR}"/without.opti_mcc."${NUM}".shared
+
+mv data/process/baxter/final/full.pick.opti_mcc.0.03.subsample.shared "${OUTDIR}"/without.opti_mcc.0.03."${NUM}".subsample.shared
