@@ -9,11 +9,11 @@
 ##################
 
 # Set the variables to be used in this script
-export GROUPS=${1:?ERROR: Need to define GROUPS.}
-export FASTA=${2:?ERROR: Need to define FASTA.}
-export COUNT=${3:?ERROR: Need to define COUNT.}
-export TAXONOMY=${4:?ERROR: Need to define TAXONOMY.}
-export NUM=${5:?ERROR: Need to define NUM.}
+#export GROUPS=${1:?ERROR: Need to define GROUPS.}
+#export FASTA=${2:?ERROR: Need to define FASTA.}
+#export COUNT=${3:?ERROR: Need to define COUNT.}
+#export TAXONOMY=${4:?ERROR: Need to define TAXONOMY.}
+#export NUM=${5:?ERROR: Need to define NUM.}
 
 # Other variables
 export WORKDIR=data/process/baxter/final
