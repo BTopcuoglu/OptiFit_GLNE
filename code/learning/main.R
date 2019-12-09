@@ -70,11 +70,11 @@ sample_num <- as.numeric(input[4])
 #           (Cancer here means: SRN)
 #           (SRNs are advanced adenomas+carcinomas)
 
-shared <- read.delim('data/process/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.0.03.subsample.shared', header=T, sep='\t') %>%
+shared <- read.delim('data/process/without.opti_mcc.0.03.2003650.subsample.shared', header=T, sep='\t') %>%
   select(-label, -numOtus)
 
 # Read in OTU table and remove label and numOtus columns
-shared_one_out <- read.delim('data/process/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.sample.optifit_mcc.shared', header=T, sep='\t') %>%
+shared_one_out <- read.delim('data/process/sample.2003650.optifit_mcc.0.03.subsample.shared', header=T, sep='\t') %>%
   select(-label, -numOtus)
 
 colnames(shared_one_out) <- str_replace_all(colnames(shared_one_out), "Ref_", "")
