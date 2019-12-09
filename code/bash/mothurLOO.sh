@@ -44,7 +44,7 @@ mv data/process/baxter/final/full.pick.fasta "${OUTDIR}"/sample."${NUM}".fasta
 
 mv data/process/baxter/final/full.pick.count_table "${OUTDIR}"/sample."${NUM}".count_table
 
-mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/sample."${NUM}".taonomy
+mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/sample."${NUM}".taxonomy
 
 mv data/process/baxter/final/full.pick.dist "${OUTDIR}"/sample."${NUM}".dist
 
@@ -77,7 +77,7 @@ mv data/process/baxter/final/full.pick.fasta "${OUTDIR}"/without."${NUM}".fasta
 
 mv data/process/baxter/final/full.pick.count_table "${OUTDIR}"/without."${NUM}".count_table
 
-mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/without."${NUM}".taonomy
+mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/without."${NUM}".taxonomy
 
 mv data/process/baxter/final/full.pick.dist "${OUTDIR}"/without."${NUM}".dist
 
