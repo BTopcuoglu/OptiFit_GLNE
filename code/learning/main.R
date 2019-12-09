@@ -57,9 +57,9 @@ source('code/learning/model_pipeline_deployed.R') # has pipeline function define
 #  - Fifth argument is the sample number we are predicting
 
 input <- commandArgs(trailingOnly=TRUE)
-model <- input[2]
-outcome <- input[3]
-sample_num <- as.numeric(input[4])
+model <- input[1]
+outcome <- input[2]
+sample_num <- as.numeric(input[3])
 
 
 
