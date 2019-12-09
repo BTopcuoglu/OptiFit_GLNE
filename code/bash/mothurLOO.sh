@@ -18,7 +18,11 @@ export NUM=${5:?ERROR: Need to define NUM.}
 # Other variables
 export WORKDIR=data/process/baxter/final
 export OUTDIR=data/process/
-
+export NUM=2003650
+export GROUP=data/process/baxter/final/full.groups
+export FASTA=data/process/baxter/final/full.fasta
+export COUNT=data/process/baxter/final/full.count_table
+export TAXONOMY=data/process/baxter/final/full.taxonomy
 ########################################################
 # Generate shared file for only one sample  #
 ########################################################
@@ -26,7 +30,7 @@ export OUTDIR=data/process/
 
 # Now let's extract fasta, taxonomy and count for the removed group and build subsampled shared for the removed sample.
 
-mothur "#get.groups(groups="${GROUPS}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${NUM}");
+mothur "#get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${NUM}");
 dist.seqs(fasta=current, cutoff=0.03);
 cluster(column=current, count=current);
 make.shared(list=current, count=current, label=0.03);
@@ -35,24 +39,24 @@ sub.sample(shared=current, label=0.03)"
 
 # Change the name of the files generated to represent that they only have 1 SAMPLE
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.dist data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick."${NUM}".dist
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.list data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.sample.list
+mv data/process/baxter/final/full.pick.fasta "${OUTDIR}"/sample."${NUM}".fasta
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.steps data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.sample.steps
+mv data/process/baxter/final/full.pick.count_table "${OUTDIR}"/sample."${NUM}".count_table
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.sensspec data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.sample.sensspec
+mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/sample."${NUM}".taonomy
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.shared data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.sample.shared
+mv data/process/baxter/final/full.pick.dist "${OUTDIR}"/sample."${NUM}".dist
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.0.03.subsample.shared data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.opti_mcc.0.03.subsample.sample.shared
+mv data/process/baxter/final/full.pick.opti_mcc.list "${OUTDIR}"/sample.opti_mcc."${NUM}".list
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pds.wang.pick.pick.pick.taxonomy data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pds.wang.pick.pick.pick.sample.taxonomy
+mv data/process/baxter/final/full.pick.opti_mcc.steps "${OUTDIR}"/sample.opti_mcc."${NUM}".steps
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.pick.count_table data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.pick.pick.sample.count_table
+mv data/process/baxter/final/full.pick.opti_mcc.sensspec "${OUTDIR}"/sample.opti_mcc."${NUM}".sensspec
 
-mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.fasta data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.pick.pick.sample.fasta
+mv data/process/baxter/final/full.pick.opti_mcc.shared "${OUTDIR}"/sample.opti_mcc."${NUM}".shared
 
+mv data/process/baxter/final/full.pick.opti_mcc.0.03.subsample.shared "${OUTDIR}"/sample.opti_mcc.0.03."${NUM}".subsample.shared
 
 
 ########################################################
@@ -63,34 +67,26 @@ mv data/process/baxter/glne007.trim.contigs.good.unique.good.filter.unique.precl
 
 # Now let's remove that 1 sample from rest of the samples by removing from original count, fasta and taxa files.
 
-mothur "#remove.groups(groups="${GROUPS}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${NUM}");
+mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${NUM}");
 dist.seqs(fasta=current, cutoff=0.03);
 cluster(column=current, count=current);
 make.shared(list=current, count=current, label=0.03);
 sub.sample(shared=current, label=0.03)"
 
+mv data/process/baxter/final/full.pick.fasta "${OUTDIR}"/without."${NUM}".fasta
 
+mv data/process/baxter/final/full.pick.count_table "${OUTDIR}"/without."${NUM}".count_table
 
+mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/without."${NUM}".taonomy
 
+mv data/process/baxter/final/full.pick.dist "${OUTDIR}"/without."${NUM}".dist
 
+mv data/process/baxter/final/full.pick.opti_mcc.list "${OUTDIR}"/without.opti_mcc."${NUM}".list
 
+mv data/process/baxter/final/full.pick.opti_mcc.steps "${OUTDIR}"/without.opti_mcc."${NUM}".steps
 
+mv data/process/baxter/final/full.pick.opti_mcc.sensspec "${OUTDIR}"/without.opti_mcc."${NUM}".sensspec
 
+mv data/process/baxter/final/full.pick.opti_mcc.shared "${OUTDIR}"/without.opti_mcc."${NUM}".shared
 
-
-###############
-# Cleaning Up #
-###############
-
-echo PROGRESS: Cleaning up working directory.
-
-# Making dir for storing intermediate files (can be deleted later)
-mkdir -p "${OUTDIR}"/intermediate/
-
-# Deleting unneccessary files
-rm "${OUTDIR}"/*filter.unique.precluster*fasta
-rm "${OUTDIR}"/*filter.unique.precluster*map
-rm "${OUTDIR}"/*filter.unique.precluster*count_table
-
-# Moving all remaining intermediate files to the intermediate dir
-mv "${OUTDIR}"/stability* "${OUTDIR}"/intermediate/
+mv data/process/baxter/final/full.pick.opti_mcc.0.03.subwithout.shared "${OUTDIR}"/without.opti_mcc.0.03."${NUM}".subsample.shared
