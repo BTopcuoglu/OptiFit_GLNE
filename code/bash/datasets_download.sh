@@ -7,6 +7,7 @@
 # for downstream processing
 
 DATA=data/mothur/raw/baxter
+OUTDIR=data/process/baxter
 
 
 # Start by cleanining up directory by removing pre-existing fastq files
