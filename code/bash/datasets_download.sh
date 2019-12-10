@@ -21,6 +21,8 @@ mkdir -p "${OUTDIR}"
 
 curl -o "${OUTDIR}"/glne007.files https://raw.githubusercontent.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015/master/data/glne007.files
 
+curl -o "${DATA}"/sra_info.tsv https://github.com/SchlossLab/Schloss_Singletons_XXXXX_2019/blob/master/data/human/sra_info.tsv
+
 ##########################
 # Extract sra files #
 ##########################
