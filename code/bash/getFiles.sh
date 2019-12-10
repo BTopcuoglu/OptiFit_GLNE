@@ -49,7 +49,7 @@ for sample in $SRRS
 do
   echo $sample
 	prefetch $sample
-    fastq-dump --split-files $sample -O "${OUTDIR}"
+    fasterq-dump --split-files $sample -O "${OUTDIR}"
 done
 
 
