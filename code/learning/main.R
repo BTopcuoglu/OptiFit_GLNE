@@ -138,13 +138,11 @@ prediction <- results[2]
 aucs <- matrix(results[[1]], ncol=1)
 # Convert to dataframe and add a column noting the model name
 aucs_dataframe <- data.frame(aucs) %>%
-  rename(cv_aucs=X1) %>%
+  rename_at(1, ~ "cv_auc") %>%
   write_csv(path = paste0("data/temp/cv_results_", sample_num, ".csv"))
 
-# Create a matrix with cv_aucs and test_aucs from 1 data split
-predictions <- matrix(results[2], ncol=2)
 # Convert to dataframe and add a column noting the model name
-aucs_dataframe <- data.frame(predictions) %>%
+aucs_dataframe <- data.frame(prediction) %>%
     write_csv(path = paste0("data/temp/prediction_results_", sample_num, ".csv"))
 
 ###################################################################
