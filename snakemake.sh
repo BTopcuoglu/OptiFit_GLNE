@@ -45,4 +45,8 @@ fi
 #                   #
 #####################
 
+bash code/bash/mothurContigs.sh
+
+bash code/bash/mothurLOO.sh
+
 bash code/bash/mothurOptiFit.sh
