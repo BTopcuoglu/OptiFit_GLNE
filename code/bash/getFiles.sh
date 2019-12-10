@@ -34,7 +34,7 @@ curl -o "${DATA}"/sra_info.tsv https://raw.githubusercontent.com/SchlossLab/Schl
 # for downstream processing
 
 # Start by cleanining up directory by removing pre-existing fastq files
-rm -f "${DATA}"/*fastq*
+rm -f "${OUTDIR}"/*fastq*
 
 
 # Need to get the column that contains the run file names that start wtih SRR (SRA) or ERR (ENA). The
