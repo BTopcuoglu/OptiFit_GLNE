@@ -142,7 +142,7 @@ aucs_dataframe <- data.frame(aucs) %>%
   write_csv(path = paste0("data/temp/cv_results_", sample_num, ".csv"))
 
 # Convert to dataframe and add a column noting the model name
-aucs_dataframe <- data.frame(prediction) %>%
+predictions_dataframe <- data.frame(prediction) %>%
     write_csv(path = paste0("data/temp/prediction_results_", sample_num, ".csv"))
 
 ###################################################################
