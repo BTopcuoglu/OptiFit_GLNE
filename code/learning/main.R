@@ -131,6 +131,4 @@ set.seed(1989)
   # OR pass as NA
 results <- pipeline(data, test, model, outcome)
 
-
-write.csv(walltime, file=paste0("data/temp/walltime_", model, "_", seed, ".csv"), row.names=F)
 ###################################################################
