@@ -131,4 +131,20 @@ set.seed(1989)
   # OR pass as NA
 results <- pipeline(data, test, model, outcome)
 
+cv_auc <- results[1]
+prediction <- results[2]
+
+# Create a matrix with cv_aucs and test_aucs from 1 data split
+aucs <- matrix(results[[1]], ncol=1)
+# Convert to dataframe and add a column noting the model name
+aucs_dataframe <- data.frame(aucs) %>%
+  rename(cv_aucs=X1) %>%
+  write_csv(path = paste0("data/temp/cv_results_", sample_num, ".csv"))
+
+# Create a matrix with cv_aucs and test_aucs from 1 data split
+predictions <- matrix(results[2], ncol=2)
+# Convert to dataframe and add a column noting the model name
+aucs_dataframe <- data.frame(predictions) %>%
+    write_csv(path = paste0("data/temp/prediction_results_", sample_num, ".csv"))
+
 ###################################################################
