@@ -29,15 +29,21 @@ mkdir -p "${OUTDIR}"
 
 curl -o "${OUTDIR}"/glne007.files https://raw.githubusercontent.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015/master/data/glne007.files
 
+curl -o "${WORKDIR}"/sra_info.tsv https://raw.githubusercontent.com/SchlossLab/Schloss_Singletons_XXXXX_2019/master/data/human/sra_info.tsv
+
 ##########################
 # Extract sra files #
 ##########################
 
+bash code/bash/datasets_download.sh
+
+
+
 # Convert to fasta files that will be used
-for sample in data/mothur/raw/baxter/*.sra
-do
-	fastq-dump --split-files $sample -O "${OUTDIR}"
-done
+#for sample in data/mothur/raw/baxter/*.sra
+#do
+	#fastq-dump --split-files $sample -O "${OUTDIR}"
+#done
 
 # Rename files file to reflect where fastq files are
-sed -ie 's/SRR/data\/process\/baxter\/SRR/g' data/process/baxter/glne007.files
+#sed -ie 's/SRR/data\/process\/baxter\/SRR/g' data/process/baxter/glne007.files

@@ -41,14 +41,14 @@ rule get16SReferences:
 
 ##################################################################
 #
-# Part 3: Generate Shared Files
+# Part 3: Generate Contigs for all the samples
 #
 ##################################################################
 
 # Generating master OTU shared file.
-rule make16SShared:
+rule makeContigs:
 	input:
-		script="code/bash/mothurShared.sh",
+		script="code/bash/mothurContigs.sh",
 		refs=rules.get16SReferences.output,
 		files_file="data/glne007.files"
 	output:
@@ -62,6 +62,13 @@ rule make16SShared:
 
 
 
+
+
+
+
+
+
+Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
 
 ##################################################################
 #
