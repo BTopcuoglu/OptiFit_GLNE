@@ -1,4 +1,4 @@
-
+logs/slurm/*
 data/mothur/raw/*
 data/temp/*
 .DS_Store
@@ -8,6 +8,8 @@ data/process/*fasta
 data/process/*count_table
 data/process/*taxonomy
 data/process/*list
+data/process/*sensspec
+data/process/*steps
 data/process/*dist
 data/mothur/*
 data/raw/*
@@ -15,11 +17,6 @@ data/references/*data/mothur/raw/*
 data/temp/*
 .DS_Store
 *Rproj*
-data/process/*fasta
-data/process/*count_table
-data/mothur/*
-data/raw/*
 data/references/*
 data/process/baxter/*
-
 .Rproj.user

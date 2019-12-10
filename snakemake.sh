@@ -14,9 +14,9 @@
 # For multithreading, increase cpus-per-task
 #SBATCH --nodes=1
 #SBATCH --ntasks-per-node=1
-#SBATCH --cpus-per-task=8
+#SBATCH --cpus-per-task=12
 #SBATCH --mem-per-cpu=8000mb
-#SBATCH --time=10:00:00
+#SBATCH --time=20:00:00
 
 # Account
 #SBATCH --account=pschloss
@@ -45,4 +45,4 @@ fi
 #                   #
 #####################
 
-bash code/bash/mothurContigs.sh
+bash code/bash/mothurOptiFit.sh
