@@ -24,6 +24,13 @@ numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
 #
 ##################################################################
 
+rule getSequences:
+	input:
+		scipt:"code/bash/getFiles.sh"
+	output:
+		?
+
+
 # Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
 # SILVA database for use as reference alignment.
 rule get16SReferences:
@@ -62,13 +69,20 @@ rule makeContigs:
 
 
 
+rule leaveOneOut:
+	input:
+		script:"code/bash/mothurLOO.sh"
 
 
 
+rule OptiFIt:
+	input:
+		script:"code/bash/mothurOptiFit.sh"
 
 
-
-Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
+rule Model:
+	input:
+		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
 
 ##################################################################
 #
