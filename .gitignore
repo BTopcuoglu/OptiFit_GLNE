@@ -6,6 +6,7 @@ data/temp/*
 data/process/*groups
 data/process/*fasta
 data/process/*count_table
+data/process/*taonomy
 data/process/*taxonomy
 data/process/*list
 data/process/*sensspec
