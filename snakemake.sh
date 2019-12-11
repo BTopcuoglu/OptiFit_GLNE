@@ -25,7 +25,6 @@
 # Logs
 #SBATCH --mail-user=begumtop@umich.edu
 #SBATCH --mail-type=BEGIN,END,FAIL
-#SBATCH --output=logs/slurm/%x-%j.out
 
 # Environment
 ##SBATCH --export=ALL
@@ -44,6 +43,9 @@ fi
 #  2) Job Commands  #
 #                   #
 #####################
+bash code/bash/getFiles.sh
+
+bash code/bash/mothurReferences.sh
 
 bash code/bash/mothurContigs.sh
 
