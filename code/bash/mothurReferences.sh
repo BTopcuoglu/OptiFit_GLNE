@@ -34,16 +34,11 @@ wget -N http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
 tar xvzf Silva.seed_v123.tgz silva.seed_v123.align silva.seed_v123.tax
 
 # Using mothur to pull out bacterial sequences and remove sequence gaps
-mothur "#get.lineage(fasta=silva.seed_v132.align, taxonomy=silva.seed_v132.tax, taxon=Bacteria);degap.seqs(fasta=silva.seed_v132.pick.align, processors=8)"
-
-# Renaming the output file and moving it from the tmp dir to the output dir
-mv silva.seed_v132.pick.align silva.seed.align
-
-# Using mothur to only keep sequences from the v4 region of the 16S rRNA DNA region
-mothur "#pcr.seqs(fasta=silva.seed.align, start=11894, end=25319, keepdots=F, processors=8)"
+mothur "#get.lineage(fasta=silva.seed_v132.align, taxonomy=silva.seed_v132.tax, taxon=Bacteria);degap.seqs(fasta=silva.seed_v132.pick.align, processors=8);
+pcr.seqs(fasta=silva.seed_v132.pick.align, start=11894, end=25319, keepdots=F, processors=8)"
 
 # Renaming the final v4 SILVA reference file
-mv silva.seed.pcr.align "${OUTDIR}"/silva.v4.align
+mv silva.seed_v123.pick.pcr.align "${OUTDIR}"/silva.v4.align
 
 rm Silva.seed_v123.tgz silva.seed_v123.align silva.seed_v123.tax
 
