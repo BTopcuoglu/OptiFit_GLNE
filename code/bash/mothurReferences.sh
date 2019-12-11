@@ -34,7 +34,7 @@ wget -N http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
 tar xvzf Silva.seed_v123.tgz silva.seed_v123.align silva.seed_v123.tax
 
 # Using mothur to pull out bacterial sequences and remove sequence gaps
-mothur "#get.lineage(fasta="${OUTDIR}"/tmp/silva.seed_v132.align, taxonomy="${OUTDIR}"/tmp/silva.seed_v132.tax, taxon=Bacteria);degap.seqs(fasta="${OUTDIR}"/tmp/silva.seed_v132.pick.align, processors=8)"
+mothur "#get.lineage(fasta=silva.seed_v132.align, taxonomy=silva.seed_v132.tax, taxon=Bacteria);degap.seqs(fasta=silva.seed_v132.pick.align, processors=8)"
 
 # Renaming the output file and moving it from the tmp dir to the output dir
 mv silva.seed_v132.pick.align "${OUTDIR}"/silva.seed.align
