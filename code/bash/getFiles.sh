@@ -54,7 +54,7 @@ done
 
 # Some SRR files only contain data for one sequence read. So there aren't problems down the road, we
 # want to  make sure all files hav both reads, remove those with only one read
-SINGLE_FILES=`ls $DATA/*fastq | cut -f 1 -d _ | sort | uniq -u | sed -E "s/$/*/"`
+SINGLE_FILES=`ls $OUTDIR/*fastq | cut -f 1 -d _ | sort | uniq -u | sed -E "s/$/*/"`
 
 if [ $SINGLE_FILES ]
 then
