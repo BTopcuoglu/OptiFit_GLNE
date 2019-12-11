@@ -31,6 +31,8 @@ echo PROGRESS: Creating contigs for all the samples
 
 # Making output dir
 mkdir -p "${OUTDIR}"
+mkdir -p "${FINAL}"
+
 
 mothur "#make.contigs(file=data/process/baxter/glne007.files, outputdir="${OUTDIR}");
 	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
