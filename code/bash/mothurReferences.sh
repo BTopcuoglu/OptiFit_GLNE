@@ -31,7 +31,7 @@ echo PROGRESS: Preparing SILVA database v4 sequence alignment files.
 wget -N -P "${OUTDIR}"/tmp/ http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
 
 # Decompressing the database
-tar xvzf "${OUTDIR}"/tmp/Silva.seed_v122.tgz -C "${OUTDIR}"/tmp/
+tar xvzf "${OUTDIR}"/tmp/Silva.seed_v123.tgz -C "${OUTDIR}"/tmp/
 
 # Using mothur to pull out bacterial sequences and remove sequence gaps
 mothur "#get.lineage(fasta="${OUTDIR}"/tmp/silva.seed_v123.align, taxonomy="${OUTDIR}"/tmp/silva.seed_v123.tax, taxon=Bacteria);degap.seqs(fasta="${OUTDIR}"/tmp/silva.seed_v123.pick.align, processors=8)"
