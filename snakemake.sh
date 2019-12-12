@@ -29,6 +29,9 @@
 # Environment
 ##SBATCH --export=ALL
 
+# Load modules R and Rtidyverse
+
+
 # List compute nodes allocated to the job
 if [[ $SLURM_JOB_NODELIST ]] ; then
 	echo "Running on"
@@ -36,7 +39,7 @@ if [[ $SLURM_JOB_NODELIST ]] ; then
 	echo -e "\n"
 fi
 
-
+mkdir data/temp
 
 #####################
 #                   #

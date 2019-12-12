@@ -80,6 +80,7 @@ rule OptiFIt:
 		script:"code/bash/mothurOptiFit.sh"
 
 
+# Load R and Rtidyverse modules
 rule Model:
 	input:
 		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
