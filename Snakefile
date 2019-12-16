@@ -1,7 +1,34 @@
 # Snakefile
 # Begum Topcuoglu
+# William L. Close
 # Schloss Lab
 # University of Michigan
+
+
+# Purpose: # Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit
+
+# # Path to config
+# configfile: "config/config.yaml"
+
+# Function for aggregating list of sample numbers.
+numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
+
+# Master rule for controlling workflow. Cleans up mothur log files when complete.
+rule all:
+	input:
+		"test.txt"
+	shell:
+		"""
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		"""
+
+
+
+
+
+
+
 
 ##################################################################
 #
@@ -9,7 +36,6 @@
 #
 ##################################################################
 
-# Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit
 
 # Rule to get glne007.files ans sra data from Neil
 
