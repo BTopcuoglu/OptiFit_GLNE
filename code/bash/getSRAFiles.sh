@@ -45,7 +45,7 @@ for sample in $SRRS
 do
 	echo $sample
 	prefetch $sample
-    fastq-dump --split-files -O "${OUTDIR}" --gzip $sample
+    fastq-dump --split-files -O "${OUTDIR}" $sample
 done
 
 # Some SRR files only contain data for one sequence read. So there aren't problems down the road, we
@@ -57,3 +57,6 @@ if [ -n $SINGLE_FILES ]
 then
 	rm $SINGLE_FILES
 fi
+
+# Cleaning up SRA temp directories
+find ./ -type d -maxdepth 1 -regex ".*/SRR.*" -exec rm -r {} \;
