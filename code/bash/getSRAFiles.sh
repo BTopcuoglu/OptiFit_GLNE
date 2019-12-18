@@ -45,7 +45,7 @@ for sample in $SRRS
 do
 	echo $sample
 	prefetch $sample
-    fastq-dump --split-files -O "${OUTDIR}" $sample
+    fastq-dump --split-files -O "${OUTDIR}" --gzip $sample
 done
 
 # Some SRR files only contain data for one sequence read. So there aren't problems down the road, we
