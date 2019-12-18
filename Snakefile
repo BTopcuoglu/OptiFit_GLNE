@@ -19,8 +19,9 @@ rule all:
 		"test.txt"
 	shell:
 		"""
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
+		echo done
+		# mkdir -p logs/mothur/
+		# mv mothur*logfile logs/mothur/
 		"""
 
 
@@ -66,7 +67,7 @@ checkpoint getSRASequences:
 def readNames(wildcards):
     checkpoint_output = checkpoints.getSRASequences.get(**wildcards).output.dir
     return expand("data/raw/{readName}.fastq.gz",
-    	bin=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
+    	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
 
 
 
@@ -97,10 +98,8 @@ rule makeContigs:
 		seqs=readNames
 	output:
 		"test.txt"
-	conda:
-		"envs/glne.yaml"
 	shell:
-		"echo test"
+		"echo {input.seqs}; touch test.txt"
 
 # # Generating master OTU shared file.
 # rule makeContigs:
