@@ -24,7 +24,7 @@ export OUTDIR=data/raw/
 # Making output dir
 mkdir -p "${OUTDIR}"
 
-# This script takes a file called sra_info.tsv, which is generated from hitting the "RunInfo Table"
+# This script takes a file called SraRunTable.txt, which is generated from hitting the "RunInfo Table"
 # button that can be found on the SRA page https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005.
 # The output will be a directory ($OUTDIR) full of paired fastq.gz files for downstream processing
 
