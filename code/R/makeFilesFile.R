@@ -5,7 +5,7 @@
 # University of Michigan
 
 # Purpose: Creates files file from SRA info for input into mothur.
-# Usage: Rscript makeFilesFile.R SRAINFO SRASEQS1 SRASEQS2 SRASEQS3 ... SRASEQSN
+# Usage: Rscript makeFilesFile.R SRATABLE SRASEQS1 SRASEQS2 SRASEQS3 ... SRASEQSN
 
 # Setting environment -----------------------------------------------------
 
@@ -13,12 +13,12 @@
 args <- commandArgs(trailingOnly = TRUE)
 
 # Variables defined by user
-sraInfo <- args[1] # SRA run metadata
+sraTable <- args[1] # SRA run metadata
 sraSeqs <- args[-1] # Sequence files
 
 # Checking if inputs are set
-if (!file.exists(sraInfo)) {
-  stop(paste(sraInfo, "does not exist."))
+if (!file.exists(sraTable)) {
+  stop(paste(sraTable, "does not exist."))
 } 
 
 
@@ -39,7 +39,8 @@ library(tidyverse)
 dir.create(outDir, recursive = TRUE, showWarnings=FALSE)
 
 # Reading in the SRA run metadata
-sra_info <- read_tsv(sraInfo, col_types = cols())
+sra_table <- read_csv(sraTable, col_types = cols()) %>% 
+  rename_all(str_replace, " ", "_")
 
 # Creating list sample names with paired files only
 paired_samples <- sraSeqs %>% 
@@ -47,7 +48,7 @@ paired_samples <- sraSeqs %>%
   unique()
 
 # Removing rows for samples with only one read file
-sra_paired <- sra_info %>% 
+sra_paired <- sra_table %>% 
   filter(Run %in% paired_samples)
 
 # Creating the mothur files file
