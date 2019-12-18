@@ -70,7 +70,7 @@ def readNames(wildcards):
     	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
 
 
-# Using SRA Run Selector RunInfo table to create mothur files file
+# Using SRA Run Selector RunInfo table to create mothur files file.
 rule makeMothurFilesFile:
 	input:
 		script="code/R/makeFilesFile.R",
@@ -108,11 +108,11 @@ rule get16SReferences:
 # Generating master OTU shared file.
 rule makeContigs:
 	input:
-		seqs=readNames
+		files=rules.makeMothurFilesFile.output.files
 	output:
 		"test.txt"
 	shell:
-		"echo {input.seqs}; touch test.txt"
+		"touch test.txt"
 
 # # Generating master OTU shared file.
 # rule makeContigs:
