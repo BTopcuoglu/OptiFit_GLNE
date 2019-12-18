@@ -54,13 +54,13 @@ numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
 checkpoint getSRASequences:
 	input:
 		script="code/bash/getSRAFiles.sh",
-		sraInfo="data/metadata/sra_info.tsv"
+		sra="data/metadata/SraRunTable.txt"
 	output:
 		dir=directory("data/raw") # Setting output as directory because output files are unknown (samples with 1 read file are removed)
 	conda:
 		"envs/sra_tools.yaml"
 	shell:
-		"bash {input.script} {input.sraInfo}"
+		"bash {input.script} {input.sra}"
 
 
 # Defining a function that pulls the names of all the SRA sequences from getSRASequences after the checkpoint finishes.
@@ -69,6 +69,19 @@ def readNames(wildcards):
     return expand("data/raw/{readName}.fastq.gz",
     	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
 
+
+# Using SRA Run Selector RunInfo table to create mothur files file
+rule makeMothurFilesFile:
+	input:
+		script="code/R/makeFilesFile.R",
+		sra="data/metadata/SraRunTable.txt",
+		seqs=readNames
+	output:
+		files="data/process/glne.files"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.sra} {input.seqs}"
 
 
 # Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
