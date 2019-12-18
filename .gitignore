@@ -21,3 +21,4 @@ data/temp/*
 data/references/*
 data/process/baxter/*
 .Rproj.user
+.snakemake/*
