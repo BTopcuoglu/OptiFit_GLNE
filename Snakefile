@@ -50,11 +50,16 @@ numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
 #
 ##################################################################
 
-rule getSequences:
+checkpoint getSRASequences:
 	input:
-		scipt:"code/bash/getFiles.sh"
+		scipt="code/bash/getSRAFiles.sh",
+		sraInfo="data/metadata/sra_info.tsv"
 	output:
 		?
+	conda:
+		"envs/sra_tools.yaml"
+	shell:
+		"bash {input.script} {input.sraInfo}"
 
 
 # Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
