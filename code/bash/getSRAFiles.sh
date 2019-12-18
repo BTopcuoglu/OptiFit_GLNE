@@ -36,16 +36,16 @@ rm -f "${OUTDIR}"/*fastq*
 # Need to get the column that contains the run file names that start wtih SRR (SRA) or ERR (ENA). The
 # column position is not consistent across datasets, so need to remove column header and use sed to
 # isolate column
-SRRS=$(tail -n +2 "${SRAINFO}" | sed -E "s/.*(.RR\S*)\t.*/\1/")
+SRRS=$(tail -n +2 "${SRAINFO}" | sed 's:.*\(SRR[0-9]*\).*:\1:')
 
 
 # Loop through each run file and pull it down from the SRA. After downloaded, we want to split it into
 # the R1 and R2 files. Finaly, we'll compress the files with gzip
 for sample in $SRRS
 do
-  echo $sample
+	echo $sample
 	prefetch $sample
-    fasterq-dump --split-files $sample -O "${OUTDIR}"
+    fastq-dump --split-files -O "${OUTDIR}" --gzip $sample
 done
 
 # Some SRR files only contain data for one sequence read. So there aren't problems down the road, we
