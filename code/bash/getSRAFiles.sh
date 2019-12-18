@@ -50,7 +50,7 @@ done
 
 # Some SRR files only contain data for one sequence read. So there aren't problems down the road, we
 # want to  make sure all files hav both reads, remove those with only one read
-SINGLE_FILES=$(ls "${OUTDIR}"/*fastq | cut -f 1 -d _ | sort | uniq -u | sed -E "s/$/*/")
+SINGLE_FILES=$(find "${OUTDIR}" -name "*fastq.gz" | cut -f 1 -d _ | sort | uniq -u)
 
 # If $SINGLE_FILES is set (not empty or ""), remove those files
 if [ -n $SINGLE_FILES ]
