@@ -47,6 +47,11 @@ paired_samples <- sraSeqs %>%
   str_extract("SRR\\d+") %>% 
   unique()
 
+# Pulling raw data dir location
+raw_dir <- sraSeqs %>% 
+  str_extract("^.*/") %>% 
+  unique()
+
 # Removing rows for samples with only one read file
 sra_paired <- sra_table %>% 
   filter(Run %in% paired_samples)
@@ -54,8 +59,8 @@ sra_paired <- sra_table %>%
 # Creating the mothur files file
 glne_files <- tibble(group = sra_paired$Sample_Name, # Sample name
                      run = sra_paired$Run) %>% # Sample run identifier
-  mutate(forward = paste0(run, "_1.fastq.gz"), # Reconstructing name of forward seq file
-         reverse = paste0(run, "_2.fastq.gz")) %>% # Reconstructing name of reverse seq file
+  mutate(forward = paste0(raw_dir, run, "_1.fastq.gz"), # Reconstructing name of forward seq file
+         reverse = paste0(raw_dir, run, "_2.fastq.gz")) %>% # Reconstructing name of reverse seq file
   select(-run) # Dropping unneeded col
 
 
