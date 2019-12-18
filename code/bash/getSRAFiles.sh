@@ -13,7 +13,7 @@
 export SRAINFO=${1:?ERROR: Need to define SRAINFO.}
 
 # Other variables
-export OUTDIR=data/raw/baxter
+export OUTDIR=data/raw/
 
 
 
@@ -52,8 +52,8 @@ done
 # want to  make sure all files hav both reads, remove those with only one read
 SINGLE_FILES=$(ls "${OUTDIR}"/*fastq | cut -f 1 -d _ | sort | uniq -u | sed -E "s/$/*/")
 
-if [ $SINGLE_FILES ]
+# If $SINGLE_FILES is set (not empty or ""), remove those files
+if [ -n $SINGLE_FILES ]
 then
 	rm $SINGLE_FILES
 fi
-
