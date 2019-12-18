@@ -4,14 +4,13 @@
 # Schloss Lab
 # University of Michigan
 
-
 # Purpose: # Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit
 
 # # Path to config
 # configfile: "config/config.yaml"
 
-# Function for aggregating list of sample numbers.
-numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
+# # Function for aggregating list of sample numbers.
+# numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
@@ -28,29 +27,13 @@ rule all:
 
 
 
-
-
-
 ##################################################################
 #
-# Part 1: Grab data and generate sample files
+# Part 1: Download Data
 #
 ##################################################################
 
-
-# Rule to get glne007.files ans sra data from Neil
-
-# Rule to generate sample_names.txt file from glne007.files file
-# awk '{print $1}' data/glne007.files >> "data/sample_names.txt"
-
-numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
-
-##################################################################
-#
-# Part 2: Generate Reference and Mock Control Files
-#
-##################################################################
-
+# Download 16S SRA sequences from SRP062005.
 checkpoint getSRASequences:
 	input:
 		script="code/bash/getSRAFiles.sh",
@@ -70,19 +53,14 @@ def readNames(wildcards):
     	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
 
 
-# Using SRA Run Selector RunInfo table to create mothur files file.
-rule makeMothurFilesFile:
-	input:
-		script="code/R/makeFilesFile.R",
-		sra="data/metadata/SraRunTable.txt",
-		seqs=readNames
-	output:
-		files="data/process/glne.files"
-	conda:
-		"envs/r.yaml"
-	shell:
-		"Rscript {input.script} {input.sra} {input.seqs}"
 
+
+
+##################################################################
+#
+# Part 2: Generate Reference Files
+#
+##################################################################
 
 # Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
 # SILVA database for use as reference alignment.
@@ -99,11 +77,27 @@ rule get16SReferences:
 		"bash {input.script}"
 
 
+
+
+
 ##################################################################
 #
 # Part 3: Generate Contigs for all the samples
 #
 ##################################################################
+
+# Using SRA Run Selector RunInfo table to create mothur files file.
+rule makeMothurFilesFile:
+	input:
+		script="code/R/makeFilesFile.R",
+		sra="data/metadata/SraRunTable.txt",
+		seqs=readNames
+	output:
+		files="data/process/glne.files"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.sra} {input.seqs}"
 
 # Generating master OTU shared file.
 rule makeContigs:
