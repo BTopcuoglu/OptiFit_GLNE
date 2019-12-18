@@ -1,5 +1,5 @@
 #! /bin/bash
-# getFiles.sh
+# getSRAFiles.sh
 # Begum Topcuoglu
 # William L. Close
 # Schloss Lab
