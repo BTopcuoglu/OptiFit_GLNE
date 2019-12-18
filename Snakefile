@@ -19,8 +19,9 @@ rule all:
 		"test.txt"
 	shell:
 		"""
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
+		echo done
+		# mkdir -p logs/mothur/
+		# mv mothur*logfile logs/mothur/
 		"""
 
 
@@ -50,11 +51,24 @@ numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
 #
 ##################################################################
 
-rule getSequences:
+checkpoint getSRASequences:
 	input:
-		scipt:"code/bash/getFiles.sh"
+		script="code/bash/getSRAFiles.sh",
+		sraInfo="data/metadata/sra_info.tsv"
 	output:
-		?
+		dir=directory("data/raw") # Setting output as directory because output files are unknown (samples with 1 read file are removed)
+	conda:
+		"envs/sra_tools.yaml"
+	shell:
+		"bash {input.script} {input.sraInfo}"
+
+
+# Defining a function that pulls the names of all the SRA sequences from getSRASequences after the checkpoint finishes.
+def readNames(wildcards):
+    checkpoint_output = checkpoints.getSRASequences.get(**wildcards).output.dir
+    return expand("data/raw/{readName}.fastq.gz",
+    	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
+
 
 
 # Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
@@ -81,46 +95,56 @@ rule get16SReferences:
 # Generating master OTU shared file.
 rule makeContigs:
 	input:
-		script="code/bash/mothurContigs.sh",
-		refs=rules.get16SReferences.output,
-		files_file="data/glne007.files"
+		seqs=readNames
 	output:
-	#You'll want these to be the names of the output files for the files used for leave one out
-		sample_shared=expand("data/process/{num}.sample.shared", num=numSamples),
-		all_shared=expand("data/process/all_but_{num}.subsampled.shared", num=numSamples)
-	conda:
-		"envs/glne.yaml"
+		"test.txt"
 	shell:
-		"bash {input.script} data/process/baxter/ {input.files_file} {input.refs}"
+		"echo {input.seqs}; touch test.txt"
+
+# # Generating master OTU shared file.
+# rule makeContigs:
+# 	input:
+# 		script="code/bash/mothurContigs.sh",
+# 		refs=rules.get16SReferences.output,
+# 		files_file="data/glne007.files",
+# 		seqs=readNames
+# 	output:
+# 	#You'll want these to be the names of the output files for the files used for leave one out
+# 		sample_shared=expand("data/process/{num}.sample.shared", num=numSamples),
+# 		all_shared=expand("data/process/all_but_{num}.subsampled.shared", num=numSamples)
+# 	conda:
+# 		"envs/glne.yaml"
+# 	shell:
+# 		"bash {input.script} data/process/baxter/ {input.files_file} {input.refs}"
 
 
 
-rule leaveOneOut:
-	input:
-		script:"code/bash/mothurLOO.sh"
+# rule leaveOneOut:
+# 	input:
+# 		script:"code/bash/mothurLOO.sh"
 
 
 
-rule OptiFIt:
-	input:
-		script:"code/bash/mothurOptiFit.sh"
+# rule OptiFIt:
+# 	input:
+# 		script:"code/bash/mothurOptiFit.sh"
 
 
-# Load R and Rtidyverse modules
-rule Model:
-	input:
-		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
+# # Load R and Rtidyverse modules
+# rule Model:
+# 	input:
+# 		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
 
-##################################################################
-#
-# Part 6: Cleaning
-#
-##################################################################
+# ##################################################################
+# #
+# # Part 6: Cleaning
+# #
+# ##################################################################
 
-# Resets directory by deleting all files created by this workflow.
-rule clean:
-	shell:
-		"""
-		echo PROGRESS: Removing all workflow output.
-		rm -rf data/references/ data/process/
-		"""
+# # Resets directory by deleting all files created by this workflow.
+# rule clean:
+# 	shell:
+# 		"""
+# 		echo PROGRESS: Removing all workflow output.
+# 		rm -rf data/references/ data/process/
+# 		"""

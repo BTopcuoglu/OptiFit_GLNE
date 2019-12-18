@@ -24,13 +24,9 @@ export OUTDIR=data/raw/
 # Making output dir
 mkdir -p "${OUTDIR}"
 
-# The input should be something like data/marine. This script takes a file called
-# sra_info.tsv, which is generated from hitting the "RunInfo Table" button that can be found
-# on the SRA page https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005. The output will 
-# be a directory ($OUTDIR) full of paired fastq.gz files for downstream processing
-
-# Start by cleanining up directory by removing pre-existing fastq files
-rm -f "${OUTDIR}"/*fastq*
+# This script takes a file called SraRunTable.txt, which is generated from hitting the "RunInfo Table"
+# button that can be found on the SRA page https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005.
+# The output will be a directory ($OUTDIR) full of paired fastq.gz files for downstream processing
 
 
 # Need to get the column that contains the run file names that start wtih SRR (SRA) or ERR (ENA). The
@@ -40,13 +36,14 @@ SRRS=$(tail -n +2 "${SRAINFO}" | sed 's:.*\(SRR[0-9]*\).*:\1:')
 
 
 # Loop through each run file and pull it down from the SRA. After downloaded, we want to split it into
-# the R1 and R2 files. Finaly, we'll compress the files with gzip
+# the R1 and R2 files. Finally, we'll compress the files with gzip
 for sample in $SRRS
 do
 	echo $sample
 	prefetch $sample
     fastq-dump --split-files -O "${OUTDIR}" --gzip $sample
 done
+
 
 # Some SRR files only contain data for one sequence read. So there aren't problems down the road, we
 # want to  make sure all files hav both reads, remove those with only one read
