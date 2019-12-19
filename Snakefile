@@ -4,20 +4,22 @@
 # Schloss Lab
 # University of Michigan
 
-# Purpose: # Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit
+# Purpose: Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit and diagnosis prediction
 
-# # Path to config
-# configfile: "config/config.yaml"
 
-# # Function for aggregating list of sample numbers.
-# numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
+# NOTE: This will work for now but will need to create function to pull sample names from files file
+# Can use input function similar to readNames below to populate 'expand()' when aggregating data to run model
+# Function for creating list of sample names.
+import pandas as pd
+sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist()
+
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
 		# "test.txt",
 		expand("data/process/loo/{sample}/{sample}.in.fasta",
-			sample = 2003650)
+			sample = sampleNames)
 	shell:
 		"""
 		mkdir -p logs/mothur/
