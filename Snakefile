@@ -68,11 +68,11 @@ rule get16SReferences:
 	input:
 		script="code/bash/mothurReferences.sh"
 	output:
-		silvaV4="data/mothur/references/silva.v4.align",
-		rdpFasta="data/mothur/references/trainset14_032015.pds.fasta",
-		rdpTax="data/mothur/references/trainset14_032015.pds.tax"
+		silvaV4="data/references/silva.v4.align",
+		rdpFasta="data/references/trainset14_032015.pds.fasta",
+		rdpTax="data/references/trainset14_032015.pds.tax"
 	conda:
-		"envs/glne.yaml"
+		"envs/mothur.yaml"
 	shell:
 		"bash {input.script}"
 
@@ -82,12 +82,12 @@ rule get16SReferences:
 
 ##################################################################
 #
-# Part 3: Generate Contigs for all the samples
+# Part 3: Running Mothur
 #
 ##################################################################
 
 # Using SRA Run Selector RunInfo table to create mothur files file.
-rule makeMothurFilesFile:
+rule makeFilesFile:
 	input:
 		script="code/R/makeFilesFile.R",
 		sra="data/metadata/SraRunTable.txt",
@@ -99,10 +99,13 @@ rule makeMothurFilesFile:
 	shell:
 		"Rscript {input.script} {input.sra} {input.seqs}"
 
+
 # Generating master OTU shared file.
 rule makeContigs:
 	input:
-		files=rules.makeMothurFilesFile.output.files
+		script="code/bash/mothurContigs.sh",
+		files=rules.makeFilesFile.output.files,
+		refs=rules.get16SReferences.output
 	output:
 		"test.txt"
 	shell:
@@ -137,14 +140,27 @@ rule makeContigs:
 # 		script:"code/bash/mothurOptiFit.sh"
 
 
+
+
+
+##################################################################
+#
+# Part 4: Running ML Model
+#
+##################################################################
+
 # # Load R and Rtidyverse modules
 # rule Model:
 # 	input:
 # 		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
 
+
+
+
+
 # ##################################################################
 # #
-# # Part 6: Cleaning
+# # Part 5: Cleaning
 # #
 # ##################################################################
 
