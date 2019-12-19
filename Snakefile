@@ -18,9 +18,8 @@ rule all:
 		"data/process/precluster/glne.precluster.taxonomy"
 	shell:
 		"""
-		echo done
-		# mkdir -p logs/mothur/
-		# mv mothur*logfile logs/mothur/
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
 		"""
 
 
@@ -100,8 +99,8 @@ rule makeFilesFile:
 		"Rscript {input.script} {input.sra} {input.seqs}"
 
 
-# Generating master OTU shared file.
-rule makeContigs:
+# Preclustering and preparing sequences for leave one out analysis.
+rule preclusterSequences:
 	input:
 		script="code/bash/mothurPrecluster.sh",
 		files=rules.makeFilesFile.output.files,
@@ -116,27 +115,12 @@ rule makeContigs:
 	shell:
 		"bash {input.script} {input.files} {input.refs}"
 
-# # Generating master OTU shared file.
-# rule makeContigs:
-# 	input:
-# 		script="code/bash/mothurContigs.sh",
-# 		refs=rules.get16SReferences.output,
-# 		files_file="data/glne007.files",
-# 		seqs=readNames
-# 	output:
-# 	#You'll want these to be the names of the output files for the files used for leave one out
-# 		sample_shared=expand("data/process/{num}.sample.shared", num=numSamples),
-# 		all_shared=expand("data/process/all_but_{num}.subsampled.shared", num=numSamples)
-# 	conda:
-# 		"envs/glne.yaml"
-# 	shell:
-# 		"bash {input.script} data/process/baxter/ {input.files_file} {input.refs}"
 
-
-
-# rule leaveOneOut:
-# 	input:
-# 		script:"code/bash/mothurLOO.sh"
+# Removing one sample at a time and generating shared files separately for that sample and the
+# remaining data.
+rule leaveOneOut:
+	input:
+		script:"code/bash/mothurLOO.sh"
 
 
 
