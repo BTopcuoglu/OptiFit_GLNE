@@ -3,5 +3,5 @@ channels:
   - conda-forge
   - bioconda
 dependencies:
-  - mothur=1.42.3
-  - snakemake
+  - snakemake-minimal=5.7.1
+  - pandas=0.25.3
