@@ -9,19 +9,15 @@
 # Set Script Env #
 ##################
 
-Set the variables to be used in this script
-export SAMPLEDIR=${1:?ERROR: Need to define SAMPLEDIR.}
-export FILESFILE=${2:?ERROR: Need to define FILESFILE.}
-export SILVAV4=${3:?ERROR: Need to define SILVAV4.}
-export RDPFASTA=${4:?ERROR: Need to define RDPFASTA.}
-export RDPTAX=${5:?ERROR: Need to define RDPTAX.}
+# Set the variables to be used in this script
+export FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups and sequence files
+export SILVAV4=${2:?ERROR: Need to define SILVAV4.}
+export RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
+export RDPTAX=${4:?ERROR: Need to define RDPTAX.}
 
 # Other variables
-export SILVAV4=data/mothur/references/silva.v4.align
-export RDPFASTA=data/mothur/references/trainset14_032015.pds.fasta
-export RDPTAX=data/mothur/references/trainset14_032015.pds.tax
-export OUTDIR=data/process/baxter/intermediate
-export FINAL=data/process/baxter/final
+export OUTDIR=data/process/
+
 
 
 ###################
@@ -32,10 +28,8 @@ echo PROGRESS: Creating contigs for all the samples
 
 # Making output dir
 mkdir -p "${OUTDIR}"
-mkdir -p "${FINAL}"
 
-
-mothur "#make.contigs(file=data/process/baxter/glne007.files, outputdir="${OUTDIR}");
+mothur "#make.contigs(file="${FILESFILE}", outputdir="${OUTDIR}");
 	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
 	unique.seqs(fasta=current);
 	count.seqs(name=current, group=current);
@@ -48,6 +42,8 @@ mothur "#make.contigs(file=data/process/baxter/glne007.files, outputdir="${OUTDI
 	remove.seqs(fasta=current, accnos=current);
 	classify.seqs(fasta=current, count=current, reference="${RDPFASTA}", taxonomy="${RDPTAX}", cutoff=80);
 	remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)"
+
+
 
 ###############
 # Cleaning Up #
