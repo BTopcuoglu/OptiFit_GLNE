@@ -15,7 +15,7 @@
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"test.txt"
+		"data/process/precluster/glne.precluster.taxonomy"
 	shell:
 		"""
 		echo done
@@ -107,11 +107,14 @@ rule makeContigs:
 		files=rules.makeFilesFile.output.files,
 		refs=rules.get16SReferences.output
 	output:
-		"test.txt"
+		groups="data/process/precluster/glne.precluster.groups",
+		fasta="data/process/precluster/glne.precluster.fasta",
+		count="data/process/precluster/glne.precluster.count_table",
+		tax="data/process/precluster/glne.precluster.taxonomy"
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.files} {input.refs}; touch test.txt"
+		"bash {input.script} {input.files} {input.refs}"
 
 # # Generating master OTU shared file.
 # rule makeContigs:
