@@ -17,9 +17,9 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		# "test.txt",
-		expand("data/process/loo/{sample}/{sample}.in.fasta",
-			sample = sampleNames)
+		"test.txt",
+		# expand("data/process/loo/{sample}/{sample}.in.fasta",
+		# 	sample = sampleNames)
 	shell:
 		"""
 		mkdir -p logs/mothur/
@@ -141,10 +141,18 @@ rule leaveOneOut:
 
 
 
-# rule OptiFIt:
-# 	input:
-# 		script:"code/bash/mothurOptiFit.sh"
-
+rule clusterOptiFit:
+	input:
+		script="code/bash/mothurOptiFit.sh",
+		loo=expand(rules.leaveOneOut.output,
+			sample = 2003650)
+		# loo=rules.leaveOneOut.output
+	output:
+		"test.txt"
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.loo}"
 
 
 
