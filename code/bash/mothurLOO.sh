@@ -1,6 +1,7 @@
 #! /bin/bash
 # mothurLOO.sh
 # Begum Topcuoglu
+# William L. Close
 # Schloss Lab
 # University of Michigan
 
@@ -9,20 +10,24 @@
 ##################
 
 # Set the variables to be used in this script
-#export GROUPS=${1:?ERROR: Need to define GROUPS.}
-#export FASTA=${2:?ERROR: Need to define FASTA.}
-#export COUNT=${3:?ERROR: Need to define COUNT.}
-#export TAXONOMY=${4:?ERROR: Need to define TAXONOMY.}
-#export NUM=${5:?ERROR: Need to define NUM.}
+export GROUPS=${1:?ERROR: Need to define GROUPS.}
+export FASTA=${2:?ERROR: Need to define FASTA.}
+export COUNT=${3:?ERROR: Need to define COUNT.}
+export TAXONOMY=${4:?ERROR: Need to define TAXONOMY.}
+export SAMPLE=${5:?ERROR: Need to define SAMPLE.}
 
 # Other variables
-export WORKDIR=data/process/baxter/final
-export OUTDIR=data/process/
-export NUM=2003650
-export GROUP=data/process/baxter/final/full.groups
-export FASTA=data/process/baxter/final/full.fasta
-export COUNT=data/process/baxter/final/full.count_table
-export TAXONOMY=data/process/baxter/final/full.taxonomy
+export OUTDIR=data/process/loo/
+export TMP="${OUTDIR}"/tmp_$(date +%s)/ # Tmp dir based on date in seconds (should keep samples separate when parallelizing)
+
+# export NUM=2003650
+# export GROUP=data/process/baxter/final/full.groups
+# export FASTA=data/process/baxter/final/full.fasta
+# export COUNT=data/process/baxter/final/full.count_table
+# export TAXONOMY=data/process/baxter/final/full.taxonomy
+
+
+
 ########################################################
 # Generate shared file for only one sample  #
 ########################################################
