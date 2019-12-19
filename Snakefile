@@ -15,7 +15,9 @@
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"data/process/precluster/glne.precluster.taxonomy"
+		"test.txt",
+		expand("data/process/loo/{sample}/{sample}.in.fasta",
+			sample = 2003650)
 	shell:
 		"""
 		mkdir -p logs/mothur/
@@ -106,7 +108,6 @@ rule preclusterSequences:
 		files=rules.makeFilesFile.output.files,
 		refs=rules.get16SReferences.output
 	output:
-		groups="data/process/precluster/glne.precluster.groups",
 		fasta="data/process/precluster/glne.precluster.fasta",
 		count="data/process/precluster/glne.precluster.count_table",
 		tax="data/process/precluster/glne.precluster.taxonomy"
@@ -116,11 +117,25 @@ rule preclusterSequences:
 		"bash {input.script} {input.files} {input.refs}"
 
 
-# Removing one sample at a time and generating shared files separately for that sample and the
+# Removing one sample at a time and generating cluster files separately for that sample and the
 # remaining data.
 rule leaveOneOut:
 	input:
-		script:"code/bash/mothurLOO.sh"
+		script="code/bash/mothurLOO.sh",
+		precluster=rules.preclusterSequences.output
+	params:
+		sample=2003650
+	output:
+		inFasta="data/process/loo/{sample}/{sample}.in.fasta",
+		inDist="data/process/loo/{sample}/{sample}.in.dist",
+		inCount="data/process/loo/{sample}/{sample}.in.count_table",
+		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
+		outDist="data/process/loo/{sample}/{sample}.out.dist",
+		outList="data/process/loo/{sample}/{sample}.out.list"
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.precluster} {params.sample}"
 
 
 
