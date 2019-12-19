@@ -16,8 +16,8 @@ export RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
 export RDPTAX=${4:?ERROR: Need to define RDPTAX.}
 
 # Other variables
-export OUTDIR=data/process/
-
+export OUTDIR=data/process/precluster/
+export TMP="${OUTDIR}"/tmp/
 
 
 ###################
@@ -27,14 +27,14 @@ export OUTDIR=data/process/
 echo PROGRESS: Creating contigs for all the samples
 
 # Making output dir
-mkdir -p "${OUTDIR}"
+mkdir -p "${TMP}"/
 
-mothur "#make.contigs(file="${FILESFILE}", outputdir="${OUTDIR}");
+mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/);
 	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
 	unique.seqs(fasta=current);
 	count.seqs(name=current, group=current);
 	align.seqs(fasta=current, reference="${SILVAV4}");
-	screen.seqs(fasta=current, count=current, start=1968, end=11550, maxhomop=8);
+	screen.seqs(fasta=current, count=current, start=1968, end=11550);
 	filter.seqs(fasta=current, vertical=T, trump=.);
 	unique.seqs(fasta=current, count=current);
 	pre.cluster(fasta=current, count=current, diffs=2);
@@ -44,6 +44,12 @@ mothur "#make.contigs(file="${FILESFILE}", outputdir="${OUTDIR}");
 	remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)"
 
 
+# Moving and renaming important files for downstream use
+mv "${TMP}"/*.contigs.good.groups "${OUTDIR}"/glne.precluster.groups
+mv "${TMP}"/*.precluster.pick.pick.fasta "${OUTDIR}"/glne.precluster.fasta
+mv "${TMP}"/*.precluster.denovo.vsearch.pick.pick.count_table "${OUTDIR}"/glne.precluster.count_table
+mv "${TMP}"/*.precluster.pick.pds.wang.pick.taxonomy "${OUTDIR}"/glne.precluster.taxonomy
+
 
 ###############
 # Cleaning Up #
@@ -51,12 +57,5 @@ mothur "#make.contigs(file="${FILESFILE}", outputdir="${OUTDIR}");
 
 echo PROGRESS: Cleaning up working directory.
 
-# Moving important output files to the final directory for future use
-
-cp "${OUTDIR}"/glne007.contigs.good.groups "${FINAL}"/full.groups
-
-cp "${OUTDIR}"/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pick.fasta "${FINAL}"/full.fasta
-
-cp "${OUTDIR}"/glne007.trim.contigs.good.unique.good.filter.unique.precluster.denovo.vsearch.pick.pick.count_table "${FINAL}"/full.count_table
-
-cp "${OUTDIR}"/glne007.trim.contigs.good.unique.good.filter.unique.precluster.pick.pds.wang.pick.taxonomy "${FINAL}"/full.taxonomy
+# Deleting unneccessary files
+rm -r "${TMP}"/
