@@ -9,7 +9,7 @@
 ##################
 
 # Other variables
-export OUTDIR=data/mothur/references/ # Directory for storing mothur reference files
+export OUTDIR=data/references/ # Directory for storing mothur reference files
 
 
 
@@ -20,14 +20,15 @@ export OUTDIR=data/mothur/references/ # Directory for storing mothur reference f
 echo PROGRESS: Preparing mothur reference files.
 
 # Making reference output directory
-mkdir -p "${OUTDIR}"/ "${OUTDIR}"/tmp/
+mkdir -p "${OUTDIR}"/tmp/
 
 
 echo PROGRESS: Preparing SILVA database v4 sequence alignment files.
 
 # Downloading the prepared SILVA database from the mothur website
-# This version is from v132 and described at http://blog.mothur.org/2018/01/10/SILVA-v132-reference-files/
-# v132 contains 8,517 bacterial sequences
+# This version is from v123 and described at http://blog.mothur.org/2015/12/03/SILVA-v123-reference-files/
+# This version is used to maintain methods from Baxter NT, et al. Microbiota-based model improves the sensitivity
+# of fecal immunochemical test for detecting colonic lesions. Genome Med. 2016;8(1):37.
 wget -N -P "${OUTDIR}"/tmp/ http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
 
 # Decompressing the database
@@ -50,7 +51,7 @@ mv "${OUTDIR}"/silva.seed.pcr.align "${OUTDIR}"/silva.v4.align
 echo PROGRESS: Preparing Ribosomal Database Project taxonomy files.
 
 # Downloading the prepared RDP database from the mothur website
-# For more information see http://blog.mothur.org/2017/03/15/RDP-v16-reference_files/
+# For more information see http://blog.mothur.org/2015/05/27/RDP-v14-reference_files/
 wget -N -P "${OUTDIR}"/tmp/ http://mothur.org/w/images/8/88/Trainset14_032015.pds.tgz
 
 # Decompressing the database
