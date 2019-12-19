@@ -45,7 +45,6 @@ mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/);
 
 
 # Moving and renaming important files for downstream use
-mv "${TMP}"/*.contigs.good.groups "${OUTDIR}"/glne.precluster.groups
 mv "${TMP}"/*.precluster.pick.pick.fasta "${OUTDIR}"/glne.precluster.fasta
 mv "${TMP}"/*.precluster.denovo.vsearch.pick.pick.count_table "${OUTDIR}"/glne.precluster.count_table
 mv "${TMP}"/*.precluster.pick.pds.wang.pick.taxonomy "${OUTDIR}"/glne.precluster.taxonomy

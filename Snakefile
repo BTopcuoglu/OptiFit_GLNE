@@ -4,23 +4,26 @@
 # Schloss Lab
 # University of Michigan
 
-# Purpose: # Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit
+# Purpose: Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit and diagnosis prediction
 
-# # Path to config
-# configfile: "config/config.yaml"
 
-# # Function for aggregating list of sample numbers.
-# numSamples = [line.rstrip('\n') for line in open('data/sample_names.txt')]
+# NOTE: This will work for now but will need to create function to pull sample names from files file
+# Can use input function similar to readNames below to populate 'expand()' when aggregating data to run model
+# Function for creating list of sample names.
+import pandas as pd
+sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist()
+
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"data/process/precluster/glne.precluster.taxonomy"
+		# "test.txt",
+		expand("data/process/loo/{sample}/{sample}.in.fasta",
+			sample = sampleNames)
 	shell:
 		"""
-		echo done
-		# mkdir -p logs/mothur/
-		# mv mothur*logfile logs/mothur/
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
 		"""
 
 
@@ -100,14 +103,13 @@ rule makeFilesFile:
 		"Rscript {input.script} {input.sra} {input.seqs}"
 
 
-# Generating master OTU shared file.
-rule makeContigs:
+# Preclustering and preparing sequences for leave one out analysis.
+rule preclusterSequences:
 	input:
 		script="code/bash/mothurPrecluster.sh",
 		files=rules.makeFilesFile.output.files,
 		refs=rules.get16SReferences.output
 	output:
-		groups="data/process/precluster/glne.precluster.groups",
 		fasta="data/process/precluster/glne.precluster.fasta",
 		count="data/process/precluster/glne.precluster.count_table",
 		tax="data/process/precluster/glne.precluster.taxonomy"
@@ -116,27 +118,26 @@ rule makeContigs:
 	shell:
 		"bash {input.script} {input.files} {input.refs}"
 
-# # Generating master OTU shared file.
-# rule makeContigs:
-# 	input:
-# 		script="code/bash/mothurContigs.sh",
-# 		refs=rules.get16SReferences.output,
-# 		files_file="data/glne007.files",
-# 		seqs=readNames
-# 	output:
-# 	#You'll want these to be the names of the output files for the files used for leave one out
-# 		sample_shared=expand("data/process/{num}.sample.shared", num=numSamples),
-# 		all_shared=expand("data/process/all_but_{num}.subsampled.shared", num=numSamples)
-# 	conda:
-# 		"envs/glne.yaml"
-# 	shell:
-# 		"bash {input.script} data/process/baxter/ {input.files_file} {input.refs}"
 
-
-
-# rule leaveOneOut:
-# 	input:
-# 		script:"code/bash/mothurLOO.sh"
+# Removing one sample at a time and generating cluster files separately for that sample and for
+# the remaining data.
+rule leaveOneOut:
+	input:
+		script="code/bash/mothurLOO.sh",
+		precluster=rules.preclusterSequences.output
+	params:
+		sample="{sample}"
+	output:
+		inFasta="data/process/loo/{sample}/{sample}.in.fasta",
+		inDist="data/process/loo/{sample}/{sample}.in.dist",
+		inCount="data/process/loo/{sample}/{sample}.in.count_table",
+		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
+		outDist="data/process/loo/{sample}/{sample}.out.dist",
+		outList="data/process/loo/{sample}/{sample}.out.list"
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.precluster} {params.sample}"
 
 
 
