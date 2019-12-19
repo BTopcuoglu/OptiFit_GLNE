@@ -18,7 +18,7 @@ export SAMPLE=${4:?ERROR: Need to define SAMPLE.}
 
 # Other variables
 export OUTDIR=data/process/loo/
-export TMP="${OUTDIR}"/tmp_$(date +%s)/ # Tmp dir based on date in seconds (should keep samples separate when parallelizing)
+export TMP="${OUTDIR}"/"${SAMPLE}"/ # Tmp dir based on sample name to keep things separate during parallelization
 
 # export NUM=2003650
 # export GROUP=data/process/baxter/final/full.groups
@@ -32,56 +32,45 @@ export TMP="${OUTDIR}"/tmp_$(date +%s)/ # Tmp dir based on date in seconds (shou
 # Generate Individual Shared File for Sample  #
 ###############################################
 
+# Make output dirs if they don't exist
 mkdir -p "${TMP}"/
 
-# Now let's extract fasta, taxonomy and count for the removed group and build subsampled shared for the removed sample.
+# Create cluster distance file for individual sample
+mothur "#get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${TMP}"/);
+	dist.seqs(fasta=current, cutoff=0.03)"
 
-mothur "#get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}");
+# Renaming outputs of files generated from single sample
+for FILE in $(find "${TMP}"/ -regex ".*precluster.*"); do
+
+	# Uses path and suffix of input file to rename output file using $SAMPLE and 'in' to represent the file is for
+	# the individual sample only.
+	REPLACEMENT=$(echo "${FILE}" | sed "s:\(.*/\).*\.\(.*\):\1"${SAMPLE}".in.\2:")
+
+	# Rename files using new format without hyphens
+	mv "${FILE}" "${REPLACEMENT}"
+
+done
+
+
+
+########################################################
+# Generate shared file for all samples but the one #
+########################################################
+
+# Cluster all sequences while leaving out the specified sample
+mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${TMP}"/);
 	dist.seqs(fasta=current, cutoff=0.03);
 	cluster(column=current, count=current);
-	make.shared(list=current, count=current, label=0.03);
-	classify.otu(list=current, count=current, taxonomy=current, label=0.03)"
+	make.shared(list=current, count=current, label=0.03)"
 
-# Change the name of the files generated to represent that they only have 1 SAMPLE
+# Renaming outputs of files generated after leaving the specified sample out
+for FILE in $(find "${TMP}"/ -regex ".*precluster.*"); do
 
+	# Uses path and suffix of input file to rename output file using $SAMPLE and 'out' to represent the file is for
+	# all of the other samples after the specified sample has been left out.
+	REPLACEMENT=$(echo "${FILE}" | sed "s:\(.*/\).*\.\(.*\):\1"${SAMPLE}".out.\2:")
 
-# mv "${TMP}"/data/process/baxter/final/full.pick.fasta "${OUTDIR}"/sample."${NUM}".fasta
+	# Rename files using new format without hyphens
+	mv "${FILE}" "${REPLACEMENT}"
 
-# mv "${TMP}"/data/process/baxter/final/full.pick.count_table "${OUTDIR}"/sample."${NUM}".count_table
-
-# mv "${TMP}"/data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/sample."${NUM}".taxonomy
-
-# mv "${TMP}"/data/process/baxter/final/full.pick.dist "${OUTDIR}"/sample."${NUM}".dist
-
-
-# ########################################################
-# # Generate shared file for all samples but the one #
-# ########################################################
-
-# # The generated subsampled file will have all the samples except the left-out-one.
-
-# # Now let's remove that 1 sample from rest of the samples by removing from original count, fasta and taxa files.
-
-# mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${NUM}");
-# dist.seqs(fasta=current, cutoff=0.03);
-# cluster(column=current, count=current);
-# make.shared(list=current, count=current, label=0.03);
-# sub.sample(shared=current, label=0.03)"
-
-# mv data/process/baxter/final/full.pick.fasta "${OUTDIR}"/without."${NUM}".fasta
-
-# mv data/process/baxter/final/full.pick.count_table "${OUTDIR}"/without."${NUM}".count_table
-
-# mv data/process/baxter/final/full.pick.taxonomy "${OUTDIR}"/without."${NUM}".taxonomy
-
-# mv data/process/baxter/final/full.pick.dist "${OUTDIR}"/without."${NUM}".dist
-
-# mv data/process/baxter/final/full.pick.opti_mcc.list "${OUTDIR}"/without.opti_mcc."${NUM}".list
-
-# mv data/process/baxter/final/full.pick.opti_mcc.steps "${OUTDIR}"/without.opti_mcc."${NUM}".steps
-
-# mv data/process/baxter/final/full.pick.opti_mcc.sensspec "${OUTDIR}"/without.opti_mcc."${NUM}".sensspec
-
-# mv data/process/baxter/final/full.pick.opti_mcc.shared "${OUTDIR}"/without.opti_mcc."${NUM}".shared
-
-# mv data/process/baxter/final/full.pick.opti_mcc.0.03.subsample.shared "${OUTDIR}"/without.opti_mcc.0.03."${NUM}".subsample.shared
+done
