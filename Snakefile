@@ -17,9 +17,9 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"test.txt",
-		# expand("data/process/loo/{sample}/{sample}.in.fasta",
-		# 	sample = sampleNames)
+		# "test.txt",
+		expand("data/process/optifit/{sample}/{sample}.optifit_mcc.shared",
+			sample = sampleNames)
 	shell:
 		"""
 		mkdir -p logs/mothur/
@@ -140,15 +140,13 @@ rule leaveOneOut:
 		"bash {input.script} {input.precluster} {params.sample}"
 
 
-
+# Using OptiFit to cluster the output files from the leave-one-out rule
 rule clusterOptiFit:
 	input:
 		script="code/bash/mothurOptiFit.sh",
-		loo=expand(rules.leaveOneOut.output,
-			sample = 2003650)
-		# loo=rules.leaveOneOut.output
+		loo=rules.leaveOneOut.output
 	output:
-		"test.txt"
+		shared="data/process/optifit/{sample}/{sample}.optifit_mcc.shared"
 	conda:
 		"envs/mothur.yaml"
 	shell:
