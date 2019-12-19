@@ -15,7 +15,7 @@
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"test.txt",
+		# "test.txt",
 		expand("data/process/loo/{sample}/{sample}.in.fasta",
 			sample = 2003650)
 	shell:
