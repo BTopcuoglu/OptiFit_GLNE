@@ -18,7 +18,7 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 rule all:
 	input:
 		# "test.txt",
-		expand("data/process/loo/{sample}/{sample}.in.fasta",
+		expand("data/process/optifit/{sample}/{sample}.optifit_mcc.shared",
 			sample = sampleNames)
 	shell:
 		"""
@@ -140,11 +140,17 @@ rule leaveOneOut:
 		"bash {input.script} {input.precluster} {params.sample}"
 
 
-
-# rule OptiFIt:
-# 	input:
-# 		script:"code/bash/mothurOptiFit.sh"
-
+# Using OptiFit to cluster the output files from the leave-one-out rule
+rule clusterOptiFit:
+	input:
+		script="code/bash/mothurOptiFit.sh",
+		loo=rules.leaveOneOut.output
+	output:
+		shared="data/process/optifit/{sample}/{sample}.optifit_mcc.shared"
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.loo}"
 
 
 
