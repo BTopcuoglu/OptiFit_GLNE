@@ -117,14 +117,14 @@ rule preclusterSequences:
 		"bash {input.script} {input.files} {input.refs}"
 
 
-# Removing one sample at a time and generating cluster files separately for that sample and the
-# remaining data.
+# Removing one sample at a time and generating cluster files separately for that sample and for
+# the remaining data.
 rule leaveOneOut:
 	input:
 		script="code/bash/mothurLOO.sh",
 		precluster=rules.preclusterSequences.output
 	params:
-		sample=2003650
+		sample="{sample}"
 	output:
 		inFasta="data/process/loo/{sample}/{sample}.in.fasta",
 		inDist="data/process/loo/{sample}/{sample}.in.dist",
