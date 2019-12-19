@@ -103,13 +103,15 @@ rule makeFilesFile:
 # Generating master OTU shared file.
 rule makeContigs:
 	input:
-		script="code/bash/mothurContigs.sh",
+		script="code/bash/mothurPrecluster.sh",
 		files=rules.makeFilesFile.output.files,
 		refs=rules.get16SReferences.output
 	output:
 		"test.txt"
+	conda:
+		"envs/mothur.yaml"
 	shell:
-		"touch test.txt"
+		"bash {input.script} {input.files} {input.refs}; touch test.txt"
 
 # # Generating master OTU shared file.
 # rule makeContigs:
