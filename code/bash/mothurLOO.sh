@@ -38,7 +38,7 @@ for FILE in $(find "${OUTDIR}"/ -regex ".*precluster.*"); do
 	# the individual sample only.
 	REPLACEMENT=$(echo "${FILE}" | sed "s:\(.*/\).*\.\(.*\):\1"${SAMPLE}".in.\2:")
 
-	# Rename files using new format without hyphens
+	# Rename files using new format
 	mv "${FILE}" "${REPLACEMENT}"
 
 done
@@ -61,7 +61,7 @@ for FILE in $(find "${OUTDIR}"/ -regex ".*precluster.*"); do
 	# all of the other samples after the specified sample has been left out.
 	REPLACEMENT=$(echo "${FILE}" | sed "s:\(.*/\).*\.\(.*\):\1"${SAMPLE}".out.\2:")
 
-	# Rename files using new format without hyphens
+	# Rename files using new format
 	mv "${FILE}" "${REPLACEMENT}"
 
 done
