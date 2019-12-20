@@ -103,9 +103,15 @@ opti_labels <- names(opti_shared)
 # Finding list of otus common to both shared files
 common_labels <- intersect(opti_labels, loo_labels)
 
+# Finding otus that are missing in optifit shared
+missing_cols <- setdiff(loo_labels, opti_labels)
+
 # Only keeping otus that are in both files and assigning as test data for ML prediction
 test <- opti_shared %>%
   select(common_labels)
+
+# Adding in missing otus all coded as 0 so test has the same cols as the loo shared
+test[missing_cols] <- 0
 
 
 
