@@ -18,7 +18,7 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 rule all:
 	input:
 		# "test.txt",
-		expand("data/process/optifit/{sample}/{sample}.optifit_mcc.shared",
+		expand("data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared",
 			sample = sampleNames)
 	shell:
 		"""
@@ -133,7 +133,8 @@ rule leaveOneOut:
 		inCount="data/process/loo/{sample}/{sample}.in.count_table",
 		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
 		outDist="data/process/loo/{sample}/{sample}.out.dist",
-		outList="data/process/loo/{sample}/{sample}.out.list"
+		outList="data/process/loo/{sample}/{sample}.out.list",
+		outSubShared="data/process/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -146,7 +147,7 @@ rule clusterOptiFit:
 		script="code/bash/mothurOptiFit.sh",
 		loo=rules.leaveOneOut.output
 	output:
-		shared="data/process/optifit/{sample}/{sample}.optifit_mcc.shared"
+		optiSubShared="data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
