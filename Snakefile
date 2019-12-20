@@ -21,11 +21,6 @@ rule all:
 		# expand("data/learning/cv_results_{sample}.csv",
 		# 	sample = sampleNames)
 		"data/learning/results/confusion_matrix.tsv"
-	shell:
-		"""
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		"""
 
 
 
@@ -88,7 +83,11 @@ rule get16SReferences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script}"
+		'''
+		bash {input.script}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 
@@ -127,12 +126,11 @@ rule preclusterSequences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.files} {input.refs}"
-
-
-# NOTE: Will need to adjust leaveOneOut and clusterOptiFit scripts to deal with samples that
-# don't have 10000 reads in them. Use count table?
-
+		'''
+		bash {input.script} {input.files} {input.refs}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 # Removing one sample at a time and generating cluster files separately for that sample and for
@@ -154,7 +152,11 @@ rule leaveOneOut:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.precluster} {params.sample}"
+		'''
+		bash {input.script} {input.precluster} {params.sample}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 # Using OptiFit to cluster the output files from the leave-one-out rule
@@ -167,7 +169,11 @@ rule clusterOptiFit:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.loo}"
+		'''
+		bash {input.script} {input.loo}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 
