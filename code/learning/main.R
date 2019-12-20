@@ -58,7 +58,7 @@ source('code/learning/model_pipeline_deployed.R') # has pipeline function define
 
 input <- commandArgs(trailingOnly=TRUE)
 
-outSubShared <- input[1] # Subsampled shared from samples after leaving one out
+looSubShared <- input[1] # Subsampled shared from samples after leaving one out
 optifitSubShared <- input[2] # Subsampled shared after OptiFit clustering of left out sample
 metadata <- input[3] # Metadata containing classification to predict
 model <- input[4] # Type of model to use
@@ -100,13 +100,13 @@ opti_labels <- names(shared_one_out)
 
 
 # Finding list of otus common to both shared files
-common_cols <- intersect(opti_labels, loo_labels)
+common_labels <- intersect(opti_labels, loo_labels)
 
 
 
 # Only keeping otus that are in both files and assigning as test data for ML prediction
 test <- opti_shared %>%
-  select(common_cols)
+  select(common_labels)
 
 # Not needed because missing_cols aren't in opti_shared after using select
 # # Finding list of otus not in one of the shared files
@@ -122,24 +122,24 @@ test <- opti_shared %>%
 # Group advanced adenomas and cancers together as cancer and normal, high risk normal and non-advanced adenomas as normal
 # Then remove the sample ID column
 
-# Read in metadata and select only sample Id and diagnosis columns
-meta <- read.delim('data/process/metadata.tsv', header=T, sep='\t') %>%
-  select(sample, Dx_Bin, fit_result) %>%
-  filter(sample != "2003650")
+# Read in metadata and select only sample Id, diagnosis, and fit columns
+meta <- read_tsv(metadata) %>%
+  select(sample, Dx_Bin, fit_result)
 
-data <- inner_join(meta, shared, by=c("sample"="Group")) %>%
-  mutate(dx = case_when(
-    Dx_Bin== "Adenoma" ~ "normal",
-    Dx_Bin== "Normal" ~ "normal",
-    Dx_Bin== "High Risk Normal" ~ "normal",
-    Dx_Bin== "adv Adenoma" ~ "cancer",
-    Dx_Bin== "Cancer" ~ "cancer"
-  )) %>%
+
+# Combining metadata and loo shared file to use as training data
+data <- inner_join(loo_shared, meta, by=c("Group"="sample")) %>%
+  mutate(dx = case_when(Dx_Bin == "Adenoma" ~ "normal", # Recoding diagnoses
+                        Dx_Bin == "Normal" ~ "normal",
+                        Dx_Bin == "High Risk Normal" ~ "normal",
+                        Dx_Bin == "adv Adenoma" ~ "cancer",
+                        Dx_Bin == "Cancer" ~ "cancer",
+                        TRUE ~ NA_character_),
+         dx = as.factor(dx)) %>% # Encoding dx as factor
   select(-sample, -Dx_Bin, -fit_result) %>%
   drop_na() %>%
   select(dx, everything())
-# We want the diagnosis column to be a factor
-data$dx <- factor(data$dx)
+
 
 
 ######################## RUN PIPELINE ###########################
@@ -160,6 +160,7 @@ prediction <- results[2]
 
 # Create a matrix with cv_aucs and test_aucs from 1 data split
 aucs <- matrix(results[[1]], ncol=1)
+
 # Convert to dataframe and add a column noting the model name
 aucs_dataframe <- data.frame(aucs) %>%
   rename_at(1, ~ "cv_auc") %>%
