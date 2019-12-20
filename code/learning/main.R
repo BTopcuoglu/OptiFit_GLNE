@@ -137,7 +137,8 @@ data <- inner_join(loo_shared, meta, by=c("Group"="sample")) %>%
          dx = as.factor(dx)) %>% # Encoding dx as factor
   select(-Group, -Dx_Bin, -fit_result) %>%
   drop_na() %>%
-  select(dx, everything())
+  select(dx, everything()) %>% 
+  as.data.frame()
 
 
 
@@ -168,10 +169,10 @@ aucs <- matrix(results[[1]], ncol=1)
 # Convert to dataframe and add a column noting the model name
 aucs_dataframe <- data.frame(aucs) %>%
   rename_at(1, ~ "cv_auc") %>%
-  write_csv(path = paste0("data/temp/cv_results_", sampleNum, ".csv"))
+  write_csv(path = paste0(outDir, "cv_results_", sampleNum, ".csv"))
 
 # Convert to dataframe and add a column noting the model name
 predictions_dataframe <- data.frame(prediction) %>%
-    write_csv(path = paste0("data/temp/prediction_results_", sampleNum, ".csv"))
+    write_csv(path = paste0(outDir, "prediction_results_", sampleNum, ".csv"))
 
 ###################################################################
