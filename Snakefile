@@ -17,9 +17,9 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"test.txt"
-		# expand("data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared",
-		# 	sample = sampleNames)
+		# "test.txt",
+		expand("test.{sample}.txt",
+			sample = sampleNames)
 	shell:
 		"""
 		mkdir -p logs/mothur/
@@ -188,11 +188,11 @@ rule predictDiagnosis:
 		model="L2_Logistic_Regression",
 		outcome="dx"
 	output:
-		"test.txt"
+		"test.{sample}.txt"
 	conda:
 		"envs/r.yaml"
 	shell:
-		"bash {input.script} {input.looSubShared} {input.optifitSubShared} {input.metadata} {params.model} {params.outcome}"
+		"Rscript {input.script} {input.looSubShared} {input.optifitSubShared} {input.metadata} {params.model} {params.outcome}"
 
 
 
