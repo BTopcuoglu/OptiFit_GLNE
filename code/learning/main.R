@@ -56,6 +56,7 @@ source('code/learning/model_pipeline_deployed.R') # has pipeline function define
 #        "dx"
 #  - Fifth argument is the sample number we are predicting
 
+# User defined variables
 input <- commandArgs(trailingOnly=TRUE)
 
 looSubShared <- input[1] # Subsampled shared from samples after leaving one out
@@ -64,13 +65,9 @@ metadata <- input[3] # Metadata containing classification to predict
 model <- input[4] # Type of model to use
 outcome <- input[5] # Classifaction to predict
 
-# sample_num <- as.numeric(input[3])
-# 'data/process/without.opti_mcc.0.03.2003650.subsample.shared'
-# 'data/process/sample.2003650.optifit_mcc.0.03.subsample.shared'
-# 'data/process/metadata.tsv'
-
-
-
+# Other variables
+outDir <- "data/learning/"
+sampleNum <- str_extract(looSubShared, "\\d+") # Pulling sample number from file path
 
 
 ######################## DATA PREPARATION ########################
@@ -84,39 +81,31 @@ outcome <- input[5] # Classifaction to predict
 loo_shared <- read_tsv(outSubShared) %>%
   select(-label, -numOtus)
 
-# Creating list of otus in loo shared
-loo_labels <- names(loo_shared)
-
-
-
 # Reading in shared file from OptiFit
 opti_shared <- read_tsv(optifitSubShared) %>%
   select(-label, -numOtus) %>% 
   rename(str_replace, "Ref_", "")
 
+
+
+# Create test set ---------------------------------------------------------
+
+# Creating list of otus in loo shared
+loo_labels <- names(loo_shared)
+
 # Creating list of otus in opti shared
 opti_labels <- names(shared_one_out)
 
-
-
 # Finding list of otus common to both shared files
 common_labels <- intersect(opti_labels, loo_labels)
-
-
 
 # Only keeping otus that are in both files and assigning as test data for ML prediction
 test <- opti_shared %>%
   select(common_labels)
 
-# Not needed because missing_cols aren't in opti_shared after using select
-# # Finding list of otus not in one of the shared files
-# missing_cols <- setdiff(loo_labels, opti_labels)
-# # Recoding any otus not in loo_shared as all 0s
-# opti_shared[missing_cols] <- 0
-# test <- opti_shared
 
 
-
+# Create training set -----------------------------------------------------
 
 # Merge metadata and OTU table.
 # Group advanced adenomas and cancers together as cancer and normal, high risk normal and non-advanced adenomas as normal
@@ -147,6 +136,9 @@ data <- inner_join(loo_shared, meta, by=c("Group"="sample")) %>%
 #                "L2_Logistic_Regression",
 #                "Random_Forest",
 
+# Creating output directory if it doesn't already exist
+dir.create(outDir, recursive = TRUE, showWarnings=FALSE)
+
 set.seed(1989)
 
 # Run the model
@@ -164,10 +156,10 @@ aucs <- matrix(results[[1]], ncol=1)
 # Convert to dataframe and add a column noting the model name
 aucs_dataframe <- data.frame(aucs) %>%
   rename_at(1, ~ "cv_auc") %>%
-  write_csv(path = paste0("data/temp/cv_results_", sample_num, ".csv"))
+  write_csv(path = paste0("data/temp/cv_results_", sampleNum, ".csv"))
 
 # Convert to dataframe and add a column noting the model name
 predictions_dataframe <- data.frame(prediction) %>%
-    write_csv(path = paste0("data/temp/prediction_results_", sample_num, ".csv"))
+    write_csv(path = paste0("data/temp/prediction_results_", sampleNum, ".csv"))
 
 ###################################################################
