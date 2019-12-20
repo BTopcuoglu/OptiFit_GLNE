@@ -19,7 +19,7 @@ export OUTLIST=${6:?ERROR: Need to define OUTLIST.}
 
 # Other variables
 export OUTDIR=data/process/optifit/
-export SUBSIZE=10423 # Number of reads to subsample to, based on Sze M, et al., mBio, 2018
+export SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 
 

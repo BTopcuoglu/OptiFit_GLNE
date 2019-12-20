@@ -17,7 +17,7 @@ export SAMPLE=${4:?ERROR: Need to define SAMPLE.}
 
 # Other variables
 export OUTDIR=data/process/loo/"${SAMPLE}"/ # Output dir based on sample name to keep things separate during parallelization/organized
-export SUBSIZE=10423 # Number of reads to subsample to, based on Sze M, et al., mBio, 2018
+export SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 
 ###################################################
