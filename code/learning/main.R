@@ -57,10 +57,17 @@ source('code/learning/model_pipeline_deployed.R') # has pipeline function define
 #  - Fifth argument is the sample number we are predicting
 
 input <- commandArgs(trailingOnly=TRUE)
-model <- input[1]
-outcome <- input[2]
-sample_num <- as.numeric(input[3])
 
+outSubShared <- input[1] # Subsampled shared from samples after leaving one out
+optifitSubShared <- input[2] # Subsampled shared after optifit clustering of left out sample
+metadata <- input[3] # Metadata containing classification to predict
+model <- input[4] # Type of model to use
+outcome <- input[5] # Classifaction to predict
+
+# sample_num <- as.numeric(input[3])
+# 'data/process/without.opti_mcc.0.03.2003650.subsample.shared'
+# 'data/process/sample.2003650.optifit_mcc.0.03.subsample.shared'
+# 'data/process/metadata.tsv'
 
 
 ######################## DATA PREPARATION ########################
