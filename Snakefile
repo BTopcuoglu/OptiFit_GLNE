@@ -18,7 +18,7 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 rule all:
 	input:
 		# "test.txt",
-		expand("data/process/optifit/{sample}/{sample}.optifit_mcc.shared",
+		expand("data/learning/cv_results_{sample}.csv",
 			sample = sampleNames)
 	shell:
 		"""
@@ -40,7 +40,7 @@ rule all:
 checkpoint getSRASequences:
 	input:
 		script="code/bash/getSRAFiles.sh",
-		sra="data/metadata/SraRunTable.txt"
+		sra="data/metadata/SraRunTable.txt" # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
 	output:
 		dir=directory("data/raw") # Setting output as directory because output files are unknown (samples with 1 read file are removed)
 	conda:
@@ -54,6 +54,16 @@ def readNames(wildcards):
     checkpoint_output = checkpoints.getSRASequences.get(**wildcards).output.dir
     return expand("data/raw/{readName}.fastq.gz",
     	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
+
+
+# Retrieve tidied metadata from https://github.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015
+rule getMetadata:
+	input:
+		script="code/bash/getMetadata.sh"
+	output:
+		metadata="data/metadata/metadata.tsv"
+	shell:
+		"bash {input.script}"
 
 
 
@@ -119,6 +129,11 @@ rule preclusterSequences:
 		"bash {input.script} {input.files} {input.refs}"
 
 
+# NOTE: Will need to adjust leaveOneOut and clusterOptiFit scripts to deal with samples that
+# don't have 10000 reads in them. Use count table?
+
+
+
 # Removing one sample at a time and generating cluster files separately for that sample and for
 # the remaining data.
 rule leaveOneOut:
@@ -133,7 +148,8 @@ rule leaveOneOut:
 		inCount="data/process/loo/{sample}/{sample}.in.count_table",
 		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
 		outDist="data/process/loo/{sample}/{sample}.out.dist",
-		outList="data/process/loo/{sample}/{sample}.out.list"
+		outList="data/process/loo/{sample}/{sample}.out.list",
+		looSubShared="data/process/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -146,7 +162,7 @@ rule clusterOptiFit:
 		script="code/bash/mothurOptiFit.sh",
 		loo=rules.leaveOneOut.output
 	output:
-		shared="data/process/optifit/{sample}/{sample}.optifit_mcc.shared"
+		optifitSubShared="data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -161,11 +177,23 @@ rule clusterOptiFit:
 #
 ##################################################################
 
-# # Load R and Rtidyverse modules
-# rule Model:
-# 	input:
-# 		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
-
+# Using OptiFit to cluster the output files from the leave-one-out rule
+rule predictDiagnosis:
+	input:
+		script="code/learning/main.R",
+		looSubShared=rules.leaveOneOut.output.looSubShared,
+		optifitSubShared=rules.clusterOptiFit.output.optifitSubShared,
+		metadata=rules.getMetadata.output.metadata
+	params:
+		model="L2_Logistic_Regression",
+		outcome="dx"
+	output:
+		cvauc="data/learning/cv_results_{sample}.csv",
+		prediction="data/learning/prediction_results_{sample}.csv"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.looSubShared} {input.optifitSubShared} {input.metadata} {params.model} {params.outcome}"
 
 
 

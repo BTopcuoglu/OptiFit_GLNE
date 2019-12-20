@@ -19,6 +19,7 @@ export OUTLIST=${6:?ERROR: Need to define OUTLIST.}
 
 # Other variables
 export OUTDIR=data/process/optifit/
+export SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 
 
@@ -37,7 +38,8 @@ mkdir -p "${SUBDIR}"/
 
 # Running OptiFit to cluster left out sample with reference clusters
 mothur "#cluster.fit(fasta="${INFASTA}", column="${INDIST}", count="${INCOUNT}", reffasta="${OUTFASTA}", refcolumn="${OUTDIST}", reflist="${OUTLIST}", method=closed, outputdir="${SUBDIR}");
-	make.shared(list=current, count=current, label=0.03)"
+	make.shared(list=current, count=current, label=0.03);
+	sub.sample(shared=current, label=0.03, size="${SUBSIZE}")"
 
 # Cleaning up names
 for FILE in $(find "${SUBDIR}"/ -type f); do

@@ -4,3 +4,11 @@ channels:
   - r
 dependencies:
   - r-tidyverse=1.2.1
+  - r-tictoc=1.0
+  - r-caret=6.0_84
+  - r-rpart=4.1_15
+  - r-xgboost=0.90
+  - r-randomforest=4.6_14
+  - r-kernlab=0.9_27
+  - r-liblinear=2.10_8
+  - r-proc=1.15.3
