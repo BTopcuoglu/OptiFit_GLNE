@@ -18,7 +18,7 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 rule all:
 	input:
 		# "test.txt",
-		expand("test.{sample}.txt",
+		expand("data/learning/cv_results_{sample}.csv",
 			sample = sampleNames)
 	shell:
 		"""
@@ -188,7 +188,8 @@ rule predictDiagnosis:
 		model="L2_Logistic_Regression",
 		outcome="dx"
 	output:
-		"test.{sample}.txt"
+		cvauc="data/learning/cv_results_{sample}.csv",
+		prediction="data/learning/prediction_results_{sample}.csv"
 	conda:
 		"envs/r.yaml"
 	shell:
