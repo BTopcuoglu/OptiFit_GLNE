@@ -119,6 +119,11 @@ rule preclusterSequences:
 		"bash {input.script} {input.files} {input.refs}"
 
 
+# NOTE: Will need to adjust leaveOneOut and clusterOptiFit scripts to deal with samples that
+# don't have 10000 reads in them. Use count table?
+
+
+
 # Removing one sample at a time and generating cluster files separately for that sample and for
 # the remaining data.
 rule leaveOneOut:
