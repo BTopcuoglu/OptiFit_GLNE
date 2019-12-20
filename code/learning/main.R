@@ -59,7 +59,7 @@ source('code/learning/model_pipeline_deployed.R') # has pipeline function define
 input <- commandArgs(trailingOnly=TRUE)
 
 outSubShared <- input[1] # Subsampled shared from samples after leaving one out
-optifitSubShared <- input[2] # Subsampled shared after optifit clustering of left out sample
+optifitSubShared <- input[2] # Subsampled shared after OptiFit clustering of left out sample
 metadata <- input[3] # Metadata containing classification to predict
 model <- input[4] # Type of model to use
 outcome <- input[5] # Classifaction to predict
@@ -70,6 +70,9 @@ outcome <- input[5] # Classifaction to predict
 # 'data/process/metadata.tsv'
 
 
+
+
+
 ######################## DATA PREPARATION ########################
 # Features: 16S rRNA gene sequences(OTUs) in the stool
 # Labels: - Colorectal lesions of 490 patients.
@@ -77,29 +80,43 @@ outcome <- input[5] # Classifaction to predict
 #           (Cancer here means: SRN)
 #           (SRNs are advanced adenomas+carcinomas)
 
-shared <- read.delim('data/process/without.opti_mcc.0.03.2003650.subsample.shared', header=T, sep='\t') %>%
+# Reading in shared file from LOO
+loo_shared <- read_tsv(outSubShared) %>%
   select(-label, -numOtus)
 
-# Read in OTU table and remove label and numOtus columns
-shared_one_out <- read.delim('data/process/sample.2003650.optifit_mcc.0.03.subsample.shared', header=T, sep='\t') %>%
-  select(-label, -numOtus)
+# Creating list of otus in loo shared
+loo_labels <- names(loo_shared)
 
-colnames(shared_one_out) <- str_replace_all(colnames(shared_one_out), "Ref_", "")
 
-labels_all <- colnames(shared)
 
-labels_one <- colnames(shared_one_out)
+# Reading in shared file from OptiFit
+opti_shared <- read_tsv(optifitSubShared) %>%
+  select(-label, -numOtus) %>% 
+  rename(str_replace, "Ref_", "")
 
-common_cols <- intersect(labels_one, labels_all)
+# Creating list of otus in opti shared
+opti_labels <- names(shared_one_out)
 
-shared_one_out <- shared_one_out %>%
+
+
+# Finding list of otus common to both shared files
+common_cols <- intersect(opti_labels, loo_labels)
+
+
+
+# Only keeping otus that are in both files and assigning as test data for ML prediction
+test <- opti_shared %>%
   select(common_cols)
 
-missing_cols <- setdiff(labels_all, labels_one)
+# Not needed because missing_cols aren't in opti_shared after using select
+# # Finding list of otus not in one of the shared files
+# missing_cols <- setdiff(loo_labels, opti_labels)
+# # Recoding any otus not in loo_shared as all 0s
+# opti_shared[missing_cols] <- 0
+# test <- opti_shared
 
-shared_one_out[missing_cols] <- 0
 
-test <- shared_one_out
+
 
 # Merge metadata and OTU table.
 # Group advanced adenomas and cancers together as cancer and normal, high risk normal and non-advanced adenomas as normal
