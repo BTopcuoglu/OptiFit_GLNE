@@ -17,9 +17,9 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		# "test.txt",
-		expand("data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared",
-			sample = sampleNames)
+		"test.txt"
+		# expand("data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared",
+		# 	sample = sampleNames)
 	shell:
 		"""
 		mkdir -p logs/mothur/
@@ -40,7 +40,7 @@ rule all:
 checkpoint getSRASequences:
 	input:
 		script="code/bash/getSRAFiles.sh",
-		sra="data/metadata/SraRunTable.txt"
+		sra="data/metadata/SraRunTable.txt" # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
 	output:
 		dir=directory("data/raw") # Setting output as directory because output files are unknown (samples with 1 read file are removed)
 	conda:
@@ -149,7 +149,7 @@ rule leaveOneOut:
 		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
 		outDist="data/process/loo/{sample}/{sample}.out.dist",
 		outList="data/process/loo/{sample}/{sample}.out.list",
-		outSubShared="data/process/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		looSubShared="data/process/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -177,12 +177,22 @@ rule clusterOptiFit:
 #
 ##################################################################
 
-# # Load R and Rtidyverse modules
-# rule Model:
-# 	input:
-# 		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
-# 		metadata=rules.getMetadata.output.metadata,
-
+# Using OptiFit to cluster the output files from the leave-one-out rule
+rule predictDiagnosis:
+	input:
+		script="code/learning/main.R",
+		looSubShared=rules.leaveOneOut.output.looSubShared,
+		optifitSubShared=rules.clusterOptiFit.output.optifitSubShared,
+		metadata=rules.getMetadata.output.metadata
+	params:
+		model="L2_Logistic_Regression",
+		outcome="dx"
+	output:
+		"test.txt"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"bash {input.script} {input.looSubShared} {input.optifitSubShared} {input.metadata} {params.model} {params.outcome}"
 
 
 
