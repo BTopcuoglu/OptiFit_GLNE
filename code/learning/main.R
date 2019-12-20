@@ -34,18 +34,19 @@
 
 ################### IMPORT LIBRARIES and FUNCTIONS ###############
 # The dependinces for this script are consolidated in the first part
-deps = c("dplyr", "tictoc", "caret" ,"rpart", "xgboost", "randomForest", "kernlab","LiblineaR", "pROC", "tidyverse");
+deps <- c("tictoc", "caret" ,"rpart", "xgboost", "randomForest", "kernlab","LiblineaR", "pROC", "tidyverse")
+
 for (dep in deps){
   if (dep %in% installed.packages()[,"Package"] == FALSE){
     install.packages(as.character(dep), quiet=TRUE, repos = "http://cran.us.r-project.org", dependencies=TRUE);
   }
   library(dep, verbose=FALSE, character.only=TRUE)
 }
+
 # Load in needed functions and libraries
 source('code/learning/model_selection.R')
 source('code/learning/model_pipeline_deployed.R') # has pipeline function defined here
 ##################################################################
-
 
 # We will run main.R from command line with arguments
 #  - These arguments will be saved into variable "input"
@@ -70,6 +71,7 @@ outDir <- "data/learning/"
 sampleNum <- str_extract(looSubShared, "\\d+") # Pulling sample number from file path
 
 
+
 ######################## DATA PREPARATION ########################
 # Features: 16S rRNA gene sequences(OTUs) in the stool
 # Labels: - Colorectal lesions of 490 patients.
@@ -77,14 +79,16 @@ sampleNum <- str_extract(looSubShared, "\\d+") # Pulling sample number from file
 #           (Cancer here means: SRN)
 #           (SRNs are advanced adenomas+carcinomas)
 
+message("PROGRESS: Preparing data.")
+
 # Reading in shared file from LOO
-loo_shared <- read_tsv(outSubShared) %>%
+loo_shared <- read_tsv(looSubShared, col_types = cols()) %>%
   select(-label, -numOtus)
 
 # Reading in shared file from OptiFit
-opti_shared <- read_tsv(optifitSubShared) %>%
+opti_shared <- read_tsv(optifitSubShared, col_types = cols()) %>%
   select(-label, -numOtus) %>% 
-  rename(str_replace, "Ref_", "")
+  rename_all(str_replace, "Ref_", "")
 
 
 
@@ -94,7 +98,7 @@ opti_shared <- read_tsv(optifitSubShared) %>%
 loo_labels <- names(loo_shared)
 
 # Creating list of otus in opti shared
-opti_labels <- names(shared_one_out)
+opti_labels <- names(opti_shared)
 
 # Finding list of otus common to both shared files
 common_labels <- intersect(opti_labels, loo_labels)
@@ -112,7 +116,7 @@ test <- opti_shared %>%
 # Then remove the sample ID column
 
 # Read in metadata and select only sample Id, diagnosis, and fit columns
-meta <- read_tsv(metadata) %>%
+meta <- read_tsv(metadata, col_types = cols()) %>%
   select(sample, Dx_Bin, fit_result)
 
 
@@ -125,7 +129,7 @@ data <- inner_join(loo_shared, meta, by=c("Group"="sample")) %>%
                         Dx_Bin == "Cancer" ~ "cancer",
                         TRUE ~ NA_character_),
          dx = as.factor(dx)) %>% # Encoding dx as factor
-  select(-sample, -Dx_Bin, -fit_result) %>%
+  select(-Group, -Dx_Bin, -fit_result) %>%
   drop_na() %>%
   select(dx, everything())
 
@@ -135,6 +139,8 @@ data <- inner_join(loo_shared, meta, by=c("Group"="sample")) %>%
 # Choose which classification methods we want to run on command line
 #                "L2_Logistic_Regression",
 #                "Random_Forest",
+
+message("PROGRESS: Predicting outcome.")
 
 # Creating output directory if it doesn't already exist
 dir.create(outDir, recursive = TRUE, showWarnings=FALSE)
