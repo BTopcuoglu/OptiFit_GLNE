@@ -17,7 +17,7 @@ export SAMPLE=${4:?ERROR: Need to define SAMPLE.}
 
 # Other variables
 export OUTDIR=data/process/loo/"${SAMPLE}"/ # Output dir based on sample name to keep things separate during parallelization/organized
-
+export SUBSIZE=10423 # Number of reads to subsample to, based on Sze M, et al., mBio, 2018
 
 
 ###################################################
@@ -45,14 +45,20 @@ done
 
 
 
-########################################
+#########################################
 # Generate Clusters After Leave One Out #
-########################################
+#########################################
 
 # Cluster all sequences while leaving out the specified sample
 mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/);
 	dist.seqs(fasta=current, cutoff=0.03);
-	cluster(column=current, count=current)"
+	cluster(column=current, count=current);
+	make.shared(list=current, count=current, label=0.03);
+	sub.sample(shared=current, label=0.03, size="${SUBSIZE}")"
+
+# Renaming shared files specifically
+mv "${OUTDIR}"/*.opti_mcc.shared "${OUTDIR}"/"${SAMPLE}".out.opti_mcc.shared
+mv "${OUTDIR}"/*.opti_mcc.0.03.subsample.shared "${OUTDIR}"/"${SAMPLE}".out.opti_mcc.0.03.subsample.shared
 
 # Renaming outputs of files generated after leaving the specified sample out
 for FILE in $(find "${OUTDIR}"/ -regex ".*precluster.*"); do
