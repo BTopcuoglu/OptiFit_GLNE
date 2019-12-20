@@ -56,6 +56,16 @@ def readNames(wildcards):
     	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
 
 
+# Retrieve tidied metadata from https://github.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015
+rule getMetadata:
+	input:
+		script="code/bash/getMetadata.sh"
+	output:
+		metadata="data/metadata/metadata.tsv"
+	shell:
+		"bash {input.script}"
+
+
 
 
 
@@ -152,7 +162,7 @@ rule clusterOptiFit:
 		script="code/bash/mothurOptiFit.sh",
 		loo=rules.leaveOneOut.output
 	output:
-		optiSubShared="data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
+		optifitSubShared="data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -171,6 +181,7 @@ rule clusterOptiFit:
 # rule Model:
 # 	input:
 # 		Rscript code/learning/main.R "L2_Logistic_Regression" "dx" {num}
+# 		metadata=rules.getMetadata.output.metadata,
 
 
 
