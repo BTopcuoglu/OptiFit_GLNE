@@ -18,8 +18,9 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 rule all:
 	input:
 		# "test.txt",
-		expand("data/learning/cv_results_{sample}.csv",
-			sample = sampleNames)
+		# expand("data/learning/cv_results_{sample}.csv",
+		# 	sample = sampleNames)
+		"data/learning/results/confusion_matrix.tsv"
 	shell:
 		"""
 		mkdir -p logs/mothur/
@@ -188,12 +189,32 @@ rule predictDiagnosis:
 		model="L2_Logistic_Regression",
 		outcome="dx"
 	output:
-		cvauc="data/learning/cv_results_{sample}.csv",
-		prediction="data/learning/prediction_results_{sample}.csv"
+		cvauc="data/learning/output/cv_results_{sample}.csv",
+		prediction="data/learning/output/prediction_results_{sample}.csv"
 	conda:
 		"envs/r.yaml"
 	shell:
 		"Rscript {input.script} {input.looSubShared} {input.optifitSubShared} {input.metadata} {params.model} {params.outcome}"
+
+
+# Collating all ML pipeline results and constructing confusion matrix
+rule makeConfusionMatrix:
+	input:
+		script="code/R/makeConfusionMatrix.R",
+		metadata=rules.getMetadata.output.metadata,
+		output=expand(rules.predictDiagnosis.output,
+			sample = sampleNames)
+	params:
+		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
+		classThresh=0.5 # Threshold for calling normal based on prediction values
+	output:
+		results="data/learning/results/model_results.tsv",
+		confusion="data/learning/results/confusion_matrix.tsv"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.metadata} {input.output} {params.dxDiffThresh} {params.classThresh}"
+
 
 
 
