@@ -18,13 +18,9 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 rule all:
 	input:
 		# "test.txt",
-		expand("data/learning/cv_results_{sample}.csv",
-			sample = sampleNames)
-	shell:
-		"""
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		"""
+		# expand("data/learning/cv_results_{sample}.csv",
+		# 	sample = sampleNames)
+		"data/learning/results/confusion_matrix.tsv"
 
 
 
@@ -87,7 +83,11 @@ rule get16SReferences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script}"
+		'''
+		bash {input.script}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 
@@ -126,12 +126,11 @@ rule preclusterSequences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.files} {input.refs}"
-
-
-# NOTE: Will need to adjust leaveOneOut and clusterOptiFit scripts to deal with samples that
-# don't have 10000 reads in them. Use count table?
-
+		'''
+		bash {input.script} {input.files} {input.refs}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 # Removing one sample at a time and generating cluster files separately for that sample and for
@@ -153,7 +152,11 @@ rule leaveOneOut:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.precluster} {params.sample}"
+		'''
+		bash {input.script} {input.precluster} {params.sample}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 # Using OptiFit to cluster the output files from the leave-one-out rule
@@ -166,7 +169,11 @@ rule clusterOptiFit:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.loo}"
+		'''
+		bash {input.script} {input.loo}
+		mkdir -p logs/mothur/
+		mv mothur*logfile logs/mothur/
+		'''
 
 
 
@@ -188,12 +195,32 @@ rule predictDiagnosis:
 		model="L2_Logistic_Regression",
 		outcome="dx"
 	output:
-		cvauc="data/learning/cv_results_{sample}.csv",
-		prediction="data/learning/prediction_results_{sample}.csv"
+		cvauc="data/learning/output/cv_results_{sample}.csv",
+		prediction="data/learning/output/prediction_results_{sample}.csv"
 	conda:
 		"envs/r.yaml"
 	shell:
 		"Rscript {input.script} {input.looSubShared} {input.optifitSubShared} {input.metadata} {params.model} {params.outcome}"
+
+
+# Collating all ML pipeline results and constructing confusion matrix
+rule makeConfusionMatrix:
+	input:
+		script="code/R/makeConfusionMatrix.R",
+		metadata=rules.getMetadata.output.metadata,
+		output=expand(rules.predictDiagnosis.output,
+			sample = sampleNames)
+	params:
+		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
+		classThresh=0.5 # Threshold for calling normal based on prediction values
+	output:
+		results="data/learning/results/model_results.tsv",
+		confusion="data/learning/results/confusion_matrix.tsv"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.metadata} {input.output} {params.dxDiffThresh} {params.classThresh}"
+
 
 
 
