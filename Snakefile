@@ -38,7 +38,7 @@ rule all:
 ##################################################################
 
 # Remove mock samples from run data
-checkpoint prepareSRARunTable:
+rule prepareSRARunTable:
 	input:
 		sra="data/metadata/SraRunTable.txt" # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
 	output:
@@ -236,5 +236,5 @@ rule clean:
 	shell:
 		"""
 		echo PROGRESS: Removing all workflow output.
-		rm -rf data/raw/ data/references/ data/process/ data/learning/ data/metadata/metadata.tsv
+		rm -rf data/raw/ data/references/ data/process/ data/learning/ data/metadata/metadata.tsv data/metadata/SraRunTable_no_mock.txt
 		"""
