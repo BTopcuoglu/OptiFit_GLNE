@@ -236,5 +236,5 @@ rule clean:
 	shell:
 		"""
 		echo PROGRESS: Removing all workflow output.
-		rm -rf data/references/ data/process/ data/learning/ data/metadata/metadata.tsv
+		rm -rf data/raw/ data/references/ data/process/ data/learning/ data/metadata/metadata.tsv
 		"""
