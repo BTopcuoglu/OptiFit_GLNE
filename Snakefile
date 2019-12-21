@@ -8,9 +8,11 @@
 
 
 
-# Function for creating list of sample names.
+# Code for creating list of sample names after filtering out names of mock samples (not used in this study).
 import pandas as pd
-sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist()
+regex = re.compile(r'\d+')
+names = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist()
+sampleNames = [i for i in names if regex.match(i)]
 
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
@@ -35,11 +37,21 @@ rule all:
 #
 ##################################################################
 
+# Remove mock samples from run data
+checkpoint prepareSRARunTable:
+	input:
+		sra="data/metadata/SraRunTable.txt" # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
+	output:
+		sraNoMock="data/metadata/SraRunTable_no_mock.txt"
+	shell:
+		"awk '!/mock/' {input.sra} > {output.sraNoMock}"
+
+
 # Download 16S SRA sequences from SRP062005.
 checkpoint getSRASequences:
 	input:
 		script="code/bash/getSRAFiles.sh",
-		sra="data/metadata/SraRunTable.txt" # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
+		sra=rules.prepareSRARunTable.output.sraNoMock
 	output:
 		dir=directory("data/raw") # Setting output as directory because output files are unknown (samples with 1 read file are removed)
 	conda:
@@ -102,7 +114,7 @@ rule get16SReferences:
 rule makeFilesFile:
 	input:
 		script="code/R/makeFilesFile.R",
-		sra="data/metadata/SraRunTable.txt",
+		sra=rules.prepareSRARunTable.output.sraNoMock,
 		seqs=readNames
 	output:
 		files="data/process/glne.files"
