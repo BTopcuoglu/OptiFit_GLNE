@@ -7,8 +7,7 @@
 # Purpose: Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit and diagnosis prediction
 
 
-# NOTE: This will work for now but will need to create function to pull sample names from files file
-# Can use input function similar to readNames below to populate 'expand()' when aggregating data to run model
+
 # Function for creating list of sample names.
 import pandas as pd
 sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist()
@@ -17,9 +16,6 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		# "test.txt",
-		# expand("data/learning/cv_results_{sample}.csv",
-		# 	sample = sampleNames)
 		"data/learning/results/confusion_matrix.tsv"
 
 
@@ -225,16 +221,16 @@ rule makeConfusionMatrix:
 
 
 
-# ##################################################################
-# #
-# # Part 5: Cleaning
-# #
-# ##################################################################
+##################################################################
+#
+# Part 5: Cleaning
+#
+##################################################################
 
-# # Resets directory by deleting all files created by this workflow.
-# rule clean:
-# 	shell:
-# 		"""
-# 		echo PROGRESS: Removing all workflow output.
-# 		rm -rf data/references/ data/process/
-# 		"""
+# Resets directory by deleting all files created by this workflow.
+rule clean:
+	shell:
+		"""
+		echo PROGRESS: Removing all workflow output.
+		rm -rf data/references/ data/process/ data/learning/
+		"""
