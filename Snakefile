@@ -17,6 +17,13 @@ sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist
 rule all:
 	input:
 		"data/learning/results/confusion_matrix.tsv"
+	shell:
+		'''
+		if $(ls | grep -q "mothur.*logfile"); then
+			mkdir -p logs/mothur/
+			mv mothur*logfile logs/mothur/
+		fi
+		'''
 
 
 
@@ -79,11 +86,7 @@ rule get16SReferences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script}"
 
 
 
@@ -122,11 +125,7 @@ rule preclusterSequences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script} {input.files} {input.refs}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script} {input.files} {input.refs}"
 
 
 # Removing one sample at a time and generating cluster files separately for that sample and for
@@ -148,11 +147,7 @@ rule leaveOneOut:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script} {input.precluster} {params.sample}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script} {input.precluster} {params.sample}"
 
 
 # Using OptiFit to cluster the output files from the leave-one-out rule
@@ -165,11 +160,8 @@ rule clusterOptiFit:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script} {input.loo}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script} {input.loo}"
+
 
 
 
@@ -232,5 +224,5 @@ rule clean:
 	shell:
 		"""
 		echo PROGRESS: Removing all workflow output.
-		rm -rf data/references/ data/process/ data/learning/
+		rm -rf data/references/ data/process/ data/learning/ data/metadata/metadata.tsv
 		"""
