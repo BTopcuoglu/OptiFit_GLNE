@@ -49,7 +49,7 @@ cv <- str_subset(mlFiles, "cv") %>%
 
 # Reading in prediction files and adding col for sample name
 prediction <- str_subset(mlFiles, "prediction") %>% 
-  map_df(prediction_files, read_csv, col_types = cols()) %>% 
+  map_df(read_csv, col_types = cols()) %>% 
   add_column(sample = sample_names, .before = "cancer")
 
 # Importing metadata and recoding to either be normal = 0 or cancer = 1
