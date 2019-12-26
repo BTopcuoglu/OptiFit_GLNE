@@ -10,10 +10,10 @@
 ##################
 
 # Set the variables to be used in this script
-export SRAINFO=${1:?ERROR: Need to define SRAINFO.}
+export SEQUENCENAME=${1:?ERROR: Need to define SEQUENCENAME.}
 
 # Other variables
-export OUTDIR=data/raw/
+export OUTDIR=data/raw/test/
 
 
 
@@ -32,21 +32,25 @@ mkdir -p "${OUTDIR}"
 # Need to get the column that contains the run file names that start wtih SRR (SRA). The
 # column position is not consistent across datasets, so need to remove column header and use sed to
 # isolate column
-SRRS=$(tail -n +2 "${SRAINFO}" | sed 's:.*\(SRR[0-9]*\).*:\1:')
+# SRRS=$(tail -n +2 "${SRAINFO}" | sed 's:.*\(SRR[0-9]*\).*:\1:')
 
 
 # Loop through each run file and pull it down from the SRA. After downloaded, we want to split it into
 # the R1 and R2 files. Finally, we'll compress the files with gzip
-for SAMPLE in $(echo "${SRRS}")
-do
-	prefetch "${SAMPLE}"
-    fastq-dump --split-files -O "${OUTDIR}" --gzip "${SAMPLE}"
-done
+# for SAMPLE in $(echo "${SRRS}")
+# do
+# 	prefetch "${SAMPLE}"
+#     fastq-dump --split-files -O "${OUTDIR}" --gzip "${SAMPLE}"
+# done
+
+
+prefetch "${SEQUENCENAME}"
+fastq-dump --split-files -O "${OUTDIR}" --gzip "${SEQUENCENAME}"
 
 
 # Some SRR files only contain data for one sequence read. So there aren't problems down the road, we
 # want to  make sure all files hav both reads, remove those with only one read
-SINGLE_FILES=$(find "${OUTDIR}" -name "*fastq.gz" | cut -f 1 -d _ | sort | uniq -u)
+SINGLE_FILES=$(find "${OUTDIR}" -name "${SEQUENCENAME}*" | cut -f 1 -d _ | sort | uniq -u)
 
 # If $SINGLE_FILES is set (not empty or ""), remove those files
 if [ -n "${SINGLE_FILES}" ]
@@ -55,4 +59,5 @@ then
 fi
 
 # Cleaning up SRA temp directories (puts them in current working directory)
-find ./ -type d -maxdepth 1 -regex ".*/SRR.*" -exec rm -r {} \;
+# find ./ -type d -maxdepth 1 -regex ".*/SRR.*" -exec rm -r {} \;
+find ./ -maxdepth 1 -type d -regex ".*${SEQUENCENAME}" -exec rm -r {} \;
