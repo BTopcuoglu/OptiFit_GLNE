@@ -8,12 +8,14 @@
 
 
 
-# Code for creating list of sample names after filtering out names of mock samples (not used in this study).
+# Code for creating list of sample and sequence names after filtering out names of mock samples (not used in this study).
 import pandas as pd
+import re
+data = pd.read_csv("data/metadata/SraRunTable.txt")
+names = data["Sample Name"].tolist()
 regex = re.compile(r'\d+')
-names = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist()
 sampleNames = [i for i in names if regex.match(i)]
-
+sequenceNames = data[data["Sample Name"].isin(sampleNames)]["Run"].tolist()
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
