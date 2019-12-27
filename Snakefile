@@ -64,7 +64,7 @@ rule getMetadata:
 		"bash {input.script}"
 
 
-# Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
+# Downloading and formatting mothur SILVA and RDP reference databases. The v4 region is extracted from
 # SILVA database for use as reference alignment.
 rule get16SReferences:
 	input:
@@ -93,14 +93,14 @@ rule makeFilesFile:
 	input:
 		script="code/R/makeFilesFile.R",
 		sra="data/metadata/SraRunTable.txt", # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
-		seqs=expand(rules.getSRASequences.output,
+		sequences=expand(rules.getSRASequences.output,
 			sequence = sequenceNames)
 	output:
 		files="data/process/glne.files"
 	conda:
 		"envs/r.yaml"
 	shell:
-		"Rscript {input.script} {input.sra} {input.seqs}"
+		"Rscript {input.script} {input.sra} {input.sequences}"
 
 
 # Preclustering and preparing sequences for leave one out analysis.
