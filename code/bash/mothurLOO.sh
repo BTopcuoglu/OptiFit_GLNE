@@ -29,8 +29,8 @@ SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome
 mkdir -p "${OUTDIR}"/
 
 # Create cluster distance file for individual sample
-mothur "#get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/, processors="${NPROC}");
-	dist.seqs(fasta=current, cutoff=0.03)"
+mothur "#get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/);
+	dist.seqs(fasta=current, cutoff=0.03, processors="${NPROC}")"
 
 # Renaming outputs of files generated from single sample
 for FILE in $(find "${OUTDIR}"/ -regex ".*precluster.*"); do
@@ -51,8 +51,8 @@ done
 #########################################
 
 # Cluster all sequences while leaving out the specified sample
-mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/, processors="${NPROC}");
-	dist.seqs(fasta=current, cutoff=0.03);
+mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/);
+	dist.seqs(fasta=current, cutoff=0.03, processors="${NPROC}");
 	cluster(column=current, count=current);
 	make.shared(list=current, count=current, label=0.03);
 	sub.sample(shared=current, label=0.03, size="${SUBSIZE}")"
