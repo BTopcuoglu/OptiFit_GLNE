@@ -39,34 +39,19 @@ rule all:
 #
 ##################################################################
 
-# Remove mock samples from run data
-rule prepareSRARunTable:
-	input:
-		sra="data/metadata/SraRunTable.txt" # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
-	output:
-		sraNoMock="data/metadata/SraRunTable_no_mock.txt"
-	shell:
-		"awk '!/mock/' {input.sra} > {output.sraNoMock}"
-
-
 # Download 16S SRA sequences from SRP062005.
-checkpoint getSRASequences:
+rule getSRASequences:
 	input:
-		script="code/bash/getSRAFiles.sh",
-		sra=rules.prepareSRARunTable.output.sraNoMock
+		script="code/bash/getSRAFiles.sh"
+	params:
+		sequence="{sequence}"
 	output:
-		dir=directory("data/raw") # Setting output as directory because output files are unknown (samples with 1 read file are removed)
+		read1="data/raw/{sequence}_1.fastq.gz",
+		read2="data/raw/{sequence}_2.fastq.gz"
 	conda:
 		"envs/sra_tools.yaml"
 	shell:
-		"bash {input.script} {input.sra}"
-
-
-# Defining a function that pulls the names of all the SRA sequences from getSRASequences after the checkpoint finishes.
-def readNames(wildcards):
-    checkpoint_output = checkpoints.getSRASequences.get(**wildcards).output.dir
-    return expand("data/raw/{readName}.fastq.gz",
-    	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
+		"bash {input.script} {params.sequence}"
 
 
 # Retrieve tidied metadata from https://github.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015
@@ -78,15 +63,6 @@ rule getMetadata:
 	shell:
 		"bash {input.script}"
 
-
-
-
-
-##################################################################
-#
-# Part 2: Generate Reference Files
-#
-##################################################################
 
 # Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
 # SILVA database for use as reference alignment.
@@ -108,7 +84,7 @@ rule get16SReferences:
 
 ##################################################################
 #
-# Part 3: Running Mothur
+# Part 2: Running Mothur
 #
 ##################################################################
 
@@ -116,8 +92,9 @@ rule get16SReferences:
 rule makeFilesFile:
 	input:
 		script="code/R/makeFilesFile.R",
-		sra=rules.prepareSRARunTable.output.sraNoMock,
-		seqs=readNames
+		sra="data/metadata/SraRunTable.txt", # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
+		seqs=expand(rules.getSRASequences.output,
+			sequence = sequenceNames)
 	output:
 		files="data/process/glne.files"
 	conda:
@@ -182,7 +159,7 @@ rule clusterOptiFit:
 
 ##################################################################
 #
-# Part 4: Running ML Model
+# Part 3: Running ML Model
 #
 ##################################################################
 
@@ -229,7 +206,7 @@ rule makeConfusionMatrix:
 
 ##################################################################
 #
-# Part 5: Cleaning
+# Part 4: Cleaning
 #
 ##################################################################
 
@@ -238,5 +215,5 @@ rule clean:
 	shell:
 		"""
 		echo PROGRESS: Removing all workflow output.
-		rm -rf data/raw/ data/references/ data/process/ data/learning/ data/metadata/metadata.tsv data/metadata/SraRunTable_no_mock.txt
+		rm -rf data/raw/ data/references/ data/process/ data/learning/ data/metadata/metadata.tsv
 		"""
