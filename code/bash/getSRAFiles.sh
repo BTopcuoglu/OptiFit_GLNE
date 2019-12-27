@@ -10,10 +10,10 @@
 ##################
 
 # Set the variables to be used in this script
-export SEQUENCENAME=${1:?ERROR: Need to define SEQUENCENAME.}
+SEQUENCENAME=${1:?ERROR: Need to define SEQUENCENAME.}
 
 # Other variables
-export OUTDIR=data/raw/
+OUTDIR=data/raw/
 
 
 
@@ -29,4 +29,4 @@ prefetch "${SEQUENCENAME}"
 fastq-dump --split-files -O "${OUTDIR}" --gzip "${SEQUENCENAME}"
 
 # Cleaning up SRA temp directories (puts them in current working directory)
-find ./ -maxdepth 1 -type d -regex ".*${SEQUENCENAME}" -exec rm -r {} \;
+rm -r "${SEQUENCENAME}"/
