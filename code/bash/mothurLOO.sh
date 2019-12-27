@@ -10,14 +10,15 @@
 ##################
 
 # Set the variables to be used in this script
-export FASTA=${1:?ERROR: Need to define FASTA.}
-export COUNT=${2:?ERROR: Need to define COUNT.}
-export TAXONOMY=${3:?ERROR: Need to define TAXONOMY.}
-export SAMPLE=${4:?ERROR: Need to define SAMPLE.}
+FASTA=${1:?ERROR: Need to define FASTA.}
+COUNT=${2:?ERROR: Need to define COUNT.}
+TAXONOMY=${3:?ERROR: Need to define TAXONOMY.}
+SAMPLE=${4:?ERROR: Need to define SAMPLE.}
 
 # Other variables
-export OUTDIR=data/process/loo/"${SAMPLE}"/ # Output dir based on sample name to keep things separate during parallelization/organized
-export SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
+OUTDIR=data/process/loo/"${SAMPLE}"/ # Output dir based on sample name to keep things separate during parallelization/organized
+NPROC=$(nproc) # Setting number of processors to use based on available resources
+SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 
 ###################################################
@@ -28,7 +29,7 @@ export SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al.,
 mkdir -p "${OUTDIR}"/
 
 # Create cluster distance file for individual sample
-mothur "#get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/);
+mothur "#get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/, processors="${NPROC}");
 	dist.seqs(fasta=current, cutoff=0.03)"
 
 # Renaming outputs of files generated from single sample
@@ -50,7 +51,7 @@ done
 #########################################
 
 # Cluster all sequences while leaving out the specified sample
-mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/);
+mothur "#remove.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}", outputdir="${OUTDIR}"/, processors="${NPROC}");
 	dist.seqs(fasta=current, cutoff=0.03);
 	cluster(column=current, count=current);
 	make.shared(list=current, count=current, label=0.03);

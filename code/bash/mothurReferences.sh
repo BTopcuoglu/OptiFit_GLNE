@@ -9,7 +9,8 @@
 ##################
 
 # Other variables
-export OUTDIR=data/references/ # Directory for storing mothur reference files
+OUTDIR=data/references/ # Directory for storing mothur reference files
+NPROC=$(nproc) # Setting number of processors to use based on available resources
 
 
 
@@ -35,13 +36,13 @@ wget -N -P "${OUTDIR}"/tmp/ http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
 tar xvzf "${OUTDIR}"/tmp/Silva.seed_v123.tgz -C "${OUTDIR}"/tmp/
 
 # Using mothur to pull out bacterial sequences and remove sequence gaps
-mothur "#get.lineage(fasta="${OUTDIR}"/tmp/silva.seed_v123.align, taxonomy="${OUTDIR}"/tmp/silva.seed_v123.tax, taxon=Bacteria);degap.seqs(fasta="${OUTDIR}"/tmp/silva.seed_v123.pick.align, processors=8)"
+mothur "#get.lineage(fasta="${OUTDIR}"/tmp/silva.seed_v123.align, taxonomy="${OUTDIR}"/tmp/silva.seed_v123.tax, taxon=Bacteria);degap.seqs(fasta="${OUTDIR}"/tmp/silva.seed_v123.pick.align, processors="${NPROC}")"
 
 # Renaming the output file and moving it from the tmp dir to the output dir
 mv "${OUTDIR}"/tmp/silva.seed_v123.pick.align "${OUTDIR}"/silva.seed.align
 
 # Using mothur to only keep sequences from the v4 region of the 16S rRNA DNA region
-mothur "#pcr.seqs(fasta="${OUTDIR}"/silva.seed.align, start=11894, end=25319, keepdots=F, processors=8)"
+mothur "#pcr.seqs(fasta="${OUTDIR}"/silva.seed.align, start=11894, end=25319, keepdots=F, processors="${NPROC}")"
 
 # Renaming the final v4 SILVA reference file
 mv "${OUTDIR}"/silva.seed.pcr.align "${OUTDIR}"/silva.v4.align

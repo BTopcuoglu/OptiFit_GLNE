@@ -10,16 +10,17 @@
 ##################
 
 # Set the variables to be used in this script
-export INFASTA=${1:?ERROR: Need to define INFASTA.}
-export INDIST=${2:?ERROR: Need to define INDIST.}
-export INCOUNT=${3:?ERROR: Need to define INCOUNT.}
-export OUTFASTA=${4:?ERROR: Need to define OUTFASTA.}
-export OUTDIST=${5:?ERROR: Need to define OUTDIST.}
-export OUTLIST=${6:?ERROR: Need to define OUTLIST.}
+INFASTA=${1:?ERROR: Need to define INFASTA.}
+INDIST=${2:?ERROR: Need to define INDIST.}
+INCOUNT=${3:?ERROR: Need to define INCOUNT.}
+OUTFASTA=${4:?ERROR: Need to define OUTFASTA.}
+OUTDIST=${5:?ERROR: Need to define OUTDIST.}
+OUTLIST=${6:?ERROR: Need to define OUTLIST.}
 
 # Other variables
-export OUTDIR=data/process/optifit/
-export SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
+OUTDIR=data/process/optifit/
+NPROC=$(nproc) # Setting number of processors to use based on available resources
+SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 
 
@@ -37,7 +38,7 @@ SUBDIR="${OUTDIR}"/"${SAMPLE}"/
 mkdir -p "${SUBDIR}"/
 
 # Running OptiFit to cluster left out sample with reference clusters
-mothur "#cluster.fit(fasta="${INFASTA}", column="${INDIST}", count="${INCOUNT}", reffasta="${OUTFASTA}", refcolumn="${OUTDIST}", reflist="${OUTLIST}", method=closed, outputdir="${SUBDIR}");
+mothur "#cluster.fit(fasta="${INFASTA}", column="${INDIST}", count="${INCOUNT}", reffasta="${OUTFASTA}", refcolumn="${OUTDIST}", reflist="${OUTLIST}", method=closed, outputdir="${SUBDIR}", processors="${NPROC}");
 	make.shared(list=current, count=current, label=0.03);
 	sub.sample(shared=current, label=0.03, size="${SUBSIZE}")"
 

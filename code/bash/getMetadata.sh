@@ -10,7 +10,7 @@
 ##################
 
 # Other variables
-export OUTDIR=data/metadata/
+OUTDIR=data/metadata/
 
 
 
