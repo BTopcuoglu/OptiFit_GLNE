@@ -10,14 +10,14 @@
 ##################
 
 # Set the variables to be used in this script
-export FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups and sequence files
-export SILVAV4=${2:?ERROR: Need to define SILVAV4.}
-export RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
-export RDPTAX=${4:?ERROR: Need to define RDPTAX.}
+FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups and sequence files
+SILVAV4=${2:?ERROR: Need to define SILVAV4.}
+RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
+RDPTAX=${4:?ERROR: Need to define RDPTAX.}
 
 # Other variables
-export OUTDIR=data/process/precluster/
-export TMP="${OUTDIR}"/tmp/
+OUTDIR=data/process/precluster/
+TMP="${OUTDIR}"/tmp/
 NPROC=$(nproc) # Setting number of processors to use based on available resources
 
 
