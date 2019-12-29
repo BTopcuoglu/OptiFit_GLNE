@@ -3,66 +3,40 @@ __default__:
   nodes: 1
   ntaskspernode: 1
   cpuspertask: 1
-  mempercpu: "4000mb"
+  mempercpu: "4GB"
   time: "15:00"
   account: "ACCOUNT"
   partition: "standard"
   mailuser: "EMAIL"
-  mailtype: "BEGIN,END,FAIL"
+  mailtype: "END,FAIL"
   output: "logs/slurm/%x-%j.out"
 
 
 
 ##################################################################
 #
-# Mothur 
+# Analysis 
 #
 ##################################################################
 
+getSRASequences:
+  time: "45:00"
+
 get16SReferences:
   cpuspertask: 4
-  time: "30:00"
 
-get16SMock:
-  cpuspertask: 4
-  time: "30:00"
-
-make16SShared:
+preclusterSequences:
   cpuspertask: 12
-  time: "6:00:00"
+  time: "3:00:00"
 
-split16SShared:
-  cpuspertask: 4
-  time: "30:00"
-
-count16SShared:
-  cpuspertask: 4
-  time: "30:00"
-
-subsample16SShared:
-  cpuspertask: 4
-  time: "30:00"
-
-rarefy16SReads:
-  cpuspertask: 4
-  time: "30:00"
-
-calc16SAlphaDiversity:
+leaveOneOut:
   cpuspertask: 12
-  time: "45:00"
+  time: "3:00:00"
 
-calc16SBetaDiversity:
-  cpuspertask: 12
-  time: "45:00"
-
-calc16SPCoA:
-  cpuspertask: 6
-  time: "45:00"
-
-calc16SNMDS:
-  cpuspertask: 6
-  time: "45:00"
-
-calc16SError:
+clusterOptiFit:
   cpuspertask: 4
-  time: "30:00"
+  time: "45:00"
+
+predictDiagnosis:
+  cpuspertask: 2
+  time: "45:00"

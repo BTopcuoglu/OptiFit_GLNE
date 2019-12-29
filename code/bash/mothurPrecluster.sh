@@ -1,5 +1,5 @@
 #! /bin/bash
-# mothurContigs.sh
+# mothurPrecluster.sh
 # Begum Topcuoglu
 # William L. Close
 # Schloss Lab
@@ -10,14 +10,16 @@
 ##################
 
 # Set the variables to be used in this script
-export FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups and sequence files
-export SILVAV4=${2:?ERROR: Need to define SILVAV4.}
-export RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
-export RDPTAX=${4:?ERROR: Need to define RDPTAX.}
+FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups and sequence files
+SILVAV4=${2:?ERROR: Need to define SILVAV4.}
+RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
+RDPTAX=${4:?ERROR: Need to define RDPTAX.}
 
 # Other variables
-export OUTDIR=data/process/precluster/
-export TMP="${OUTDIR}"/tmp/
+OUTDIR=data/process/precluster/
+TMP="${OUTDIR}"/tmp/
+NPROC=$(nproc) # Setting number of processors to use based on available resources
+
 
 
 ###################
@@ -29,7 +31,7 @@ echo PROGRESS: Creating contigs for all the samples
 # Making output dir
 mkdir -p "${TMP}"/
 
-mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/);
+mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/, processors="${NPROC}");
 	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
 	unique.seqs(fasta=current);
 	count.seqs(name=current, group=current);
@@ -48,6 +50,7 @@ mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/);
 mv "${TMP}"/*.precluster.pick.pick.fasta "${OUTDIR}"/glne.precluster.fasta
 mv "${TMP}"/*.precluster.denovo.vsearch.pick.pick.count_table "${OUTDIR}"/glne.precluster.count_table
 mv "${TMP}"/*.precluster.pick.pds.wang.pick.taxonomy "${OUTDIR}"/glne.precluster.taxonomy
+
 
 
 ###############

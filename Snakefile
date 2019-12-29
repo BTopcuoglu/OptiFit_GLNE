@@ -7,20 +7,27 @@
 # Purpose: Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit and diagnosis prediction
 
 
-# NOTE: This will work for now but will need to create function to pull sample names from files file
-# Can use input function similar to readNames below to populate 'expand()' when aggregating data to run model
-# Function for creating list of sample names.
-import pandas as pd
-sampleNames = pd.read_csv("data/metadata/SraRunTable.txt")["Sample Name"].tolist()
 
+# Code for creating list of sample and sequence names after filtering out names of mock samples (not used in this study).
+import pandas as pd
+import re
+data = pd.read_csv("data/metadata/SraRunTable.txt")
+names = data["Sample Name"].tolist()
+regex = re.compile(r'\d+')
+sampleNames = set([i for i in names if regex.match(i)])
+sequenceNames = set(data[data["Sample Name"].isin(sampleNames)]["Run"].tolist())
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		# "test.txt",
-		# expand("data/learning/cv_results_{sample}.csv",
-		# 	sample = sampleNames)
-		"data/learning/results/confusion_matrix.tsv"
+		"data/learning/summary/confusion_matrix.tsv"
+	shell:
+		'''
+		if $(ls | grep -q "mothur.*logfile"); then
+			mkdir -p logs/mothur/
+			mv mothur*logfile logs/mothur/
+		fi
+		'''
 
 
 
@@ -33,23 +40,18 @@ rule all:
 ##################################################################
 
 # Download 16S SRA sequences from SRP062005.
-checkpoint getSRASequences:
+rule getSRASequences:
 	input:
-		script="code/bash/getSRAFiles.sh",
-		sra="data/metadata/SraRunTable.txt" # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
+		script="code/bash/getSRAFiles.sh"
+	params:
+		sequence="{sequence}"
 	output:
-		dir=directory("data/raw") # Setting output as directory because output files are unknown (samples with 1 read file are removed)
+		read1="data/raw/{sequence}_1.fastq.gz",
+		read2="data/raw/{sequence}_2.fastq.gz"
 	conda:
 		"envs/sra_tools.yaml"
 	shell:
-		"bash {input.script} {input.sra}"
-
-
-# Defining a function that pulls the names of all the SRA sequences from getSRASequences after the checkpoint finishes.
-def readNames(wildcards):
-    checkpoint_output = checkpoints.getSRASequences.get(**wildcards).output.dir
-    return expand("data/raw/{readName}.fastq.gz",
-    	readName=glob_wildcards(os.path.join(checkpoint_output, "{readName}.fastq.gz")).readName)
+		"bash {input.script} {params.sequence}"
 
 
 # Retrieve tidied metadata from https://github.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015
@@ -62,16 +64,7 @@ rule getMetadata:
 		"bash {input.script}"
 
 
-
-
-
-##################################################################
-#
-# Part 2: Generate Reference Files
-#
-##################################################################
-
-# Downloading and formatting SILVA and RDP reference databases. The v4 region is extracted from
+# Downloading and formatting mothur SILVA and RDP reference databases. The v4 region is extracted from
 # SILVA database for use as reference alignment.
 rule get16SReferences:
 	input:
@@ -83,11 +76,7 @@ rule get16SReferences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script}"
 
 
 
@@ -95,7 +84,7 @@ rule get16SReferences:
 
 ##################################################################
 #
-# Part 3: Running Mothur
+# Part 2: Running Mothur
 #
 ##################################################################
 
@@ -103,14 +92,15 @@ rule get16SReferences:
 rule makeFilesFile:
 	input:
 		script="code/R/makeFilesFile.R",
-		sra="data/metadata/SraRunTable.txt",
-		seqs=readNames
+		sra="data/metadata/SraRunTable.txt", # Output from https://trace.ncbi.nlm.nih.gov/Traces/study/?acc=SRP062005&o=acc_s%3Aa RunInfo
+		sequences=expand(rules.getSRASequences.output,
+			sequence = sequenceNames)
 	output:
 		files="data/process/glne.files"
 	conda:
 		"envs/r.yaml"
 	shell:
-		"Rscript {input.script} {input.sra} {input.seqs}"
+		"Rscript {input.script} {input.sra} {input.sequences}"
 
 
 # Preclustering and preparing sequences for leave one out analysis.
@@ -126,11 +116,7 @@ rule preclusterSequences:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script} {input.files} {input.refs}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script} {input.files} {input.refs}"
 
 
 # Removing one sample at a time and generating cluster files separately for that sample and for
@@ -152,11 +138,7 @@ rule leaveOneOut:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script} {input.precluster} {params.sample}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script} {input.precluster} {params.sample}"
 
 
 # Using OptiFit to cluster the output files from the leave-one-out rule
@@ -169,18 +151,15 @@ rule clusterOptiFit:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		'''
-		bash {input.script} {input.loo}
-		mkdir -p logs/mothur/
-		mv mothur*logfile logs/mothur/
-		'''
+		"bash {input.script} {input.loo}"
+
 
 
 
 
 ##################################################################
 #
-# Part 4: Running ML Model
+# Part 3: Running ML Model
 #
 ##################################################################
 
@@ -195,8 +174,8 @@ rule predictDiagnosis:
 		model="L2_Logistic_Regression",
 		outcome="dx"
 	output:
-		cvauc="data/learning/output/cv_results_{sample}.csv",
-		prediction="data/learning/output/prediction_results_{sample}.csv"
+		cvauc="data/learning/results/cv_results_{sample}.csv",
+		prediction="data/learning/results/prediction_results_{sample}.csv"
 	conda:
 		"envs/r.yaml"
 	shell:
@@ -208,33 +187,33 @@ rule makeConfusionMatrix:
 	input:
 		script="code/R/makeConfusionMatrix.R",
 		metadata=rules.getMetadata.output.metadata,
-		output=expand(rules.predictDiagnosis.output,
+		results=expand(rules.predictDiagnosis.output,
 			sample = sampleNames)
 	params:
 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
 		classThresh=0.5 # Threshold for calling normal based on prediction values
 	output:
-		results="data/learning/results/model_results.tsv",
-		confusion="data/learning/results/confusion_matrix.tsv"
+		results="data/learning/summary/model_results.tsv",
+		confusion="data/learning/summary/confusion_matrix.tsv"
 	conda:
 		"envs/r.yaml"
 	shell:
-		"Rscript {input.script} {input.metadata} {input.output} {params.dxDiffThresh} {params.classThresh}"
+		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
 
 
 
 
 
-# ##################################################################
-# #
-# # Part 5: Cleaning
-# #
-# ##################################################################
+##################################################################
+#
+# Part 4: Cleaning
+#
+##################################################################
 
-# # Resets directory by deleting all files created by this workflow.
-# rule clean:
-# 	shell:
-# 		"""
-# 		echo PROGRESS: Removing all workflow output.
-# 		rm -rf data/references/ data/process/
-# 		"""
+# Resets directory by deleting all files created by this workflow.
+rule clean:
+	shell:
+		"""
+		echo PROGRESS: Removing all workflow output.
+		rm -rf data/raw/ data/references/ data/process/ data/learning/ data/metadata/metadata.tsv
+		"""
