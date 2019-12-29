@@ -67,7 +67,7 @@ model <- input[4] # Type of model to use
 outcome <- input[5] # Classifaction to predict
 
 # Other variables
-outDir <- "data/learning/output/"
+outDir <- "data/learning/results/"
 sampleNum <- str_extract(looSubShared, "\\d+") # Pulling sample number from file path
 
 
