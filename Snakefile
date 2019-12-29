@@ -14,13 +14,13 @@ import re
 data = pd.read_csv("data/metadata/SraRunTable.txt")
 names = data["Sample Name"].tolist()
 regex = re.compile(r'\d+')
-sampleNames = [i for i in names if regex.match(i)]
-sequenceNames = data[data["Sample Name"].isin(sampleNames)]["Run"].tolist()
+sampleNames = set([i for i in names if regex.match(i)])
+sequenceNames = set(data[data["Sample Name"].isin(sampleNames)]["Run"].tolist())
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"data/learning/results/confusion_matrix.tsv"
+		"data/learning/summary/confusion_matrix.tsv"
 	shell:
 		'''
 		if $(ls | grep -q "mothur.*logfile"); then
@@ -174,8 +174,8 @@ rule predictDiagnosis:
 		model="L2_Logistic_Regression",
 		outcome="dx"
 	output:
-		cvauc="data/learning/output/cv_results_{sample}.csv",
-		prediction="data/learning/output/prediction_results_{sample}.csv"
+		cvauc="data/learning/results/cv_results_{sample}.csv",
+		prediction="data/learning/results/prediction_results_{sample}.csv"
 	conda:
 		"envs/r.yaml"
 	shell:
@@ -187,18 +187,18 @@ rule makeConfusionMatrix:
 	input:
 		script="code/R/makeConfusionMatrix.R",
 		metadata=rules.getMetadata.output.metadata,
-		output=expand(rules.predictDiagnosis.output,
+		results=expand(rules.predictDiagnosis.output,
 			sample = sampleNames)
 	params:
 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
 		classThresh=0.5 # Threshold for calling normal based on prediction values
 	output:
-		results="data/learning/results/model_results.tsv",
-		confusion="data/learning/results/confusion_matrix.tsv"
+		results="data/learning/summary/model_results.tsv",
+		confusion="data/learning/summary/confusion_matrix.tsv"
 	conda:
 		"envs/r.yaml"
 	shell:
-		"Rscript {input.script} {input.metadata} {input.output} {params.dxDiffThresh} {params.classThresh}"
+		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
 
 
 
