@@ -20,7 +20,7 @@ __default__:
 ##################################################################
 
 getSRASequences:
-  time: "30:00"
+  time: "45:00"
 
 get16SReferences:
   cpuspertask: 4
@@ -31,12 +31,12 @@ preclusterSequences:
 
 leaveOneOut:
   cpuspertask: 12
-  time: "1:30:00"
+  time: "3:00:00"
 
 clusterOptiFit:
   cpuspertask: 4
-  time: "30:00"
+  time: "45:00"
 
 predictDiagnosis:
   cpuspertask: 2
-  time: "30:00"
+  time: "45:00"
