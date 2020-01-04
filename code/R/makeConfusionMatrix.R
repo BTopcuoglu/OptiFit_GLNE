@@ -65,8 +65,8 @@ meta <- read_tsv(metadata, col_types = cols()) %>%
 # Creating results df
 results <- left_join(cv, prediction, by = "sample") %>% 
   mutate(dx_diff = abs(cancer - normal), # Difference between prediction scores for dx
-         dx_flag = case_when(dx_diff <= 0.05 ~ 1, # Noting whether classifications need to verified by searching 
-                          dx_diff > 0.05 ~ 0),
+         dx_flag = case_when(dx_diff <= dxDiffThresh ~ 1, # Noting whether classifications need to verified by searching 
+                          dx_diff > dxDiffThresh ~ 0),
          pred_class = case_when(normal >= classThresh ~ 0, # Determining classification using threshold of classThresh
                                     normal < classThresh ~ 1)) %>% 
   left_join(meta, by = "sample") # Adding metadata classification
