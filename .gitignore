@@ -1,26 +1,19 @@
+# Data directories
+/data/**
+!/data/**/
+!/data/metadata/SraRunTable.txt
+!/data/learning/summary/**
+
+# Log files
 logs/slurm/*
 logs/mothur/*
-data/mothur/raw/*
-data/temp/*
+
+# Snakemake
+/.snakemake/**
+/snakemake-*.out
+
+# Misc
 .DS_Store
 *Rproj*
-data/process/*groups
-data/process/*fasta
-data/process/*count_table
-data/process/*taonomy
-data/process/*taxonomy
-data/process/*list
-data/process/*sensspec
-data/process/*steps
-data/process/*dist
-data/mothur/*
-data/raw/*
-data/references/*data/mothur/raw/*
-data/temp/*
-.DS_Store
-*Rproj*
-data/references/*
-data/process/baxter/*
 .Rproj.user
-.snakemake/*
 .Rhistory
