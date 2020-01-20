@@ -132,7 +132,7 @@ rule preclusterSequences:
 
 # Removing one sample at a time and generating cluster files separately for that sample and for
 # the remaining data.
-rule leaveOneOut:
+rule leaveOneOutOptiFit:
 	input:
 		script="code/bash/mothurLOO.sh",
 		precluster=rules.preclusterSequences.output
@@ -156,7 +156,7 @@ rule leaveOneOut:
 rule clusterOptiFit:
 	input:
 		script="code/bash/mothurOptiFit.sh",
-		loo=rules.leaveOneOut.output
+		loo=rules.leaveOneOutOptiFit.output
 	output:
 		sampleSubShared="data/process/optifit/shared/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
@@ -216,7 +216,7 @@ rule leaveOneOutOptiClust:
 rule predictDiagnosis:
 	input:
 		script="code/learning/main.R",
-		looSubShared=rules.leaveOneOut.output.looSubShared,
+		looSubShared=rules.leaveOneOutOptiFit.output.looSubShared,
 		optifitSubShared=rules.clusterOptiFit.output.sampleSubShared,
 		metadata=rules.getMetadata.output.metadata
 	params:
