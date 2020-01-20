@@ -20,7 +20,9 @@ sequenceNames = set(data[data["Sample Name"].isin(sampleNames)]["Run"].tolist())
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		"data/learning/summary/confusion_matrix.tsv"
+		"data/learning/summary/confusion_matrix.tsv",
+		expand("data/process/opticlust/loo/{sample}/{sample}.in.opti_mcc.0.03.subsample.shared",
+			sample = sampleNames)
 	shell:
 		'''
 		if $(ls | grep -q "mothur.*logfile"); then
@@ -137,13 +139,13 @@ rule leaveOneOut:
 	params:
 		sample="{sample}"
 	output:
-		inFasta="data/process/loo/{sample}/{sample}.in.fasta",
-		inDist="data/process/loo/{sample}/{sample}.in.dist",
-		inCount="data/process/loo/{sample}/{sample}.in.count_table",
-		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
-		outDist="data/process/loo/{sample}/{sample}.out.dist",
-		outList="data/process/loo/{sample}/{sample}.out.list",
-		looSubShared="data/process/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		inFasta="data/process/optifit/loo/{sample}/{sample}.in.fasta",
+		inDist="data/process/optifit/loo/{sample}/{sample}.in.dist",
+		inCount="data/process/optifit/loo/{sample}/{sample}.in.count_table",
+		outFasta="data/process/optifit/loo/{sample}/{sample}.out.fasta",
+		outDist="data/process/optifit/loo/{sample}/{sample}.out.dist",
+		outList="data/process/optifit/loo/{sample}/{sample}.out.list",
+		looSubShared="data/process/optifit/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -156,7 +158,7 @@ rule clusterOptiFit:
 		script="code/bash/mothurOptiFit.sh",
 		loo=rules.leaveOneOut.output
 	output:
-		optifitSubShared="data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
+		sampleSubShared="data/process/optifit/shared/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -215,7 +217,7 @@ rule predictDiagnosis:
 	input:
 		script="code/learning/main.R",
 		looSubShared=rules.leaveOneOut.output.looSubShared,
-		optifitSubShared=rules.clusterOptiFit.output.optifitSubShared,
+		optifitSubShared=rules.clusterOptiFit.output.sampleSubShared,
 		metadata=rules.getMetadata.output.metadata
 	params:
 		model="L2_Logistic_Regression",
