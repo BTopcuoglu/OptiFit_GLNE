@@ -119,6 +119,15 @@ rule preclusterSequences:
 		"bash {input.script} {input.files} {input.refs}"
 
 
+
+
+
+##################################################################
+#
+# Part 3: OptiFit Leave One Out (LOO)
+#
+##################################################################
+
 # Removing one sample at a time and generating cluster files separately for that sample and for
 # the remaining data.
 rule leaveOneOut:
@@ -159,7 +168,51 @@ rule clusterOptiFit:
 
 ##################################################################
 #
-# Part 3: Running ML Model
+# Part 4: OptiClust Leave One Out (LOO)
+#
+##################################################################
+
+# Removing one sample at a time and generating cluster files separately for that sample and for
+# the remaining data.
+rule leaveOneOut:
+	input:
+		script="code/bash/mothurLOO.sh",
+		precluster=rules.preclusterSequences.output
+	params:
+		sample="{sample}"
+	output:
+		inFasta="data/process/loo/{sample}/{sample}.in.fasta",
+		inDist="data/process/loo/{sample}/{sample}.in.dist",
+		inCount="data/process/loo/{sample}/{sample}.in.count_table",
+		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
+		outDist="data/process/loo/{sample}/{sample}.out.dist",
+		outList="data/process/loo/{sample}/{sample}.out.list",
+		looSubShared="data/process/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.precluster} {params.sample}"
+
+
+# Using OptiFit to cluster the output files from the leave-one-out rule
+rule clusterOptiFit:
+	input:
+		script="code/bash/mothurOptiFit.sh",
+		loo=rules.leaveOneOut.output
+	output:
+		optifitSubShared="data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.loo}"
+
+
+
+
+
+##################################################################
+#
+# Part 5: Running ML Model
 #
 ##################################################################
 
@@ -206,7 +259,7 @@ rule makeConfusionMatrix:
 
 ##################################################################
 #
-# Part 4: Cleaning
+# Part 6: Cleaning
 #
 ##################################################################
 
