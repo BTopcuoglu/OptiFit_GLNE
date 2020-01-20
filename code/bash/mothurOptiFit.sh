@@ -18,7 +18,7 @@ OUTDIST=${5:?ERROR: Need to define OUTDIST.}
 OUTLIST=${6:?ERROR: Need to define OUTLIST.}
 
 # Other variables
-OUTDIR=data/process/optifit/
+OUTDIR=data/process/optifit/shared/
 NPROC=$(nproc) # Setting number of processors to use based on available resources
 SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 

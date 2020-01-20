@@ -16,7 +16,7 @@ TAXONOMY=${3:?ERROR: Need to define TAXONOMY.}
 SAMPLE=${4:?ERROR: Need to define SAMPLE.}
 
 # Other variables
-OUTDIR=data/process/loo/"${SAMPLE}"/ # Output dir based on sample name to keep things separate during parallelization/organized
+OUTDIR=data/process/optifit/loo/"${SAMPLE}"/ # Output dir based on sample name to keep things separate during parallelization/organized
 NPROC=$(nproc) # Setting number of processors to use based on available resources
 SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
