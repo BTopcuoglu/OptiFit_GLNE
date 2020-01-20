@@ -172,39 +172,33 @@ rule clusterOptiFit:
 #
 ##################################################################
 
-# Removing one sample at a time and generating cluster files separately for that sample and for
-# the remaining data.
-rule leaveOneOut:
+# Clustering all of the samples together using OptiClust and generating subsampled shared file.
+rule clusterOptiClust:
 	input:
-		script="code/bash/mothurLOO.sh",
+		script="code/bash/mothurOptiClust.sh",
 		precluster=rules.preclusterSequences.output
+	output:
+		subShared="data/process/opticlust/shared/glne.opticlust.opti_mcc.0.03.subsample.shared"
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.precluster}"
+
+
+# Removing one group at a time from the OptiClust-generated shared file.
+rule leaveOneOutOptiClust:
+	input:
+		script="code/bash/mothurOptiClustLOO.sh",
+		subShared=rules.clusterOptiClust.output.subShared
 	params:
 		sample="{sample}"
 	output:
-		inFasta="data/process/loo/{sample}/{sample}.in.fasta",
-		inDist="data/process/loo/{sample}/{sample}.in.dist",
-		inCount="data/process/loo/{sample}/{sample}.in.count_table",
-		outFasta="data/process/loo/{sample}/{sample}.out.fasta",
-		outDist="data/process/loo/{sample}/{sample}.out.dist",
-		outList="data/process/loo/{sample}/{sample}.out.list",
-		looSubShared="data/process/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		sampleSubShared="data/process/opticlust/loo/{sample}/{sample}.in.opti_mcc.0.03.subsample.shared", # Used in ML pipeline
+		looSubShared="data/process/opticlust/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.precluster} {params.sample}"
-
-
-# Using OptiFit to cluster the output files from the leave-one-out rule
-rule clusterOptiFit:
-	input:
-		script="code/bash/mothurOptiFit.sh",
-		loo=rules.leaveOneOut.output
-	output:
-		optifitSubShared="data/process/optifit/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
-	conda:
-		"envs/mothur.yaml"
-	shell:
-		"bash {input.script} {input.loo}"
+		"bash {input.script} {input.subShared} {params.sample}"
 
 
 
