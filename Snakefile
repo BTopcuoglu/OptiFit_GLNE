@@ -4,7 +4,7 @@
 # Schloss Lab
 # University of Michigan
 
-# Purpose: Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit and diagnosis prediction
+# Purpose: Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit/OptiClust and diagnosis prediction
 
 
 
