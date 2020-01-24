@@ -42,6 +42,6 @@ for FILE in $(find "${OUTDIR}"/ -regex ".*precluster.*"); do
 	REPLACEMENT=$(echo "${FILE}" | sed "s:precluster:opticlust:")
 
 	# Rename files using new format
-	echo mv "${FILE}" "${REPLACEMENT}"
+	mv "${FILE}" "${REPLACEMENT}"
 
 done
