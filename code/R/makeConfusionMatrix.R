@@ -7,6 +7,12 @@
 # Purpose: Combines output from L2 logistic regression ML pipeline into a confusion matrix.
 # Usage: Rscript makeConfusionMatrix.R CVFILE1 CVFILE2 CVFILE3 ... CVFILEN PREDFILE1 PREDFILE2 PREDFILE3 ... PREDFILEN DXDIFFTHRESH CLASSTHRESH
 
+# Loading dependencies ----------------------------------------------------
+
+library(tidyverse)
+
+
+
 # Setting environment -----------------------------------------------------
 
 # Parsing command line arguments
@@ -24,11 +30,6 @@ if (str_detect(mlFiles[1], "optifit")) { # Setting output dir based on source of
 } else {
   outDir <- "data/learning/summary/opticlust/"
 }
-
-
-# Loading dependencies ----------------------------------------------------
-
-library(tidyverse)
 
 
 
