@@ -29,13 +29,17 @@ preclusterSequences:
   cpuspertask: 12
   time: "3:00:00"
 
-leaveOneOut:
+leaveOneOutOptiFit:
   cpuspertask: 12
   time: "3:00:00"
 
 clusterOptiFit:
   cpuspertask: 4
   time: "45:00"
+
+clusterOptiClust:
+  cpuspertask: 12
+  time: "3:00:00"
 
 predictDiagnosis:
   cpuspertask: 2
