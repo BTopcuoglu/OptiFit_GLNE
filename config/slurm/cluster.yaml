@@ -41,6 +41,10 @@ clusterOptiClust:
   cpuspertask: 12
   time: "3:00:00"
 
-predictDiagnosis:
+predictOptiFitDiagnosis:
+  cpuspertask: 2
+  time: "45:00"
+
+predictOptiClustDiagnosis:
   cpuspertask: 2
   time: "45:00"
