@@ -19,8 +19,11 @@ dxDiffThresh <- args[(length(args)-1)] # Threshold for wanting to investigate he
 classThresh <- args[length(args)] # Threshold for calling normal based on prediction values
 
 # Other variables
-outDir <- "data/learning/summary/"
-
+if (str_detect(mlFiles[1], "optifit")) { # Setting output dir based on source of input
+  outDir <- "data/learning/summary/optifit/"
+} else {
+  outDir <- "data/learning/summary/opticlust/"
+}
 
 
 # Loading dependencies ----------------------------------------------------
