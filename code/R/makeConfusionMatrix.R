@@ -7,6 +7,12 @@
 # Purpose: Combines output from L2 logistic regression ML pipeline into a confusion matrix.
 # Usage: Rscript makeConfusionMatrix.R CVFILE1 CVFILE2 CVFILE3 ... CVFILEN PREDFILE1 PREDFILE2 PREDFILE3 ... PREDFILEN DXDIFFTHRESH CLASSTHRESH
 
+# Loading dependencies ----------------------------------------------------
+
+library(tidyverse)
+
+
+
 # Setting environment -----------------------------------------------------
 
 # Parsing command line arguments
@@ -19,13 +25,11 @@ dxDiffThresh <- args[(length(args)-1)] # Threshold for wanting to investigate he
 classThresh <- args[length(args)] # Threshold for calling normal based on prediction values
 
 # Other variables
-outDir <- "data/learning/summary/"
-
-
-
-# Loading dependencies ----------------------------------------------------
-
-library(tidyverse)
+if (str_detect(mlFiles[1], "optifit")) { # Setting output dir based on source of input
+  outDir <- "data/learning/summary/optifit/"
+} else {
+  outDir <- "data/learning/summary/opticlust/"
+}
 
 
 

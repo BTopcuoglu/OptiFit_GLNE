@@ -60,15 +60,19 @@ source('code/learning/model_pipeline_deployed.R') # has pipeline function define
 # User defined variables
 input <- commandArgs(trailingOnly=TRUE)
 
-looSubShared <- input[1] # Subsampled shared from samples after leaving one out
-optifitSubShared <- input[2] # Subsampled shared after OptiFit clustering of left out sample
+looShared <- input[1] # Subsampled shared from samples after leaving one out
+sampleShared <- input[2] # Subsampled shared for only the left out sample
 metadata <- input[3] # Metadata containing classification to predict
 model <- input[4] # Type of model to use
 outcome <- input[5] # Classifaction to predict
 
 # Other variables
-outDir <- "data/learning/results/"
-sampleNum <- str_extract(looSubShared, "\\d+") # Pulling sample number from file path
+if (str_detect(looShared, "optifit")) { # Setting output dir based on source of input
+  outDir <- "data/learning/results/optifit/"
+} else {
+  outDir <- "data/learning/results/opticlust/"
+}
+sampleNum <- str_extract(looShared, "\\d+") # Pulling sample number from file path (pulls first set of numbers)
 
 
 
@@ -82,11 +86,11 @@ sampleNum <- str_extract(looSubShared, "\\d+") # Pulling sample number from file
 message("PROGRESS: Preparing data.")
 
 # Reading in shared file from LOO
-loo_shared <- read_tsv(looSubShared, col_types = cols()) %>%
+loo_shared <- read_tsv(looShared, col_types = cols()) %>%
   select(-label, -numOtus)
 
-# Reading in shared file from OptiFit
-opti_shared <- read_tsv(optifitSubShared, col_types = cols()) %>%
+# Reading in shared file of the left out sample
+sample_shared <- read_tsv(sampleShared, col_types = cols()) %>%
   select(-label, -numOtus) %>% 
   rename_all(str_replace, "Ref_", "")
 
@@ -98,16 +102,16 @@ opti_shared <- read_tsv(optifitSubShared, col_types = cols()) %>%
 loo_labels <- names(loo_shared)
 
 # Creating list of otus in opti shared
-opti_labels <- names(opti_shared)
+opti_labels <- names(sample_shared)
 
 # Finding list of otus common to both shared files
 common_labels <- intersect(opti_labels, loo_labels)
 
-# Finding otus that are missing in optifit shared
+# Finding otus that are missing in sample shared
 missing_cols <- setdiff(loo_labels, opti_labels)
 
 # Only keeping otus that are in both files and assigning as test data for ML prediction
-test <- opti_shared %>%
+test <- sample_shared %>%
   select(common_labels)
 
 # Adding in missing otus all coded as 0 so test has the same cols as the loo shared
