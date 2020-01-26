@@ -22,9 +22,9 @@ alogrithmNames = ['optifit','opticlust']
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		expand("data/learning/{alogrithm}/summary/model_results.tsv",
+		expand("data/learning/summary/{alogrithm}/model_results.tsv",
 			alogrithm = alogrithmNames),
-		expand("data/learning/{alogrithm}/summary/confusion_matrix.tsv",
+		expand("data/learning/summary/{alogrithm}/confusion_matrix.tsv",
 			alogrithm = alogrithmNames)
 	shell:
 		'''
@@ -264,8 +264,8 @@ rule makeOptiFitConfusionMatrix:
 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
 		classThresh=0.5 # Threshold for calling normal based on prediction values
 	output:
-		results="data/learning/optifit/summary/model_results.tsv",
-		confusion="data/learning/optifit/summary/confusion_matrix.tsv"
+		results="data/learning/summary/optifit/model_results.tsv",
+		confusion="data/learning/summary/optifit/confusion_matrix.tsv"
 	conda:
 		"envs/r.yaml"
 	shell:
@@ -283,8 +283,8 @@ rule makeOptiClustConfusionMatrix:
 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
 		classThresh=0.5 # Threshold for calling normal based on prediction values
 	output:
-		results="data/learning/opticlust/summary/model_results.tsv",
-		confusion="data/learning/opticlust/summary/confusion_matrix.tsv"
+		results="data/learning/summary/opticlust/model_results.tsv",
+		confusion="data/learning/summary/opticlust/confusion_matrix.tsv"
 	conda:
 		"envs/r.yaml"
 	shell:
