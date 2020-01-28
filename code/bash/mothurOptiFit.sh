@@ -37,6 +37,9 @@ SUBDIR="${OUTDIR}"/"${SAMPLE}"/
 # Create subdirectory
 mkdir -p "${SUBDIR}"/
 
+# Removing old files if they exist
+rm "${SUBDIR}"/*
+
 # Running OptiFit to cluster left out sample with reference clusters
 mothur "#set.current(outputdir="${SUBDIR}"/, processors="${NPROC}");
 	cluster.fit(fasta="${INFASTA}", column="${INDIST}", count="${INCOUNT}", reffasta="${OUTFASTA}", refcolumn="${OUTDIST}", reflist="${OUTLIST}", method=closed);

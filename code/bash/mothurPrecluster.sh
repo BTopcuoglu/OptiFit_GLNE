@@ -31,6 +31,9 @@ echo PROGRESS: Creating contigs for all the samples
 # Making output dir
 mkdir -p "${TMP}"/
 
+# Removing old files if they exist
+rm "${OUTDIR}"/*
+
 mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/, processors="${NPROC}");
 	screen.seqs(fasta=current, group=current, maxambig=0, maxlength=275, maxhomop=8);
 	unique.seqs(fasta=current);
