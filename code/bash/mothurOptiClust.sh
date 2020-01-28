@@ -28,7 +28,9 @@ SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome
 mkdir -p "${OUTDIR}"/
 
 # Removing old files if they exist
-rm "${OUTDIR}"/*
+if [ -n "$(ls -A "${OUTDIR}")" ]; then
+	rm "${OUTDIR}"/*
+fi
 
 # Cluster all sequences while leaving out the specified sample
 mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}");

@@ -38,7 +38,9 @@ SUBDIR="${OUTDIR}"/"${SAMPLE}"/
 mkdir -p "${SUBDIR}"/
 
 # Removing old files if they exist
-rm "${SUBDIR}"/*
+if [ -n "$(ls -A "${SUBDIR}")" ]; then
+	rm "${SUBDIR}"/*
+fi
 
 # Running OptiFit to cluster left out sample with reference clusters
 mothur "#set.current(outputdir="${SUBDIR}"/, processors="${NPROC}");

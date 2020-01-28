@@ -25,7 +25,9 @@ echo PROGRESS: Preparing mothur reference files.
 mkdir -p "${TMP}"/
 
 # Removing old files if they exist
-rm "${OUTDIR}"/*
+if [ -n "$(ls -A "${OUTDIR}")" ]; then
+	rm "${OUTDIR}"/*
+fi
 
 
 echo PROGRESS: Preparing SILVA database v4 sequence alignment files.

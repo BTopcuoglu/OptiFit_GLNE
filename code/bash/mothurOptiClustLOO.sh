@@ -26,7 +26,9 @@ NPROC=$(nproc) # Setting number of processors to use based on available resource
 mkdir -p "${OUTDIR}"/
 
 # Removing old files if they exist
-rm "${OUTDIR}"/*
+if [ -n "$(ls -A "${OUTDIR}")" ]; then
+	rm "${OUTDIR}"/*
+fi
 
 # Create cluster distance file for individual sample
 mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");

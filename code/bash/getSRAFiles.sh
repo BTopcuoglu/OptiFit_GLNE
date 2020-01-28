@@ -29,4 +29,6 @@ prefetch "${SEQUENCENAME}"
 fastq-dump --split-files -O "${OUTDIR}" --gzip "${SEQUENCENAME}"
 
 # Cleaning up SRA temp directories (puts them in current working directory)
-rm -r "${SEQUENCENAME}"/
+if [ -d "${SEQUENCENAME}"/ ]; then
+	rm -r "${SEQUENCENAME}"/
+fi
