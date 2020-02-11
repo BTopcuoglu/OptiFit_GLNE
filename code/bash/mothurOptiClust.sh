@@ -15,7 +15,7 @@ COUNT=${2:?ERROR: Need to define COUNT.}
 TAXONOMY=${3:?ERROR: Need to define TAXONOMY.}
 
 # Other variables
-OUTDIR=data/process/opticlust/shared/ # Output dir based on sample name to keep things separate during parallelization/organized
+OUTDIR=data/process/opticlust/shared/ # Output dir
 NPROC=$(nproc) # Setting number of processors to use based on available resources
 SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
@@ -23,6 +23,14 @@ SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome
 #############################################
 # Create Master Shared File Using OptiClust #
 #############################################
+
+# Making output dir if it doesn't already exist
+mkdir -p "${OUTDIR}"/
+
+# Removing old files if they exist
+if [ -n "$(ls -A "${OUTDIR}")" ]; then
+	rm "${OUTDIR}"/*
+fi
 
 # Cluster all sequences while leaving out the specified sample
 mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}");

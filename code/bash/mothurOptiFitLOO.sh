@@ -28,6 +28,11 @@ SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome
 # Make output dirs if they don't exist
 mkdir -p "${OUTDIR}"/
 
+# Removing old files if they exist
+if [ -n "$(ls -A "${OUTDIR}")" ]; then
+	rm "${OUTDIR}"/*
+fi
+
 # Create cluster distance file for individual sample
 mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
 	get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups="${SAMPLE}");

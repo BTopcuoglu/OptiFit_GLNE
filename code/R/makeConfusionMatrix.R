@@ -21,8 +21,8 @@ args <- commandArgs(trailingOnly = TRUE)
 # Variables defined by user
 metadata <- args[1] # Sample metadata with diagnosis information
 mlFiles <- sort(args[2:(length(args)-2)]) # Output files from ML pipeline (cvAUC and prediction scores)
-dxDiffThresh <- args[(length(args)-1)] # Threshold for wanting to investigate health data because prediction scores are too close
-classThresh <- args[length(args)] # Threshold for calling normal based on prediction values
+dxDiffThresh <- as.numeric(args[(length(args)-1)]) # Threshold for wanting to investigate health data because prediction scores are too close
+classThresh <- as.numeric(args[length(args)]) # Threshold for calling normal based on prediction values
 
 # Other variables
 if (str_detect(mlFiles[1], "optifit")) { # Setting output dir based on source of input
