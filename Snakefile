@@ -22,10 +22,12 @@ alogrithmNames = ['optifit','opticlust']
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		expand("data/learning/summary/{alogrithm}/model_results.tsv",
-			alogrithm = alogrithmNames),
-		expand("data/learning/summary/{alogrithm}/confusion_matrix.tsv",
-			alogrithm = alogrithmNames)
+		expand("data/process/optifit/{sample}.txt",
+			sample = ['2003650','2049653'])
+		# expand("data/learning/summary/{alogrithm}/model_results.tsv",
+		# 	alogrithm = alogrithmNames),
+		# expand("data/learning/summary/{alogrithm}/confusion_matrix.tsv",
+		# 	alogrithm = alogrithmNames)
 	shell:
 		'''
 		if $(ls | grep -q "mothur.*logfile"); then
@@ -142,13 +144,10 @@ rule leaveOneOutOptiFit:
 	params:
 		sample="{sample}"
 	output:
-		inFasta="data/process/optifit/loo/{sample}/{sample}.in.fasta",
-		inDist="data/process/optifit/loo/{sample}/{sample}.in.dist",
-		inCount="data/process/optifit/loo/{sample}/{sample}.in.count_table",
-		outFasta="data/process/optifit/loo/{sample}/{sample}.out.fasta",
-		outDist="data/process/optifit/loo/{sample}/{sample}.out.dist",
-		outList="data/process/optifit/loo/{sample}/{sample}.out.list",
-		optifitLooShared="data/process/optifit/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		refFasta="data/process/optifit/{sample}/out/glne.precluster.pick.fasta",
+		refDist="data/process/optifit/{sample}/out/glne.precluster.pick.dist",
+		refList="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.list",
+		optifitLooShared="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -159,136 +158,173 @@ rule leaveOneOutOptiFit:
 rule clusterOptiFit:
 	input:
 		script="code/bash/mothurOptiFit.sh",
-		loo=rules.leaveOneOutOptiFit.output
-	output:
-		optifitSampleShared="data/process/optifit/shared/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
-	conda:
-		"envs/mothur.yaml"
-	shell:
-		"bash {input.script} {input.loo}"
-
-
-
-
-
-##################################################################
-#
-# Part 4: OptiClust Leave One Out (LOO)
-#
-##################################################################
-
-# Clustering all of the samples together using OptiClust and generating subsampled shared file.
-rule clusterOptiClust:
-	input:
-		script="code/bash/mothurOptiClust.sh",
-		precluster=rules.preclusterSequences.output
-	output:
-		subShared="data/process/opticlust/shared/glne.opticlust.opti_mcc.0.03.subsample.shared"
-	conda:
-		"envs/mothur.yaml"
-	shell:
-		"bash {input.script} {input.precluster}"
-
-
-# Removing one group at a time from the OptiClust-generated shared file.
-rule leaveOneOutOptiClust:
-	input:
-		script="code/bash/mothurOptiClustLOO.sh",
-		subShared=rules.clusterOptiClust.output.subShared
+		precluster=rules.preclusterSequences.output,
+		ref=rules.leaveOneOutOptiFit.output
 	params:
 		sample="{sample}"
 	output:
-		opticlustLooShared="data/process/opticlust/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared", # Used in ML pipeline
-		opticlustSampleShared="data/process/opticlust/loo/{sample}/{sample}.in.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		optifitSampleShared="data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.subShared} {params.sample}"
+		"bash {input.script} {input.precluster} {input.ref[0]} {input.ref[1]} {input.ref[2]} {params.sample}"
+
+# # # Removing one sample at a time and generating cluster files separately for that sample and for
+# # # the remaining data.
+# # rule leaveOneOutOptiFit:
+# # 	input:
+# # 		script="code/bash/mothurOptiFitLOO.sh",
+# # 		precluster=rules.preclusterSequences.output
+# # 	params:
+# # 		sample="{sample}"
+# # 	output:
+# # 		inFasta="data/process/optifit/loo/{sample}/{sample}.in.fasta",
+# # 		inDist="data/process/optifit/loo/{sample}/{sample}.in.dist",
+# # 		inCount="data/process/optifit/loo/{sample}/{sample}.in.count_table",
+# # 		outFasta="data/process/optifit/loo/{sample}/{sample}.out.fasta",
+# # 		outDist="data/process/optifit/loo/{sample}/{sample}.out.dist",
+# # 		outList="data/process/optifit/loo/{sample}/{sample}.out.list",
+# # 		optifitLooShared="data/process/optifit/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+# # 	conda:
+# # 		"envs/mothur.yaml"
+# # 	shell:
+# # 		"bash {input.script} {input.precluster} {params.sample}"
+
+
+# # # Using OptiFit to cluster the output files from the leave-one-out rule
+# # rule clusterOptiFit:
+# # 	input:
+# # 		script="code/bash/mothurOptiFit.sh",
+# # 		loo=rules.leaveOneOutOptiFit.output
+# # 	output:
+# # 		optifitSampleShared="data/process/optifit/shared/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
+# # 	conda:
+# # 		"envs/mothur.yaml"
+# # 	shell:
+# # 		"bash {input.script} {input.loo}"
 
 
 
 
 
-##################################################################
-#
-# Part 5: Running ML Model
-#
-##################################################################
+# ##################################################################
+# #
+# # Part 4: OptiClust Leave One Out (LOO)
+# #
+# ##################################################################
 
-# Predicting diagnosis using OptiFit shared files.
-rule predictOptiFitDiagnosis:
-	input:
-		script="code/learning/main.R",
-		optifitLooShared=rules.leaveOneOutOptiFit.output.optifitLooShared,
-		optifitSampleShared=rules.clusterOptiFit.output.optifitSampleShared,
-		metadata=rules.getMetadata.output.metadata
-	params:
-		model="L2_Logistic_Regression",
-		outcome="dx"
-	output:
-		cvauc="data/learning/results/optifit/cv_results_{sample}.csv",
-		prediction="data/learning/results/optifit/prediction_results_{sample}.csv"
-	conda:
-		"envs/r.yaml"
-	shell:
-		"Rscript {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
+# # Clustering all of the samples together using OptiClust and generating subsampled shared file.
+# rule clusterOptiClust:
+# 	input:
+# 		script="code/bash/mothurOptiClust.sh",
+# 		precluster=rules.preclusterSequences.output
+# 	output:
+# 		subShared="data/process/opticlust/shared/glne.opticlust.opti_mcc.0.03.subsample.shared"
+# 	conda:
+# 		"envs/mothur.yaml"
+# 	shell:
+# 		"bash {input.script} {input.precluster}"
 
 
-# Predicting diagnosis using OptiClust shared files.
-rule predictOptiClustDiagnosis:
-	input:
-		script="code/learning/main.R",
-		opticlustLooShared=rules.leaveOneOutOptiClust.output.opticlustLooShared,
-		opticlustSampleShared=rules.leaveOneOutOptiClust.output.opticlustSampleShared,
-		metadata=rules.getMetadata.output.metadata
-	params:
-		model="L2_Logistic_Regression",
-		outcome="dx"
-	output:
-		cvauc="data/learning/results/opticlust/cv_results_{sample}.csv",
-		prediction="data/learning/results/opticlust/prediction_results_{sample}.csv"
-	conda:
-		"envs/r.yaml"
-	shell:
-		"Rscript {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
+# # Removing one group at a time from the OptiClust-generated shared file.
+# rule leaveOneOutOptiClust:
+# 	input:
+# 		script="code/bash/mothurOptiClustLOO.sh",
+# 		subShared=rules.clusterOptiClust.output.subShared
+# 	params:
+# 		sample="{sample}"
+# 	output:
+# 		opticlustLooShared="data/process/opticlust/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared", # Used in ML pipeline
+# 		opticlustSampleShared="data/process/opticlust/loo/{sample}/{sample}.in.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+# 	conda:
+# 		"envs/mothur.yaml"
+# 	shell:
+# 		"bash {input.script} {input.subShared} {params.sample}"
 
 
-# Collating all ML pipeline results and constructing confusion matrix
-rule makeOptiFitConfusionMatrix:
-	input:
-		script="code/R/makeConfusionMatrix.R",
-		metadata=rules.getMetadata.output.metadata,
-		results=expand(rules.predictOptiFitDiagnosis.output,
-			sample = sampleNames)
-	params:
-		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
-		classThresh=0.5 # Threshold for calling normal based on prediction values
-	output:
-		results="data/learning/summary/optifit/model_results.tsv",
-		confusion="data/learning/summary/optifit/confusion_matrix.tsv"
-	conda:
-		"envs/r.yaml"
-	shell:
-		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
 
 
-# Collating all ML pipeline results and constructing confusion matrix
-rule makeOptiClustConfusionMatrix:
-	input:
-		script="code/R/makeConfusionMatrix.R",
-		metadata=rules.getMetadata.output.metadata,
-		results=expand(rules.predictOptiClustDiagnosis.output,
-			sample = sampleNames)
-	params:
-		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
-		classThresh=0.5 # Threshold for calling normal based on prediction values
-	output:
-		results="data/learning/summary/opticlust/model_results.tsv",
-		confusion="data/learning/summary/opticlust/confusion_matrix.tsv"
-	conda:
-		"envs/r.yaml"
-	shell:
-		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
+
+# ##################################################################
+# #
+# # Part 5: Running ML Model
+# #
+# ##################################################################
+
+# # Predicting diagnosis using OptiFit shared files.
+# rule predictOptiFitDiagnosis:
+# 	input:
+# 		script="code/learning/main.R",
+# 		optifitLooShared=rules.leaveOneOutOptiFit.output.optifitLooShared,
+# 		optifitSampleShared=rules.clusterOptiFit.output.optifitSampleShared,
+# 		metadata=rules.getMetadata.output.metadata
+# 	params:
+# 		model="L2_Logistic_Regression",
+# 		outcome="dx"
+# 	output:
+# 		cvauc="data/learning/results/optifit/cv_results_{sample}.csv",
+# 		prediction="data/learning/results/optifit/prediction_results_{sample}.csv"
+# 	conda:
+# 		"envs/r.yaml"
+# 	shell:
+# 		"Rscript {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
+
+
+# # Predicting diagnosis using OptiClust shared files.
+# rule predictOptiClustDiagnosis:
+# 	input:
+# 		script="code/learning/main.R",
+# 		opticlustLooShared=rules.leaveOneOutOptiClust.output.opticlustLooShared,
+# 		opticlustSampleShared=rules.leaveOneOutOptiClust.output.opticlustSampleShared,
+# 		metadata=rules.getMetadata.output.metadata
+# 	params:
+# 		model="L2_Logistic_Regression",
+# 		outcome="dx"
+# 	output:
+# 		cvauc="data/learning/results/opticlust/cv_results_{sample}.csv",
+# 		prediction="data/learning/results/opticlust/prediction_results_{sample}.csv"
+# 	conda:
+# 		"envs/r.yaml"
+# 	shell:
+# 		"Rscript {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
+
+
+# # Collating all ML pipeline results and constructing confusion matrix
+# rule makeOptiFitConfusionMatrix:
+# 	input:
+# 		script="code/R/makeConfusionMatrix.R",
+# 		metadata=rules.getMetadata.output.metadata,
+# 		results=expand(rules.predictOptiFitDiagnosis.output,
+# 			sample = sampleNames)
+# 	params:
+# 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
+# 		classThresh=0.5 # Threshold for calling normal based on prediction values
+# 	output:
+# 		results="data/learning/summary/optifit/model_results.tsv",
+# 		confusion="data/learning/summary/optifit/confusion_matrix.tsv"
+# 	conda:
+# 		"envs/r.yaml"
+# 	shell:
+# 		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
+
+
+# # Collating all ML pipeline results and constructing confusion matrix
+# rule makeOptiClustConfusionMatrix:
+# 	input:
+# 		script="code/R/makeConfusionMatrix.R",
+# 		metadata=rules.getMetadata.output.metadata,
+# 		results=expand(rules.predictOptiClustDiagnosis.output,
+# 			sample = sampleNames)
+# 	params:
+# 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
+# 		classThresh=0.5 # Threshold for calling normal based on prediction values
+# 	output:
+# 		results="data/learning/summary/opticlust/model_results.tsv",
+# 		confusion="data/learning/summary/opticlust/confusion_matrix.tsv"
+# 	conda:
+# 		"envs/r.yaml"
+# 	shell:
+# 		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
 
 
 
