@@ -1,6 +1,6 @@
 # Snakefile
-# Begum Topcuoglu
 # William L. Close
+# Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 
@@ -22,7 +22,9 @@ alogrithmNames = ['optifit','opticlust']
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		expand("data/process/optifit/{sample}.txt",
+		expand("data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.shared",
+			sample = ['2003650','2049653']),
+		expand("data/process/opticlust/{sample}/in/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
 			sample = ['2003650','2049653'])
 		# expand("data/learning/summary/{alogrithm}/model_results.tsv",
 		# 	alogrithm = alogrithmNames),
@@ -147,7 +149,7 @@ rule leaveOneOutOptiFit:
 		refFasta="data/process/optifit/{sample}/out/glne.precluster.pick.fasta",
 		refDist="data/process/optifit/{sample}/out/glne.precluster.pick.dist",
 		refList="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.list",
-		optifitLooShared="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
+		optifitLooShared="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -169,77 +171,43 @@ rule clusterOptiFit:
 	shell:
 		"bash {input.script} {input.precluster} {input.ref[0]} {input.ref[1]} {input.ref[2]} {params.sample}"
 
-# # # Removing one sample at a time and generating cluster files separately for that sample and for
-# # # the remaining data.
-# # rule leaveOneOutOptiFit:
-# # 	input:
-# # 		script="code/bash/mothurOptiFitLOO.sh",
-# # 		precluster=rules.preclusterSequences.output
-# # 	params:
-# # 		sample="{sample}"
-# # 	output:
-# # 		inFasta="data/process/optifit/loo/{sample}/{sample}.in.fasta",
-# # 		inDist="data/process/optifit/loo/{sample}/{sample}.in.dist",
-# # 		inCount="data/process/optifit/loo/{sample}/{sample}.in.count_table",
-# # 		outFasta="data/process/optifit/loo/{sample}/{sample}.out.fasta",
-# # 		outDist="data/process/optifit/loo/{sample}/{sample}.out.dist",
-# # 		outList="data/process/optifit/loo/{sample}/{sample}.out.list",
-# # 		optifitLooShared="data/process/optifit/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
-# # 	conda:
-# # 		"envs/mothur.yaml"
-# # 	shell:
-# # 		"bash {input.script} {input.precluster} {params.sample}"
-
-
-# # # Using OptiFit to cluster the output files from the leave-one-out rule
-# # rule clusterOptiFit:
-# # 	input:
-# # 		script="code/bash/mothurOptiFit.sh",
-# # 		loo=rules.leaveOneOutOptiFit.output
-# # 	output:
-# # 		optifitSampleShared="data/process/optifit/shared/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
-# # 	conda:
-# # 		"envs/mothur.yaml"
-# # 	shell:
-# # 		"bash {input.script} {input.loo}"
 
 
 
 
+##################################################################
+#
+# Part 4: OptiClust Leave One Out (LOO)
+#
+##################################################################
 
-# ##################################################################
-# #
-# # Part 4: OptiClust Leave One Out (LOO)
-# #
-# ##################################################################
-
-# # Clustering all of the samples together using OptiClust and generating subsampled shared file.
-# rule clusterOptiClust:
-# 	input:
-# 		script="code/bash/mothurOptiClust.sh",
-# 		precluster=rules.preclusterSequences.output
-# 	output:
-# 		subShared="data/process/opticlust/shared/glne.opticlust.opti_mcc.0.03.subsample.shared"
-# 	conda:
-# 		"envs/mothur.yaml"
-# 	shell:
-# 		"bash {input.script} {input.precluster}"
+# Creating subsampled shared file using all of the samples and OptiClust.
+rule clusterOptiClust:
+	input:
+		script="code/bash/mothurOptiClust.sh",
+		precluster=rules.preclusterSequences.output
+	output:
+		shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared"
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.precluster}"
 
 
-# # Removing one group at a time from the OptiClust-generated shared file.
-# rule leaveOneOutOptiClust:
-# 	input:
-# 		script="code/bash/mothurOptiClustLOO.sh",
-# 		subShared=rules.clusterOptiClust.output.subShared
-# 	params:
-# 		sample="{sample}"
-# 	output:
-# 		opticlustLooShared="data/process/opticlust/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared", # Used in ML pipeline
-# 		opticlustSampleShared="data/process/opticlust/loo/{sample}/{sample}.in.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
-# 	conda:
-# 		"envs/mothur.yaml"
-# 	shell:
-# 		"bash {input.script} {input.subShared} {params.sample}"
+# Removing one group at a time from the OptiClust-generated shared file.
+rule leaveOneOutOptiClust:
+	input:
+		script="code/bash/mothurOptiClustLOO.sh",
+		subShared=rules.clusterOptiClust.output.shared
+	params:
+		sample="{sample}"
+	output:
+		opticlustLooShared="data/process/opticlust/{sample}/out/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared", # Used in ML pipeline
+		opticlustSampleShared="data/process/opticlust/{sample}/in/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared" # Used in ML pipeline
+	conda:
+		"envs/mothur.yaml"
+	shell:
+		"bash {input.script} {input.subShared} {params.sample}"
 
 
 
