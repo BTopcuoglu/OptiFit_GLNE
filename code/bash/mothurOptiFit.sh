@@ -13,10 +13,10 @@
 FASTA=${1:?ERROR: Need to define FASTA.} # Preclustered fasta file
 COUNT=${2:?ERROR: Need to define COUNT.} # Preclustered count file
 TAXONOMY=${3:?ERROR: Need to define TAXONOMY.} # Preclustered tax file
-REFFASTA=${4:?ERROR: Need to define OUTFASTA.} # Reference fasta file with sample removed
-REFDIST=${5:?ERROR: Need to define OUTDIST.} # Reference dist file with sample removed
-REFLIST=${6:?ERROR: Need to define OUTLIST.} # Reference list file with sample removed
-SAMPLE=${7:?ERROR: Need to define SAMPLE.} # Sample to be fit to reference files
+SAMPLE=${4:?ERROR: Need to define SAMPLE.} # Sample to be fit to reference files
+REFFASTA=${5:?ERROR: Need to define OUTFASTA.} # Reference fasta file with sample removed
+REFDIST=${6:?ERROR: Need to define OUTDIST.} # Reference dist file with sample removed
+REFLIST=${7:?ERROR: Need to define OUTLIST.} # Reference list file with sample removed
 
 
 # Other variables

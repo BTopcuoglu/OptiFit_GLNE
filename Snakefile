@@ -169,7 +169,7 @@ rule clusterOptiFit:
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.precluster} {input.ref[0]} {input.ref[1]} {input.ref[2]} {params.sample}"
+		"bash {input.script} {input.precluster} {params.sample} {input.ref}"
 
 
 
