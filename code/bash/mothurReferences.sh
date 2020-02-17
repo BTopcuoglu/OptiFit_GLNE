@@ -1,6 +1,7 @@
 #! /bin/bash
 # mothurReferences.sh
 # William L. Close
+# Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 

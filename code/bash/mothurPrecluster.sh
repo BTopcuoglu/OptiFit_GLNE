@@ -1,7 +1,7 @@
 #! /bin/bash
 # mothurPrecluster.sh
-# Begum Topcuoglu
 # William L. Close
+# Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 
