@@ -1,7 +1,7 @@
 #! /bin/bash
 # mothurLOO.sh
-# Begum Topcuoglu
 # William L. Close
+# Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 
@@ -19,6 +19,7 @@ SAMPLE=${4:?ERROR: Need to define SAMPLE.} # Sample to be removed
 OUTDIR=data/process/optifit/"${SAMPLE}"/out/ # Output dir based on sample name to keep things separate during parallelization/organized
 NPROC=$(nproc) # Setting number of processors to use based on available resources
 SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
+
 
 
 ############################################

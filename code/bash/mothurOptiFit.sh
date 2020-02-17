@@ -1,7 +1,7 @@
 #! /bin/bash
 # mothurOptiFit.sh
-# Begum Topcuoglu
 # William L. Close
+# Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 
