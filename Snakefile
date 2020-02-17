@@ -1,6 +1,6 @@
 # Snakefile
-# Begum Topcuoglu
 # William L. Close
+# Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 
@@ -142,13 +142,10 @@ rule leaveOneOutOptiFit:
 	params:
 		sample="{sample}"
 	output:
-		inFasta="data/process/optifit/loo/{sample}/{sample}.in.fasta",
-		inDist="data/process/optifit/loo/{sample}/{sample}.in.dist",
-		inCount="data/process/optifit/loo/{sample}/{sample}.in.count_table",
-		outFasta="data/process/optifit/loo/{sample}/{sample}.out.fasta",
-		outDist="data/process/optifit/loo/{sample}/{sample}.out.dist",
-		outList="data/process/optifit/loo/{sample}/{sample}.out.list",
-		optifitLooShared="data/process/optifit/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		refFasta="data/process/optifit/{sample}/out/glne.precluster.pick.fasta",
+		refDist="data/process/optifit/{sample}/out/glne.precluster.pick.dist",
+		refList="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.list",
+		optifitLooShared="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -159,13 +156,16 @@ rule leaveOneOutOptiFit:
 rule clusterOptiFit:
 	input:
 		script="code/bash/mothurOptiFit.sh",
-		loo=rules.leaveOneOutOptiFit.output
+		precluster=rules.preclusterSequences.output,
+		ref=rules.leaveOneOutOptiFit.output
+	params:
+		sample="{sample}"
 	output:
-		optifitSampleShared="data/process/optifit/shared/{sample}/{sample}.optifit_mcc.0.03.subsample.shared" # Used in ML pipeline
+		optifitSampleShared="data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
-		"bash {input.script} {input.loo}"
+		"bash {input.script} {input.precluster} {params.sample} {input.ref}"
 
 
 
@@ -177,13 +177,13 @@ rule clusterOptiFit:
 #
 ##################################################################
 
-# Clustering all of the samples together using OptiClust and generating subsampled shared file.
+# Creating subsampled shared file using all of the samples and OptiClust.
 rule clusterOptiClust:
 	input:
 		script="code/bash/mothurOptiClust.sh",
 		precluster=rules.preclusterSequences.output
 	output:
-		subShared="data/process/opticlust/shared/glne.opticlust.opti_mcc.0.03.subsample.shared"
+		shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared"
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -194,12 +194,12 @@ rule clusterOptiClust:
 rule leaveOneOutOptiClust:
 	input:
 		script="code/bash/mothurOptiClustLOO.sh",
-		subShared=rules.clusterOptiClust.output.subShared
+		subShared=rules.clusterOptiClust.output.shared
 	params:
 		sample="{sample}"
 	output:
-		opticlustLooShared="data/process/opticlust/loo/{sample}/{sample}.out.opti_mcc.0.03.subsample.shared", # Used in ML pipeline
-		opticlustSampleShared="data/process/opticlust/loo/{sample}/{sample}.in.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		opticlustLooShared="data/process/opticlust/{sample}/out/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared", # Used in ML pipeline
+		opticlustSampleShared="data/process/opticlust/{sample}/in/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared" # Used in ML pipeline
 	conda:
 		"envs/mothur.yaml"
 	shell:
