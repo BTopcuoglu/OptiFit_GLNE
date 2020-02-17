@@ -22,14 +22,10 @@ alogrithmNames = ['optifit','opticlust']
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
 	input:
-		expand("data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.shared",
-			sample = ['2003650','2049653']),
-		expand("data/process/opticlust/{sample}/in/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
-			sample = ['2003650','2049653'])
-		# expand("data/learning/summary/{alogrithm}/model_results.tsv",
-		# 	alogrithm = alogrithmNames),
-		# expand("data/learning/summary/{alogrithm}/confusion_matrix.tsv",
-		# 	alogrithm = alogrithmNames)
+		expand("data/learning/summary/{alogrithm}/model_results.tsv",
+			alogrithm = alogrithmNames),
+		expand("data/learning/summary/{alogrithm}/confusion_matrix.tsv",
+			alogrithm = alogrithmNames)
 	shell:
 		'''
 		if $(ls | grep -q "mothur.*logfile"); then
@@ -213,86 +209,86 @@ rule leaveOneOutOptiClust:
 
 
 
-# ##################################################################
-# #
-# # Part 5: Running ML Model
-# #
-# ##################################################################
+##################################################################
+#
+# Part 5: Running ML Model
+#
+##################################################################
 
-# # Predicting diagnosis using OptiFit shared files.
-# rule predictOptiFitDiagnosis:
-# 	input:
-# 		script="code/learning/main.R",
-# 		optifitLooShared=rules.leaveOneOutOptiFit.output.optifitLooShared,
-# 		optifitSampleShared=rules.clusterOptiFit.output.optifitSampleShared,
-# 		metadata=rules.getMetadata.output.metadata
-# 	params:
-# 		model="L2_Logistic_Regression",
-# 		outcome="dx"
-# 	output:
-# 		cvauc="data/learning/results/optifit/cv_results_{sample}.csv",
-# 		prediction="data/learning/results/optifit/prediction_results_{sample}.csv"
-# 	conda:
-# 		"envs/r.yaml"
-# 	shell:
-# 		"Rscript {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
-
-
-# # Predicting diagnosis using OptiClust shared files.
-# rule predictOptiClustDiagnosis:
-# 	input:
-# 		script="code/learning/main.R",
-# 		opticlustLooShared=rules.leaveOneOutOptiClust.output.opticlustLooShared,
-# 		opticlustSampleShared=rules.leaveOneOutOptiClust.output.opticlustSampleShared,
-# 		metadata=rules.getMetadata.output.metadata
-# 	params:
-# 		model="L2_Logistic_Regression",
-# 		outcome="dx"
-# 	output:
-# 		cvauc="data/learning/results/opticlust/cv_results_{sample}.csv",
-# 		prediction="data/learning/results/opticlust/prediction_results_{sample}.csv"
-# 	conda:
-# 		"envs/r.yaml"
-# 	shell:
-# 		"Rscript {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
+# Predicting diagnosis using OptiFit shared files.
+rule predictOptiFitDiagnosis:
+	input:
+		script="code/learning/main.R",
+		optifitLooShared=rules.leaveOneOutOptiFit.output.optifitLooShared,
+		optifitSampleShared=rules.clusterOptiFit.output.optifitSampleShared,
+		metadata=rules.getMetadata.output.metadata
+	params:
+		model="L2_Logistic_Regression",
+		outcome="dx"
+	output:
+		cvauc="data/learning/results/optifit/cv_results_{sample}.csv",
+		prediction="data/learning/results/optifit/prediction_results_{sample}.csv"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
 
 
-# # Collating all ML pipeline results and constructing confusion matrix
-# rule makeOptiFitConfusionMatrix:
-# 	input:
-# 		script="code/R/makeConfusionMatrix.R",
-# 		metadata=rules.getMetadata.output.metadata,
-# 		results=expand(rules.predictOptiFitDiagnosis.output,
-# 			sample = sampleNames)
-# 	params:
-# 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
-# 		classThresh=0.5 # Threshold for calling normal based on prediction values
-# 	output:
-# 		results="data/learning/summary/optifit/model_results.tsv",
-# 		confusion="data/learning/summary/optifit/confusion_matrix.tsv"
-# 	conda:
-# 		"envs/r.yaml"
-# 	shell:
-# 		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
+# Predicting diagnosis using OptiClust shared files.
+rule predictOptiClustDiagnosis:
+	input:
+		script="code/learning/main.R",
+		opticlustLooShared=rules.leaveOneOutOptiClust.output.opticlustLooShared,
+		opticlustSampleShared=rules.leaveOneOutOptiClust.output.opticlustSampleShared,
+		metadata=rules.getMetadata.output.metadata
+	params:
+		model="L2_Logistic_Regression",
+		outcome="dx"
+	output:
+		cvauc="data/learning/results/opticlust/cv_results_{sample}.csv",
+		prediction="data/learning/results/opticlust/prediction_results_{sample}.csv"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
 
 
-# # Collating all ML pipeline results and constructing confusion matrix
-# rule makeOptiClustConfusionMatrix:
-# 	input:
-# 		script="code/R/makeConfusionMatrix.R",
-# 		metadata=rules.getMetadata.output.metadata,
-# 		results=expand(rules.predictOptiClustDiagnosis.output,
-# 			sample = sampleNames)
-# 	params:
-# 		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
-# 		classThresh=0.5 # Threshold for calling normal based on prediction values
-# 	output:
-# 		results="data/learning/summary/opticlust/model_results.tsv",
-# 		confusion="data/learning/summary/opticlust/confusion_matrix.tsv"
-# 	conda:
-# 		"envs/r.yaml"
-# 	shell:
-# 		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
+# Collating all ML pipeline results and constructing confusion matrix
+rule makeOptiFitConfusionMatrix:
+	input:
+		script="code/R/makeConfusionMatrix.R",
+		metadata=rules.getMetadata.output.metadata,
+		results=expand(rules.predictOptiFitDiagnosis.output,
+			sample = sampleNames)
+	params:
+		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
+		classThresh=0.5 # Threshold for calling normal based on prediction values
+	output:
+		results="data/learning/summary/optifit/model_results.tsv",
+		confusion="data/learning/summary/optifit/confusion_matrix.tsv"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
+
+
+# Collating all ML pipeline results and constructing confusion matrix
+rule makeOptiClustConfusionMatrix:
+	input:
+		script="code/R/makeConfusionMatrix.R",
+		metadata=rules.getMetadata.output.metadata,
+		results=expand(rules.predictOptiClustDiagnosis.output,
+			sample = sampleNames)
+	params:
+		dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
+		classThresh=0.5 # Threshold for calling normal based on prediction values
+	output:
+		results="data/learning/summary/opticlust/model_results.tsv",
+		confusion="data/learning/summary/opticlust/confusion_matrix.tsv"
+	conda:
+		"envs/r.yaml"
+	shell:
+		"Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
 
 
 
