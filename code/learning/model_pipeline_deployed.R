@@ -55,10 +55,10 @@ pipeline <- function(dataset, test, model, outcome=NA, hyperparameters=NULL){
   # Scale all features between 0-1
   preProcValues <- preProcess(dataset, method = "range")
   dataTransformed <- predict(preProcValues, dataset)
-  
-  test <- test %>% 
+
+  test <- test %>%
     select(-Group)
-  
+
   testTransformed <- predict(preProcValues, test)
   # ----------------------------------------------------------------------->
 
@@ -141,11 +141,14 @@ pipeline <- function(dataset, test, model, outcome=NA, hyperparameters=NULL){
 
   # Calculate the test-auc for the actual pre-processed held-out data
   rpartProbs <- predict(trained_model, testTransformed, type="prob")
-    
+
   # ---------------------------------------------------------------------------------->
+
+  # Calculate the best decision threshold for this model
+  thr <- coords(test_roc, "best", ret = "threshold")
 
   # ----------------------------Save metrics as vector ------------------------------->
   # Return all the metrics
-  results <- list(cv_auc, rpartProbs, trained_model)
+  results <- list(cv_auc, rpartProbs, trained_model, thr)
   return(results)
 }
