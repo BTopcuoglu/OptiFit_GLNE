@@ -91,7 +91,7 @@ loo_shared <- read_tsv(looShared, col_types = cols()) %>%
 
 # Reading in shared file of the left out sample
 sample_shared <- read_tsv(sampleShared, col_types = cols()) %>%
-  select(-label, -numOtus) %>% 
+  select(-label, -numOtus) %>%
   rename_all(str_replace, "Ref_", "")
 
 
@@ -141,7 +141,7 @@ data <- inner_join(loo_shared, meta, by=c("Group"="sample")) %>%
          dx = as.factor(dx)) %>% # Encoding dx as factor
   select(-Group, -Dx_Bin, -fit_result) %>%
   drop_na() %>%
-  select(dx, everything()) %>% 
+  select(dx, everything()) %>%
   as.data.frame()
 
 
@@ -166,6 +166,7 @@ results <- pipeline(data, test, model, outcome)
 
 cv_auc <- results[1]
 prediction <- results[2]
+decision_threshold <- results[3]
 
 # Create a matrix with cv_aucs and test_aucs from 1 data split
 aucs <- matrix(results[[1]], ncol=1)
@@ -177,6 +178,10 @@ aucs_dataframe <- data.frame(aucs) %>%
 
 # Convert to dataframe and add a column noting the model name
 predictions_dataframe <- data.frame(prediction) %>%
+    write_csv(path = paste0(outDir, "prediction_results_", sampleNum, ".csv"))
+
+# Convert to dataframe and add a column noting the model name
+thresholds_dataframe <- data.frame(decision_threshold) %>%
     write_csv(path = paste0(outDir, "prediction_results_", sampleNum, ".csv"))
 
 ###################################################################

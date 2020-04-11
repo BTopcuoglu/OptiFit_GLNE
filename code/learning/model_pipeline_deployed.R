@@ -145,12 +145,11 @@ pipeline <- function(dataset, test, model, outcome=NA, hyperparameters=NULL){
   # ---------------------------------------------------------------------------------->
 
   # Calculate the best decision threshold for this model
-  library(pROC)
   test_roc <- roc(ifelse(testTransformed[,outcome] == first_outcome, 1, 0), rpartProbs[[1]])
   thr <- coords(test_roc, "best", ret = "threshold")
 
   # ----------------------------Save metrics as vector ------------------------------->
   # Return all the metrics
-  results <- list(cv_auc, rpartProbs, trained_model, thr)
+  results <- list(cv_auc, rpartProbs, thr, trained_model)
   return(results)
 }
