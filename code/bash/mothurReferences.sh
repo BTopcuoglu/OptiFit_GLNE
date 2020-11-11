@@ -38,10 +38,14 @@ echo PROGRESS: Preparing SILVA database v4 sequence alignment files.
 # This version is from v123 and described at http://blog.mothur.org/2015/12/03/SILVA-v123-reference-files/
 # This version is used to maintain methods from Baxter NT, et al. Microbiota-based model improves the sensitivity
 # of fecal immunochemical test for detecting colonic lesions. Genome Med. 2016;8(1):37.
-wget -N -P "${TMP}"/ http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
+# wget -N -P "${TMP}"/ http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
+# updated location of silva reference v123
+wget -N -P "${TMP}"/ https://mothur.s3.us-east-2.amazonaws.com/wiki/silva.seed_v123.tgz
 
 # Decompressing the database
-tar xvzf "${TMP}"/Silva.seed_v123.tgz -C "${TMP}"/
+# tar xvzf "${TMP}"/Silva.seed_v123.tgz -C "${TMP}"/
+# change capitalization
+tar xvzf "${TMP}"/silva.seed_v123.tgz -C "${TMP}"/
 
 # Using mothur to pull out the v4 region from bacterial sequences
 mothur "#set.current(outputdir="${TMP}"/, processors="${NPROC}");
@@ -58,10 +62,14 @@ echo PROGRESS: Preparing Ribosomal Database Project taxonomy files.
 
 # Downloading the prepared RDP database from the mothur website
 # For more information see http://blog.mothur.org/2015/05/27/RDP-v14-reference_files/
-wget -N -P "${TMP}"/ http://mothur.org/w/images/8/88/Trainset14_032015.pds.tgz
+# wget -N -P "${TMP}"/ http://mothur.org/w/images/8/88/Trainset14_032015.pds.tgz
+# updated location of trainset v14
+wget -N -P "${TMP}"/ https://mothur.s3.us-east-2.amazonaws.com/wiki/trainset14_032015.pds.tgz
 
 # Decompressing the database
 tar xvzf "${TMP}"/Trainset14_032015.pds.tgz -C "${TMP}"/
+# change capitalization
+tar xvzf "${TMP}"/trainset14_032015.pds.tgz -C "${TMP}"/
 
 # Move the taxonomy files out of the tmp dir
 mv "${TMP}"/trainset14_032015.pds/trainset14_032015* "${OUTDIR}"/
