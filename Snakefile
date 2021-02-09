@@ -25,7 +25,8 @@ rule all:
         expand("data/learning/summary/{alogrithm}/model_results.tsv",
             alogrithm = alogrithmNames),
         expand("data/learning/summary/{alogrithm}/confusion_matrix.tsv",
-            alogrithm = alogrithmNames)
+            alogrithm = alogrithmNames),
+        "results/tables/fraction_reads_mapped.tsv"
     shell:
         '''
         if $(ls | grep -q "mothur.*logfile"); then
@@ -172,7 +173,7 @@ rule clusterOptiFit:
         "bash {input.script} {input.precluster} {params.sample} {input.ref}"
 
 
-rule calcFractionMapped:
+rule calc_fraction_mapped:
     input:
         script="code/fraction_reads_mapped.py",
         query=rules.clusterOptiFit.output.query_count,
@@ -182,6 +183,18 @@ rule calcFractionMapped:
         tsv="data/process/optifit/{sample}/in/fraction_reads_mapped.tsv"
     script:
         "code/fraction_reads_mapped.py"
+
+rule cat_fraction_mapped:
+    input:
+        expand("data/process/optifit/{sample}/in/fraction_reads_mapped.tsv",
+            sample = sampleNames)
+    output:
+        tsv="results/tables/fraction_reads_mapped.tsv"
+    shell:
+        """
+        echo "sample\tfraction_mapped\n" > {output.tsv}
+        cat {input} >> {output.tsv}
+        """
 
 
 ##################################################################
