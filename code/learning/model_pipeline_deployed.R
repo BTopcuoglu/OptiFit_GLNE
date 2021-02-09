@@ -145,7 +145,7 @@ pipeline <- function(dataset, test, model, outcome=NA, hyperparameters=NULL){
   # ---------------------------------------------------------------------------------->
 
   # Calculate the best decision threshold for this model
-  test_roc <- roc(ifelse(testTransformed[,outcome] == first_outcome, 1, 0), rpartProbs[[1]])
+  #test_roc <- roc(ifelse(testTransformed[,outcome] == first_outcome, 1, 0), rpartProbs[[1]])
   #thr <- coords(test_roc, "best", ret = "threshold")
 
   # ----------------------------Save metrics as vector ------------------------------->
