@@ -166,7 +166,7 @@ results <- pipeline(data, test, model, outcome)
 
 cv_auc <- results[1]
 prediction <- results[2]
-decision_threshold <- results[3]
+#decision_threshold <- results[3]
 
 # Create a matrix with cv_aucs and test_aucs from 1 data split
 aucs <- matrix(results[[1]], ncol=1)
@@ -174,14 +174,14 @@ aucs <- matrix(results[[1]], ncol=1)
 # Convert to dataframe and add a column noting the model name
 aucs_dataframe <- data.frame(aucs) %>%
   rename_at(1, ~ "cv_auc") %>%
-  write_csv(path = paste0(outDir, "cv_results_", sampleNum, ".csv"))
+  write_csv(file = paste0(outDir, "cv_results_", sampleNum, ".csv"))
 
 # Convert to dataframe and add a column noting the model name
 predictions_dataframe <- data.frame(prediction) %>%
-    write_csv(path = paste0(outDir, "prediction_results_", sampleNum, ".csv"))
+    write_csv(file = paste0(outDir, "prediction_results_", sampleNum, ".csv"))
 
 # Convert to dataframe and add a column noting the model name
-thresholds_dataframe <- data.frame(decision_threshold) %>%
-    write_csv(path = paste0(outDir, "prediction_results_", sampleNum, ".csv"))
+#thresholds_dataframe <- data.frame(decision_threshold) %>%
+#    write_csv(path = paste0(outDir, "prediction_results_", sampleNum, ".csv"))
 
 ###################################################################
