@@ -44,4 +44,5 @@ mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
 	sub.sample(fasta=current, count=current, taxonomy=current, size="${SUBSIZE}");
 	dist.seqs(fasta=current, cutoff=0.03);
 	cluster.fit(fasta=current, column=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed);
-	make.shared(list=current, count=current, label=0.03)"
+	make.shared(list=current, count=current, label=0.03);
+    list.seqs(list=current)"  # creates accnos file of seqs in OTUs

@@ -145,7 +145,8 @@ rule leaveOneOutOptiFit:
 		refFasta="data/process/optifit/{sample}/out/glne.precluster.pick.fasta",
 		refDist="data/process/optifit/{sample}/out/glne.precluster.pick.dist",
 		refList="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.list",
-		optifitLooShared="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.0.03.subsample.shared" # Used in ML pipeline
+		optifitLooShared="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.0.03.subsample.shared", # Used in ML pipeline
+        refCount="data/process/optifit/{sample}/out/glne.precluster.pick.count_table"
 	conda:
 		"envs/mothur.yaml"
 	shell:
@@ -161,14 +162,26 @@ rule clusterOptiFit:
 	params:
 		sample="{sample}"
 	output:
-		optifitSampleShared="data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.shared" # Used in ML pipeline
+		optifitSampleShared="data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.shared", # Used in ML pipeline
+        query_count='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.count_table',
+        list='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.list',
+        list_accnos='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.accnos'
 	conda:
 		"envs/mothur.yaml"
 	shell:
 		"bash {input.script} {input.precluster} {params.sample} {input.ref}"
 
 
-
+rule calcFractionMapped:
+    input:
+        script="code/fraction_reads_mapped.py",
+        query=rules.clusterOptiFit.output.query_count,
+        ref=rules.leaveOneOutOptiFit.output.refCount,
+        mapped=rules.clusterOptiFit.output.list_accnos
+    output:
+        tsv="data/process/optifit/{sample}/in/fraction_reads_mapped.tsv"
+    script:
+        "code/fraction_reads_mapped.py"
 
 
 ##################################################################
