@@ -1,0 +1,221 @@
+---
+title: "OptiFit GLNE Exploratory"
+author: "Courtney R Armour"
+date: "February 2021"
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE)
+
+library(tidyverse)
+library(caret)
+library(kableExtra)
+library(pROC)
+```
+
+## Percent of reads mapped with OptiFit
+
+```{r reads_mapped}
+
+counts <- read_csv("./counts/all_counts.csv",col_names = c("sample","count"))
+
+counts %>% 
+  mutate(pct_mapped = count/10000) %>% 
+  ggplot(aes(x=pct_mapped)) +
+    geom_histogram(fill="grey",color="black") +
+    theme_bw() + 
+    scale_x_continuous(labels=scales::percent) +
+    xlab("Percent of reads mapped")
+  
+# counts %>% 
+#   mutate(pct_mapped = count/10000) %>% 
+#   ggplot(aes(x="",y=pct_mapped)) +
+#     geom_boxplot(fill="grey",color="black") +
+#     theme_bw() +
+#     xlab("")
+```
+
+## MCC OptiFit vs OptiClust
+
+```{r mcc}
+
+optifit_in_mcc <- read_tsv("./optifit_in_mcc.tsv")
+optifit_out_mcc <- read_tsv("./optifit_out_mcc.tsv")
+opticlust_mcc <- read_tsv("./opticlust_mcc.tsv")
+
+mcc_data <- tibble(type=c(rep("OptiClust_489",nrow(optifit_out_mcc)),
+                          rep("OptiFit_1",nrow(optifit_in_mcc)),
+                          rep("OptiClust_all",nrow(opticlust_mcc))),
+                   mcc=c(optifit_out_mcc$mcc,optifit_in_mcc$mcc,opticlust_mcc$mcc))
+
+mcc_data$type <- factor(mcc_data$type,levels=c("OptiClust_all","OptiClust_489","OptiFit_1"))
+mcc_data %>% 
+  ggplot(aes(x=type,y=mcc,color=type)) + 
+    geom_jitter(height=0) +
+    xlab("") +
+    theme_bw()
+
+```
+
+
+# Model performance during training
+```{r data}
+
+optifit_summary <- read_tsv("../data/learning/summary/optifit/model_results.tsv",
+                            col_types = cols(sample = col_character(),
+                                             cv_auc = col_double(),
+                                             cancer = col_double(),
+                                             normal = col_double(),
+                                             dx_diff = col_double(),
+                                             dx_flag = col_factor(),
+                                             pred_class = col_number(),
+                                             meta_class = col_number()
+                                             ))  %>% 
+  mutate(pred_class = case_when(pred_class == 0 ~ "normal",
+                                TRUE ~ "cancer")) %>% 
+  mutate(meta_class = case_when(meta_class == 0 ~ "normal",
+                                TRUE ~ "cancer"))
+
+opticlust_summary <- read_tsv("../data/learning/summary/opticlust/model_results.tsv",
+                              col_types = cols(sample = col_character(),
+                                               cv_auc = col_double(),
+                                               cancer = col_double(),
+                                               normal = col_double(),
+                                               dx_diff = col_double(),
+                                               dx_flag = col_factor(),
+                                               pred_class = col_factor(),
+                                               meta_class = col_factor()
+                                               )) %>% 
+  mutate(pred_class = case_when(pred_class == 0 ~ "normal",
+                                TRUE ~ "cancer")) %>% 
+  mutate(meta_class = case_when(meta_class == 0 ~ "normal",
+                                TRUE ~ "cancer"))
+
+opticlust_summary %>% mutate(method="OptiClust") %>% 
+  bind_rows(optifit_summary %>% mutate(method="OptiFit")) %>% 
+  ggplot(aes(x=method,y=cv_auc,fill=method)) +
+    geom_boxplot() +
+    #geom_jitter(height=0,alpha = 0.5) +
+    labs(title = "Cross Validation Performance") +
+    theme_bw() +
+    theme(legend.position = "none") 
+ggsave("./figures/cv_auc_performance.png")
+
+```
+
+# Prediction Probability 
+```{r }
+
+opticlust_summary %>% 
+  ggplot(aes(x=cancer,fill=meta_class)) +
+    geom_histogram(color="black",alpha=0.8,binwidth = 0.05) + theme_bw() +
+    labs(xlab = "Probability of Cancer") + 
+    facet_wrap(~meta_class) +
+    xlab("probability of cancer") +
+    geom_vline(xintercept = 0.5,lty="dashed") +
+    scale_y_continuous(expand=c(0,0)) +
+    scale_fill_manual(values=c("red","blue"),guide=NULL) +
+    ggtitle("OptiClust")
+
+optifit_summary %>% 
+  ggplot(aes(x=cancer,fill=meta_class)) +
+    geom_histogram(color="black",alpha=0.8,binwidth = 0.05) + theme_bw() +
+    labs(xlab = "Probability of Cancer") + 
+    facet_wrap(~meta_class) +
+    xlab("probability of cancer") +
+    geom_vline(xintercept = 0.5,lty="dashed") +
+    scale_y_continuous(expand=c(0,0)) +
+    scale_fill_manual(values=c("red","blue"),guide=NULL) +
+    ggtitle("OptiFit")
+
+
+```
+
+### Difference in prediction probablity  
+```{r hist}
+
+# ggplot(opticlust_summary,aes(x=dx_diff)) +
+#   geom_histogram(binwidth = 0.05,color="black",fill="grey") +
+#   labs(title = "OptiClust: Difference in DX Prediction",
+#        x="Difference in Probability") +
+#   theme_bw() +
+#   scale_x_continuous(expand=c(0,0)) +
+#   scale_y_continuous(expand=c(0,0))
+# 
+# ggplot(optifit_summary,aes(x=dx_diff)) +
+#   geom_histogram(binwidth = 0.05,color="black",fill="grey") +
+#   labs(title = "OptiFit: Difference in DX Prediction",
+#        x="Difference in Probability") +
+#   theme_bw() +
+#   scale_x_continuous(expand=c(0,0)) +
+#   scale_y_continuous(expand=c(0,0))
+
+opticlust_summary %>% mutate(method="OptiClust") %>% 
+  bind_rows(optifit_summary %>% mutate(method="OptiFit")) %>% 
+  ggplot(aes(x=dx_diff)) +
+    geom_histogram(binwidth = 0.05,color="black",fill="grey") +
+    labs(title = "Difference in DX Prediction",
+         x="Difference in Probability") +
+    theme_bw() +
+    scale_x_continuous(expand=c(0,0)) +
+    scale_y_continuous(expand=c(0,0)) +
+    facet_wrap(~method)
+
+```
+
+# Summary of performance with a threshold of 0.5
+```{r confusionMatrix}
+
+opticlust_cm <- confusionMatrix(data=factor(opticlust_summary$pred_class),reference = factor(opticlust_summary$meta_class))
+optifit_cm <- confusionMatrix(data=factor(optifit_summary$pred_class),reference = factor(optifit_summary$meta_class))
+
+kable(opticlust_cm$table,caption="OptiClust Confusion Matrix") %>% 
+  kable_styling(full_width = F,position = "float_left")
+kable(optifit_cm$table,caption="OptiFit Confusion Matrix") %>% 
+  kable_styling(full_width = F,position = "left")
+
+cm_summary <- round(opticlust_cm$byClass,digits=3) %>% 
+  bind_rows(round(optifit_cm$byClass,digits=3)) %>% 
+  mutate(Method=c("OptiClust","OptiFit")) %>% 
+  select(Method,everything())
+
+kable(cm_summary,align="c",booktabs=TRUE) %>% 
+  kable_classic()
+```
+
+  
+### ROC plot  
+
+```{r roc}
+
+#opticlust
+response <- ifelse(opticlust_summary$meta_class == "cancer",1,0)
+predictor <- opticlust_summary$cancer
+  
+clust_roc <- roc(response,predictor)
+opticlust_thr <- coords(clust_roc, "best", ret = "threshold",transpose = TRUE)
+
+#optifit
+response <- ifelse(optifit_summary$meta_class == "normal",0,1)
+predictor <- optifit_summary$normal
+  
+fit_roc <- roc(response,predictor)
+optifit_thr <- coords(fit_roc, "best", ret = "threshold",transpose = TRUE)
+
+#plot
+ggroc(list(OptiClust=clust_roc,OptiFit=fit_roc),legacy.axes=TRUE) +
+  theme_bw() + 
+  geom_segment(aes(x = 0, xend = 1, y = 0, yend = 1),
+                 color="darkgrey", linetype="dashed") +
+  scale_y_continuous(expand=c(0,0)) +
+  scale_x_continuous(expand=c(0,0))
+
+```
+
+OptiClust AUC: `r round(clust_roc$auc,digits=3)`  
+OptiFit AUC: `r round(fit_roc$auc,digits=3)`
+
+Optimal threshold for OptiClust: `r round(opticlust_thr,digits=3)`  
+Optimal threshold for OptiFit: `r round(optifit_thr,digits=3)`  
+
