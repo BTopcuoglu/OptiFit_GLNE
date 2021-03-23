@@ -163,10 +163,10 @@ rule clusterOptiFit:
     params:
         sample="{sample}"
     output:
-        optifitSampleShared="data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.shared", # Used in ML pipeline
-        query_count='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.count_table',
-        list='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.list',
-        list_accnos='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.optifit_mcc.accnos'
+        optifitSampleShared="data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared", # Used in ML pipeline
+        query_count='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.count_table',
+        list='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.list',
+        list_accnos='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
     conda:
         "envs/mothur.yaml"
     shell:

@@ -48,14 +48,15 @@ mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/, processors="${NP
 	chimera.vsearch(fasta=current, count=current, dereplicate=T);
 	remove.seqs(fasta=current, accnos=current);
 	classify.seqs(fasta=current, count=current, reference="${RDPFASTA}", taxonomy="${RDPTAX}", cutoff=80);
-	remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota)"
+	remove.lineage(fasta=current, count=current, taxonomy=current, taxon=Chloroplast-Mitochondria-unknown-Archaea-Eukaryota);
+	dist.seqs(fasta=current,cutoff=0.03)"
 
 
 # Moving and renaming important files for downstream use
 mv "${TMP}"/*.precluster.pick.pick.fasta "${OUTDIR}"/glne.precluster.fasta
 mv "${TMP}"/*.precluster.denovo.vsearch.pick.pick.count_table "${OUTDIR}"/glne.precluster.count_table
 mv "${TMP}"/*.precluster.pick.pds.wang.pick.taxonomy "${OUTDIR}"/glne.precluster.taxonomy
-
+mv "${TMP}"/*.precluster.pick.pick.dist "${OUTDIR}"/glne.precluster.dist
 
 
 ###############
