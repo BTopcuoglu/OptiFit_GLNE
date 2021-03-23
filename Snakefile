@@ -118,7 +118,8 @@ rule preclusterSequences:
     output:
         fasta="data/process/precluster/glne.precluster.fasta",
         count="data/process/precluster/glne.precluster.count_table",
-        tax="data/process/precluster/glne.precluster.taxonomy"
+        tax="data/process/precluster/glne.precluster.taxonomy",
+        dist="data/process/precluster/glne.precluster.dist"
     conda:
         "envs/mothur.yaml"
     shell:
