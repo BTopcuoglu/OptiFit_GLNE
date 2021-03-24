@@ -13,7 +13,7 @@
 FASTA=${1:?ERROR: Need to define FASTA.} # Preclustered fasta file
 COUNT=${2:?ERROR: Need to define COUNT.} # Preclustered count file
 TAXONOMY=${3:?ERROR: Need to define TAXONOMY.} # Preclustered tax file
-DIST=${4::?ERROR: Need to define DIST.} # Preclustered dist file
+DIST=${4:?ERROR: Need to define DIST.} # Preclustered dist file
 SAMPLE=${5:?ERROR: Need to define SAMPLE.} # Sample to be removed
 
 # Other variables
