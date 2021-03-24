@@ -317,7 +317,15 @@ rule makeOptiClustConfusionMatrix:
     shell:
         "Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
 
-
+rule makeMergedSensspec:
+    input:
+        script="code/R/get_sensspec.R"
+    output:
+        results="results/tables/merged_sensspec.csv"
+    conda:
+        "envs/r.yaml"
+    shell:
+        "Rscript code/R/get_sensspec.R"
 
 
 
