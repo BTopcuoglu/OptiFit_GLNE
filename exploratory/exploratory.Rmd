@@ -18,38 +18,29 @@ library(pROC)
 
 ```{r reads_mapped}
 
-counts <- read_csv("./counts/all_counts.csv",col_names = c("sample","count"))
+fraction_mapped <- read_tsv("../results/tables/fraction_reads_mapped.tsv")
 
-counts %>% 
-  mutate(pct_mapped = count/10000) %>% 
-  ggplot(aes(x=pct_mapped)) +
+fraction_mapped %>% 
+  ggplot(aes(x=fraction_mapped)) + 
     geom_histogram(fill="grey",color="black") +
-    theme_bw() + 
-    scale_x_continuous(labels=scales::percent) +
-    xlab("Percent of reads mapped")
+  theme_bw() + 
+  scale_x_continuous(labels=scales::percent) +
+  xlab("Percent of reads mapped with cluster.fit") +
+  ylab("number of samples")
   
-# counts %>% 
-#   mutate(pct_mapped = count/10000) %>% 
-#   ggplot(aes(x="",y=pct_mapped)) +
-#     geom_boxplot(fill="grey",color="black") +
-#     theme_bw() +
-#     xlab("")
 ```
 
 ## MCC OptiFit vs OptiClust
 
 ```{r mcc}
 
-optifit_in_mcc <- read_tsv("./optifit_in_mcc.tsv")
-optifit_out_mcc <- read_tsv("./optifit_out_mcc.tsv")
-opticlust_mcc <- read_tsv("./opticlust_mcc.tsv")
+sensspec <- read_csv("../results/tables/merged_sensspec.csv")
 
-mcc_data <- tibble(type=c(rep("OptiClust_489",nrow(optifit_out_mcc)),
-                          rep("OptiFit_1",nrow(optifit_in_mcc)),
-                          rep("OptiClust_all",nrow(opticlust_mcc))),
-                   mcc=c(optifit_out_mcc$mcc,optifit_in_mcc$mcc,opticlust_mcc$mcc))
+mcc_data <- sensspec %>% 
+  select(type,sample,mcc) %>% 
+  mutate(type=factor(type,levels=c("opticlust","optifit_out","optifit_in"),labels=c("OptiClust_all","OptiClust_489","OptiFit_1")))
 
-mcc_data$type <- factor(mcc_data$type,levels=c("OptiClust_all","OptiClust_489","OptiFit_1"))
+#mcc_data$type <- factor(mcc_data$type,levels=c("OptiClust_all","OptiClust_489","OptiFit_1"))
 mcc_data %>% 
   ggplot(aes(x=type,y=mcc,color=type)) + 
     geom_jitter(height=0) +

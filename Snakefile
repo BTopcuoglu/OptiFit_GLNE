@@ -118,7 +118,8 @@ rule preclusterSequences:
     output:
         fasta="data/process/precluster/glne.precluster.fasta",
         count="data/process/precluster/glne.precluster.count_table",
-        tax="data/process/precluster/glne.precluster.taxonomy"
+        tax="data/process/precluster/glne.precluster.taxonomy",
+        dist="data/process/precluster/glne.precluster.dist"
     conda:
         "envs/mothur.yaml"
     shell:
@@ -257,7 +258,7 @@ rule predictOptiFitDiagnosis:
     conda:
         "envs/r.yaml"
     shell:
-        "Rscript {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
+        "Rscript --max-ppsize=500000 {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
 
 
 # Predicting diagnosis using OptiClust shared files.
@@ -276,7 +277,7 @@ rule predictOptiClustDiagnosis:
     conda:
         "envs/r.yaml"
     shell:
-        "Rscript {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
+        "Rscript --max-ppsize=500000 {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
 
 
 # Collating all ML pipeline results and constructing confusion matrix
@@ -316,7 +317,15 @@ rule makeOptiClustConfusionMatrix:
     shell:
         "Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
 
-
+rule makeMergedSensspec:
+    input:
+        script="code/R/get_sensspec.R"
+    output:
+        results="results/tables/merged_sensspec.csv"
+    conda:
+        "envs/r.yaml"
+    shell:
+        "Rscript code/R/get_sensspec.R"
 
 
 

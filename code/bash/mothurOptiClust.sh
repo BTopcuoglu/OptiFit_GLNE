@@ -13,6 +13,7 @@
 FASTA=${1:?ERROR: Need to define FASTA.} # Preclustered fasta file
 COUNT=${2:?ERROR: Need to define COUNT.} # Preclustered count file
 TAXONOMY=${3:?ERROR: Need to define TAXONOMY.} # Preclustered tax file
+DIST=${4:?ERROR: Need to define DIST.} # Preclustered distance file
 
 # Other variables
 OUTDIR=data/process/opticlust/shared/ # Output dir since the same shared file will be used for all leave one out steps
@@ -34,8 +35,7 @@ if [ -n "$(ls -A "${OUTDIR}")" ]; then
 fi
 
 # Cluster all sequences into master shared file
-mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}");
-	dist.seqs(fasta=current, cutoff=0.03);
+mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}", fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}", column="${DIST}");
 	cluster(column=current, count=current);
 	make.shared(list=current, count=current, label=0.03);
 	sub.sample(shared=current, label=0.03, size="${SUBSIZE}")"
