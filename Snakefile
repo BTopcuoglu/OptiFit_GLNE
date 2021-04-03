@@ -258,7 +258,7 @@ rule predictOptiFitDiagnosis:
     conda:
         "envs/r.yaml"
     shell:
-        "Rscript {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
+        "Rscript --max-ppsize=500000 {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
 
 
 # Predicting diagnosis using OptiClust shared files.
@@ -277,7 +277,7 @@ rule predictOptiClustDiagnosis:
     conda:
         "envs/r.yaml"
     shell:
-        "Rscript {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
+        "Rscript --max-ppsize=500000 {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
 
 
 # Collating all ML pipeline results and constructing confusion matrix
