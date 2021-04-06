@@ -20,14 +20,24 @@ library(pROC)
 
 fraction_mapped <- read_tsv("../results/tables/fraction_reads_mapped.tsv")
 
+med <- median(fraction_mapped$fraction_mapped)
+med_frac <- paste0(100*median(fraction_mapped$fraction_mapped),"%")
+min_frac <- paste0(100*min(fraction_mapped$fraction_mapped),"%")
+max_frac <- paste0(100*max(fraction_mapped$fraction_mapped),"%")
+
 fraction_mapped %>% 
   ggplot(aes(x=fraction_mapped)) + 
     geom_histogram(fill="grey",color="black") +
   theme_bw() + 
   scale_x_continuous(labels=scales::percent) +
   xlab("Percent of reads mapped with cluster.fit") +
-  ylab("number of samples")
-  
+  ylab("number of samples") +
+  geom_vline(xintercept = med,lty="dashed",lwd=1) +
+  annotate("text", x=.90, y=55, label= paste0("Median: ",med_frac)) +   
+  annotate("text", x=.90, y=50, label= paste0("Max: ",max_frac)) +
+  annotate("text", x=.90, y=45, label= paste0("Min: ",min_frac))   
+
+
 ```
 
 ## MCC OptiFit vs OptiClust
@@ -43,9 +53,10 @@ mcc_data <- sensspec %>%
 #mcc_data$type <- factor(mcc_data$type,levels=c("OptiClust_all","OptiClust_489","OptiFit_1"))
 mcc_data %>% 
   ggplot(aes(x=type,y=mcc,color=type)) + 
-    geom_jitter(height=0) +
+    geom_jitter(height=0,size=3,alpha=0.6) +
     xlab("") +
-    theme_bw()
+    theme_bw() +
+    stat_summary(fun=median,geom="crossbar",color="black",lwd=0.3)
 
 ```
 
