@@ -19,19 +19,19 @@
 #SBATCH --time=5-00:00:00
 
 # Account
-#SBATCH --account=ACCOUNT
+#SBATCH --account=pschloss1
 #SBATCH --partition=standard
 
 # Logs
-#SBATCH --mail-user=EMAIL
-#SBATCH --mail-type=BEGIN,END,FAIL
+#SBATCH --mail-user=armourc@umich.edu
+#SBATCH --mail-type=FAIL
 #SBATCH --output=%x-%j.out
 
 # Environment
 #SBATCH --export=ALL
 
 # Connecting node to internet
-source /etc/profile.d/http_proxy.sh 
+source /etc/profile.d/http_proxy.sh
 
 # List compute nodes allocated to the job
 if [[ $SLURM_JOB_NODELIST ]] ; then

@@ -5,17 +5,17 @@ __default__:
   cpuspertask: 1
   mempercpu: "4GB"
   time: "15:00"
-  account: "ACCOUNT"
+  account: "pschloss1"
   partition: "standard"
-  mailuser: "EMAIL"
-  mailtype: "END,FAIL"
+  mailuser: "armourc@umich.edu"
+  mailtype: "FAIL"
   output: "logs/slurm/%x-%j.out"
 
 
 
 ##################################################################
 #
-# Analysis 
+# Analysis
 #
 ##################################################################
 
@@ -27,7 +27,7 @@ get16SReferences:
 
 preclusterSequences:
   cpuspertask: 12
-  time: "3:00:00"
+  time: "12:00:00"
 
 leaveOneOutOptiFit:
   cpuspertask: 12
