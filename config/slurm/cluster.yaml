@@ -3,7 +3,7 @@ __default__:
   nodes: 1
   ntaskspernode: 1
   cpuspertask: 1
-  mempercpu: "4GB"
+  mempercpu: "6GB"
   time: "15:00"
   account: "pschloss1"
   partition: "standard"
@@ -27,24 +27,28 @@ get16SReferences:
 
 preclusterSequences:
   cpuspertask: 12
+<<<<<<< HEAD
   time: "12:00:00"
+=======
+  time: "200:00:00"
+>>>>>>> 31fa3564199a06b812c6fc4129c1f8b4fa56936d
 
 leaveOneOutOptiFit:
   cpuspertask: 12
-  time: "1:30:00"
+  time: "8:30:00"
 
 clusterOptiFit:
   cpuspertask: 12
-  time: "1:30:00"
+  time: "6:30:00"
 
 clusterOptiClust:
   cpuspertask: 12
-  time: "1:30:00"
+  time: "8:30:00"
 
 predictOptiFitDiagnosis:
   cpuspertask: 2
-  time: "45:00"
+  time: "1:00:00"
 
 predictOptiClustDiagnosis:
   cpuspertask: 2
-  time: "45:00"
+  time: "1:00:00"
