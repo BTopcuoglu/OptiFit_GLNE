@@ -27,11 +27,7 @@ get16SReferences:
 
 preclusterSequences:
   cpuspertask: 12
-<<<<<<< HEAD
   time: "12:00:00"
-=======
-  time: "200:00:00"
->>>>>>> 31fa3564199a06b812c6fc4129c1f8b4fa56936d
 
 leaveOneOutOptiFit:
   cpuspertask: 12
