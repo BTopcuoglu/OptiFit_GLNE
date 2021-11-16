@@ -29,22 +29,32 @@ preclusterSequences:
   cpuspertask: 12
   time: "12:00:00"
 
-leaveOneOutOptiFit:
-  cpuspertask: 12
-  time: "8:30:00"
-
-clusterOptiFit:
-  cpuspertask: 12
-  time: "6:30:00"
-
 clusterOptiClust:
   cpuspertask: 12
   time: "8:30:00"
 
-predictOptiFitDiagnosis:
-  cpuspertask: 2
+make8020splits:
   time: "1:00:00"
 
-predictOptiClustDiagnosis:
-  cpuspertask: 2
+plot8020splits:
   time: "1:00:00"
+  
+generateOptiClustData:
+  cpuspertask: 12
+  time: "5:00:00"
+
+clusterOptiFitData:
+  cpuspertask: 12
+  time: "8:00:00"
+  
+fitOptiFit:
+  cpuspertask: 12
+  time: "8:00:00"
+
+runOptiClustModels:
+  cpuspertask: 12
+  time: "8:00:00"
+
+runOptiFitModels:
+  cpuspertask: 12
+  time: "8:00:00"
