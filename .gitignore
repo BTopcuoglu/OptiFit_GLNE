@@ -2,7 +2,7 @@
 /data/**
 !/data/**/
 !/data/metadata/SraRunTable.txt
-!/data/learning/summary/**
+!/data/learning
 
 # Log files
 logs/slurm/*
