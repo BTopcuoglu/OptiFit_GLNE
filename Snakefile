@@ -33,13 +33,13 @@ rule all:
                num = split_nums),
         expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
                num = split_nums)
-    # shell:
-    #     '''
-    #     if $(ls | grep -q "mothur.*logfile"); then
-    #         mkdir -p logs/mothur/
-    #         mv mothur*logfile logs/mothur/
-    #     fi
-    #     '''
+    shell:
+        '''
+        if $(ls | grep -q "mothur.*logfile"); then
+            mkdir -p logs/mothur/
+            mv mothur*logfile logs/mothur/
+        fi
+        '''
 
 ##################################################################
 #
