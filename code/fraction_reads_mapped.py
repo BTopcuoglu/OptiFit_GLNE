@@ -46,7 +46,7 @@ def main():
 
     wildcards = snakemake.wildcards
     #header_line = "sample\tfraction_mapped\n"
-    data_str = f"{wildcards.sample}\t{fraction_mapped}\n"
+    data_str = f"{wildcards.num}\t{fraction_mapped}\n"
     with open(snakemake.output.tsv, "w") as output_file:
         #output_file.write(header_line)
         output_file.write(data_str)
