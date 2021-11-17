@@ -75,7 +75,6 @@ train_labels <- names(train_shared)
 test_labels <- names(test_shared)
 
 # Finding list of otus common to both shared files
-# common_labels <- intersect(opti_labels, loo_labels)
 common_labels <- intersect(train_labels,test_labels)
 
 # Finding otus that are missing in sample shared
@@ -110,8 +109,8 @@ data <- inner_join(train_shared, meta, by=c("Group"="sample")) %>%
                         Dx_Bin == "Cancer" ~ "cancer",
                         TRUE ~ NA_character_),
          dx = as.factor(dx)) %>% # Encoding dx as factor
-  select(-Group, -Dx_Bin, -fit_result) %>%
-  #select(-Dx_Bin, -fit_result) %>%
+  #select(-Group, -Dx_Bin, -fit_result) %>%
+  select(-Dx_Bin, -fit_result) %>%
   drop_na() %>%
   select(dx, everything()) %>%
   as.data.frame()
@@ -124,11 +123,27 @@ test <- inner_join(test, meta, by=c("Group"="sample"))  %>%
                         Dx_Bin == "Cancer" ~ "cancer",
                         TRUE ~ NA_character_),
          dx = as.factor(dx)) %>% # Encoding dx as factor
-  select(-Group, -Dx_Bin, -fit_result) %>%
-  #select(-Dx_Bin, -fit_result) %>%
+  #select(-Group, -Dx_Bin, -fit_result) %>%
+  select(-Dx_Bin, -fit_result) %>%
   drop_na() %>%
   select(dx, everything()) %>%
   as.data.frame()
+
+# check that there is no overlap in samples between test and train 
+if( length(intersect(data$Group,test$Group)) > 0 ){
+  stop("something went wrong with the data split, there are samples in testing and training.")
+}
+
+# save ID and dx
+trainIDS <- data %>% select(dx,Group) 
+testIDS <- test  %>% select(dx,Group)
+
+#remove group from data/test
+data <- data %>% 
+  select(-Group)
+  
+test <- test %>% 
+  select(-Group)
 
 ######################## RUN PIPELINE ###########################
 
@@ -179,7 +194,9 @@ results <- mikropml::run_ml(dataset = allData,
                             seed = 2021)
 
 cv_auc <- results$performance$cv_metric_AUC
-prediction <- predict(results$trained_model,testTransformed,type = "prob")
+prediction <- predict(results$trained_model,testTransformed,type = "prob")  %>% 
+  bind_cols(.,testIDS) %>% 
+  select(Group,dx,cancer,normal)
 
 # write out model
 saveRDS(results$trained_model,file = paste0(outDir, "model_",split,".rds"))
