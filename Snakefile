@@ -23,16 +23,11 @@ split_nums = range(1,6) # number of test/train splits to make
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
     input:
-        #expand("data/process/opticlust/split_{num}/{partition}/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared", 
-        #       num = split_nums,partition = ('train','test')),
-        #expand("data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
-        #       num = split_nums),
-        #expand("data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared",
-        #       num = split_nums),
         expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
                num = split_nums),
         expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
-               num = split_nums)
+               num = split_nums),
+        "data/learning/summary/merged_predictions.csv"
     shell:
         '''
         if $(ls | grep -q "mothur.*logfile"); then
@@ -205,7 +200,8 @@ rule clusterOptiFitData:
         shared="data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
         reffasta="data/process/optifit/split_{num}/train/glne.precluster.pick.fasta",
         refdist="data/process/optifit/split_{num}/train/glne.precluster.pick.dist",
-        reflist="data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.list"
+        reflist="data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.list",
+        refCount="data/process/optifit/split_{num}/train/glne.precluster.pick.count_table"
     conda:
         "envs/mothur.yaml"
     shell:
@@ -221,11 +217,37 @@ rule fitOptiFit:
         refdist=rules.clusterOptiFitData.output.refdist,
         reflist=rules.clusterOptiFitData.output.reflist
     output:
-        fit="data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared"
+        fit="data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared",
+        query_count='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.count_table',
+        list='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.list',
+        list_accnos='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
     conda:
         "envs/mothur.yaml"
     shell:
         "bash {input.script} {input.precluster} {input.split} {input.reffasta} {input.refdist} {input.reflist}"
+
+rule calc_fraction_mapped:
+    input:
+        script="code/fraction_reads_mapped.py",
+        query=rules.fitOptiFit.output.query_count,
+        ref=rules.clusterOptiFitData.output.refCount,
+        mapped=rules.fitOptiFit.output.list_accnos
+    output:
+        tsv="data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv"
+    script:
+        "code/fraction_reads_mapped.py"
+
+rule cat_fraction_mapped:
+    input:
+        expand("data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv",
+            num = split_nums)
+    output:
+        tsv="results/tables/fraction_reads_mapped.tsv"
+    shell:
+        """
+        echo "sample\tfraction_mapped\n" > {output.tsv}
+        cat {input} >> {output.tsv}
+        """
 
 ##################################################################
 #
@@ -246,8 +268,8 @@ rule runOptiClustModels:
         cv="data/learning/results/opticlust/cv_results_split_{num}.csv",
         model="data/learning/results/opticlust/model_split_{num}.rds",
         prediction="data/learning/results/opticlust/prediction_results_split_{num}.csv",
-        preproc_train="data/learning/results/opticlust/preproc_train_split_{num}.csv",
-        preproc_test="data/learning/results/opticlust/preproc_test_split_{num}.csv"        
+        preprocTrain="data/learning/results/opticlust/preproc_train_split_{num}.csv",
+        preprocTest="data/learning/results/opticlust/preproc_test_split_{num}.csv"        
     conda:
         "envs/R.yaml"
     shell:
@@ -266,8 +288,8 @@ rule runOptiFitModels:
         cv="data/learning/results/optifit/cv_results_split_{num}.csv",
         model="data/learning/results/optifit/model_split_{num}.rds",
         prediction="data/learning/results/optifit/prediction_results_split_{num}.csv",
-        preproc_train="data/learning/results/optifit/preproc_train_split_{num}.csv",
-        preproc_test="data/learning/results/optifit/preproc_test_split_{num}.csv"
+        preprocTrain="data/learning/results/optifit/preproc_train_split_{num}.csv",
+        preprocTest="data/learning/results/optifit/preproc_test_split_{num}.csv"
     conda:
         "envs/R.yaml"
     shell:
@@ -279,6 +301,18 @@ rule runOptiFitModels:
 #
 ##################################################################        
 
-# rule mergePredictionResults:
-#     input:
-#         data/learning/results/optifit/prediction_results_split_{num}.csv
+rule mergePredictionResults:
+    input:
+        script="code/R/merge_predictions.R",
+        opticlustPred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                             num = split_nums),
+        optifitPred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                           num = split_nums)
+    output:
+        mergedPrediction="data/learning/summary/merged_predictions.csv",
+    conda:
+        "envs/R.yaml"
+    shell:
+        "Rscript {input.script} {input.opticlustPred} {input.optifitPred}"
+        
+# rule mergeCVresults
