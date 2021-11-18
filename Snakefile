@@ -26,8 +26,7 @@ rule all:
         expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
                num = split_nums),
         expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
-               num = split_nums),
-        "data/learning/summary/merged_predictions.csv"
+               num = split_nums)        
     shell:
         '''
         if $(ls | grep -q "mothur.*logfile"); then
@@ -35,6 +34,13 @@ rule all:
             mv mothur*logfile logs/mothur/
         fi
         '''
+
+rule results:
+    input:
+        "results/tables/fraction_reads_mapped.tsv",
+        "data/learning/summary/merged_predictions.csv",
+        "results/tables/mergedMCC.csv",
+        "data/learning/summary/merged_CV.csv"
 
 ##################################################################
 #
@@ -315,4 +321,32 @@ rule mergePredictionResults:
     shell:
         "Rscript {input.script} {input.opticlustPred} {input.optifitPred}"
         
-# rule mergeCVresults
+rule mergeCVresults:
+    input:
+        script="code/R/mergeCV.R",
+        opticlustCV=expand("data/learning/results/opticlust/cv_results_split_{num}.csv",
+                           num = split_nums),
+        optifitCV=expand("data/learning/results/optifit/cv_results_split_{num}.csv",
+                           num = split_nums)
+    output:
+        mergedCV="data/learning/summary/merged_CV.csv"
+    conda:
+        "envs/R.yaml"
+    shell:
+        "Rscript {input.script} {input.opticlustCV} {input.optifitCV}"
+    
+rule getMCCdata:
+    input:
+        script="code/R/get_sensspec.R",
+        opticlustSensspec="data/process/opticlust/shared/glne.precluster.opti_mcc.sensspec",
+        optifitTrainSensspec=expand("data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.sensspec",
+                                    num = split_nums),
+        optifitTestSensspec=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.sensspec",
+                                   num = split_nums)
+    output:
+        mergedMCC="results/tables/mergedMCC.csv"
+    conda:
+        "envs/R.yaml"
+    shell:
+        "Rscript {input.script} {input.opticlustSensspec} {input.optifitTrainSensspec} {input.optifitTestSensspec}"
+    
