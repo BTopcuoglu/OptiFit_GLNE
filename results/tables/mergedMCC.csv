@@ -1,0 +1,12 @@
+mcc,split,algorith,subset
+0.895062,NA,opticlust,NA
+0.896708,split_1,optifit,train
+0.892419,split_2,optifit,train
+0.894451,split_3,optifit,train
+0.892702,split_4,optifit,train
+0.892772,split_5,optifit,train
+0.715805,split_1,optifit,test
+0.764215,split_2,optifit,test
+0.743258,split_3,optifit,test
+0.706332,split_4,optifit,test
+0.73682,split_5,optifit,test
