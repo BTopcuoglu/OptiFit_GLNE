@@ -1,7 +1,6 @@
-#!/usr/bin/env Rscript
 # get_sensspec.R
 # Courtney Armour
-# March 2021
+# November 2021
 # Pat Schloss Lab
 # University of Michigan
 
@@ -11,36 +10,38 @@
 #############################################################################
 library(tidyverse)
 
-#only cluster one time with opticlust so only one sensspec file
-opticlust_file <- "data/process/opticlust/shared/glne.precluster.opti_mcc.sensspec"
+outDir <- "results/tables/"
 
-# get directory paths for all samples from optifit
-optifit_sample_dirs <- list.dirs(path="data/process/optifit",recursive=F)
+# grab input files
+input <- commandArgs(trailingOnly=TRUE)
+# input <- c("data/process/opticlust/shared/glne.precluster.opti_mcc.sensspec",
+#            "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.sensspec",
+#            "data/process/optifit/split_2/train/glne.precluster.pick.opti_mcc.sensspec",
+#            "data/process/optifit/split_1/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.sensspec",
+#            "data/process/optifit/split_2/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.sensspec")
 
-# get file lists for all samples and optifit/opticlust
-# IN refers to cluster.fit on the left out sample
-# OUT is cluster on the other 489 samples
-optifit_in_files <- list.files(path=paste0(optifit_sample_dirs,"/in"),pattern="*.sensspec",full.names=T)
-optifit_out_files <- list.files(path=paste0(optifit_sample_dirs,"/out"),pattern="*.sensspec",full.names=T)
-
-#function to read files and add sample and type column
-read_optifit_sensspec_files <- function(filenames){
-  for(file in filenames){
-    # Read the sensspec files and add type(e.g. optifit_in) and sampleID
-    data <- read_tsv(file,col_types = cols(.default=col_double())) %>%
-      mutate(sample=unlist(strsplit(file,"/"))[4],
-             type=paste0(unlist(strsplit(file,"/"))[3],"_",unlist(strsplit(file,"/"))[5]))
-  }
-  return(data)
+#function to read in mcc files
+read_mcc <- function(file){
+    file_parts <- unlist(str_split(file,"/|\\."))
+    
+    algorithm <- file_parts[grepl(pattern="^opticlust$|^optifit$",file_parts)]
+    if(algorithm == "opticlust"){
+        split <- NA
+        subset <- NA
+    }else{
+        split <- file_parts[grepl(pattern="split",file_parts)]
+        subset <- file_parts[grepl(pattern="train|test",file_parts)]
+    }
+    
+    #get just the mcc score and add the other info
+    mcc <- read_tsv(file,col_types = cols(.default = col_double()))  %>% 
+        select(mcc)  %>% 
+        mutate(split=split,
+               algorith=algorithm,
+               subset=subset)
+    return(mcc)
 }
 
-#generate table for each type
-optifit_in.df <- map_df(optifit_in_files, read_optifit_sensspec_files)
-optifit_out.df <- map_df(optifit_out_files, read_optifit_sensspec_files)
-opticlust.df <- read_tsv(opticlust_file,col_types = cols(.default=col_double())) %>%
-  mutate(sample=NA,type="opticlust")
-
-#merge together and write output
-all.df <- bind_rows(optifit_in.df,optifit_out.df,opticlust.df)
-
-write_csv(all.df,"results/tables/merged_sensspec.csv")
+# map files to datafram
+mergedMCC <- map_dfr(input,read_mcc)
+write_csv(mergedMCC,paste0(outDir,"mergedMCC.csv"))
