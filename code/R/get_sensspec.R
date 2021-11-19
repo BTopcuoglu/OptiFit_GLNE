@@ -37,7 +37,7 @@ read_mcc <- function(file){
     mcc <- read_tsv(file,col_types = cols(.default = col_double()))  %>% 
         select(mcc)  %>% 
         mutate(split=split,
-               algorith=algorithm,
+               algorithm=algorithm,
                subset=subset)
     return(mcc)
 }
