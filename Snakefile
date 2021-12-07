@@ -42,7 +42,8 @@ rule results:
         "data/learning/summary/merged_predictions.csv",
         "results/tables/mergedMCC.csv",
         "data/learning/summary/merged_CV.csv",
-        "data/learning/summary/all_sens_spec.csv"
+        "data/learning/summary/all_sens_spec.csv",
+        "data/learning/summary/all_test_AUC.csv"
 
 ##################################################################
 #
@@ -362,6 +363,20 @@ rule get_sens_spec:
     output:
         allSensSpec="data/learning/summary/all_sens_spec.csv"
     conda: 
+        "envs/R.yaml"
+    shell:
+        "Rscript {input.script}"
+
+rule get_test_auc:
+    input:
+        script="code/R/get_test_AUC.R",
+        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                              num = split_nums),
+        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                            num = split_nums) 
+    output:
+        allTestAUC="data/learning/summary/all_test_AUC.csv"
+    conda:
         "envs/R.yaml"
     shell:
         "Rscript {input.script}"
