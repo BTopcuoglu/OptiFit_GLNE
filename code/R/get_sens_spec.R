@@ -22,7 +22,9 @@ get_sensitivity <- function(lookup, x){
 
 pool_sens_spec <- function(file_name,specificities){
 
-  prob <- read_csv(file_name)
+  prob <- read_csv(file_name,col_types = cols(Group=col_character(),
+                                              dx=col_character(),
+                                              .default=col_double()))
 
   prob_obs <- bind_cols(prob_srn = prob$cancer,
                         observed=prob$dx)
@@ -42,9 +44,9 @@ pool_sens_spec <- function(file_name,specificities){
 
   map_dfr(specificities,get_sensitivity,lookup=lookup) %>%
     mutate(algorithm = str_replace(file_name,
-                               "../data/learning/results/(.*)/prediction_results_split_(\\d*).csv", "\\1"),
+                               "data/learning/results/(.*)/prediction_results_split_(\\d*).csv", "\\1"),
            split = str_replace(file_name,
-                              "../data/learning/results/(.*)/prediction_results_split_(\\d*).csv", "\\2"))
+                              "data/learning/results/(.*)/prediction_results_split_(\\d*).csv", "\\2"))
 }
 
 loop_sens_spec <- function(algorithm,specificities){
