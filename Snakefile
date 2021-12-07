@@ -18,7 +18,7 @@ sampleNames = set([i for i in names if regex.match(i)])
 sequenceNames = set(data[data["Sample Name"].isin(sampleNames)]["Run"].tolist())
 
 alogrithmNames = ['optifit','opticlust']
-split_nums = range(1,6) # number of test/train splits to make
+split_nums = range(1,101) # number of test/train splits to make
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
@@ -37,10 +37,12 @@ rule all:
 
 rule results:
     input:
+        "analysis/view_splits.png",
         "results/tables/fraction_reads_mapped.tsv",
         "data/learning/summary/merged_predictions.csv",
         "results/tables/mergedMCC.csv",
-        "data/learning/summary/merged_CV.csv"
+        "data/learning/summary/merged_CV.csv",
+        "data/learning/summary/all_sens_spec.csv"
 
 ##################################################################
 #
@@ -102,7 +104,7 @@ rule makeFilesFile:
     output:
         files="data/process/glne.files"
     conda:
-        "envs/r.yaml"
+        "envs/R.yaml"
     shell:
         "Rscript {input.script} {input.sra} {input.sequences}"
 
@@ -151,7 +153,7 @@ rule make8020splits:
         script="code/R/generate_splits.R",
         shared=rules.clusterOptiClust.output.shared
     params:
-        n_splits=5
+        n_splits=100
     output:
         splits=expand("data/process/splits/split_{num}.csv", num = split_nums)
     conda:
@@ -165,7 +167,7 @@ rule plot8020splits:
         script="code/R/view_splits.R",
         splits=rules.make8020splits.output.splits
     output:
-        split_plot="analysis/view_splits.pdf"
+        split_plot="analysis/view_splits.png"
     conda:
         "envs/R.yaml"
     shell:
@@ -268,7 +270,7 @@ rule runOptiClustModels:
         train=rules.generateOptiClustData.output.train,
         test=rules.generateOptiClustData.output.test
     params:
-        model="glmnet",
+        model="rf",
         outcome="dx"
     output:
         cv="data/learning/results/opticlust/cv_results_split_{num}.csv",
@@ -288,7 +290,7 @@ rule runOptiFitModels:
         train=rules.clusterOptiFitData.output.shared,
         test=rules.fitOptiFit.output.fit
     params:
-        model="glmnet",
+        model="rf",
         outcome="dx"
     output:
         cv="data/learning/results/optifit/cv_results_split_{num}.csv",
@@ -337,7 +339,7 @@ rule mergeCVresults:
     
 rule getMCCdata:
     input:
-        script="code/R/get_sensspec.R",
+        script="code/R/get_mcc.R",
         opticlustSensspec="data/process/opticlust/shared/glne.precluster.opti_mcc.sensspec",
         optifitTrainSensspec=expand("data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.sensspec",
                                     num = split_nums),
@@ -350,3 +352,30 @@ rule getMCCdata:
     shell:
         "Rscript {input.script} {input.opticlustSensspec} {input.optifitTrainSensspec} {input.optifitTestSensspec}"
     
+rule get_sens_spec:
+    input: 
+        script="code/R/get_sens_spec.R",
+        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                              num = split_nums),
+        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                            num = split_nums)   
+    output:
+        allSensSpec="data/learning/summary/all_sens_spec.csv"
+    conda: 
+        "envs/R.yaml"
+    shell:
+        "Rscript {input.script}"
+    
+# remove prior output to force recreation of all files
+rule clean:
+    shell:
+        """
+        rm data/raw/* data/references/* logs/slurm/* logs/mothur/* 
+        rm -rf data/process/*"
+        """
+        
+onsuccess:
+    print("🎉 completed successfully")
+
+onerror:
+    print("💥 errors occured")
