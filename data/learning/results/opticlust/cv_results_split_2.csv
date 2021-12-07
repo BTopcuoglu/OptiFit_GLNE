@@ -1,2 +1,0 @@
-cv_metric_AUC,Accuracy,Kappa,Mean_F1,Mean_Sensitivity,Mean_Specificity,Mean_Pos_Pred_Value,Mean_Neg_Pred_Value,Mean_Precision,Mean_Recall,Mean_Detection_Rate,Mean_Balanced_Accuracy,method,seed
-0.58576731563218,0.663265306122449,0.293577981651376,NA,NA,0.821428571428571,NA,NA,NA,NA,0.165816326530612,NA,glmnet,2021
