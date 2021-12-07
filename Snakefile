@@ -43,7 +43,8 @@ rule results:
         "results/tables/mergedMCC.csv",
         "data/learning/summary/merged_CV.csv",
         "data/learning/summary/all_sens_spec.csv",
-        "data/learning/summary/all_test_AUC.csv"
+        "data/learning/summary/all_test_AUC.csv",
+        "analysis/pct_class_correct.csv"
 
 ##################################################################
 #
@@ -380,6 +381,22 @@ rule get_test_auc:
         "envs/R.yaml"
     shell:
         "Rscript {input.script}"
+    
+rule calc_pct_correct:
+    input:
+        script="code/R/get_pct_correct.R",
+        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                              num = split_nums),
+        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                            num = split_nums)
+    output:
+        pct_correct="analysis/pct_class_correct.csv"
+    conda:
+        "envs/R.yaml"
+    shell:
+        "Rscript {input.script}"    
+    
+    
     
 # remove prior output to force recreation of all files
 rule clean:
