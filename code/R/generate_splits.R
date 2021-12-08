@@ -37,6 +37,6 @@ groups <- shared  %>%
 #generate n random 80/20 splits, write files to outdir
 set.seed(2021)
 for(i in 1:n_splits){
-    create_split(groups,0.8,1)  %>% 
+    create_split(groups,0.8,i)  %>% 
         write_csv(.,paste0(outdir,"split_",i,".csv"))
 }
