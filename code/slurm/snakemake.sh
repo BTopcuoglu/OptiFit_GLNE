@@ -52,4 +52,4 @@ fi
 mkdir -p logs/slurm/
 
 # Initiating snakemake and running workflow in cluster mode
-snakemake --use-conda --verbose --profile config/slurm/  --latency-wait 90
+snakemake all results --use-conda --verbose --profile config/slurm/  --latency-wait 90
