@@ -53,8 +53,8 @@ fitOptiFit:
 
 runOptiClustModels:
   cpuspertask: 12
-  time: "8:00:00"
+  time: "72:00:00"
 
 runOptiFitModels:
   cpuspertask: 12
-  time: "8:00:00"
+  time: "72:00:00"
