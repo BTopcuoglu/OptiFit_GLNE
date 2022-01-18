@@ -19,11 +19,12 @@ SPLIT=${5:?ERROR: Need to define SPLIT.} # Split of test and training sets
 REFFASTA=${6:?ERROR: Need to define TRAINFASTA.} # Reference fasta file with test data removed
 REFDIST=${7:?ERROR: Need to define TRAINDIST.} # Reference dist file with test data removed
 REFLIST=${8:?ERROR: Need to define TRAINLIST.} # Reference list file with test data removed
+NPROC=${9:?ERROR: Need to define NPROC.} # number or processors to use
 
 # Other variables
 NUM=`basename $SPLIT .csv`
 OUTDIR=data/process/optifit/$NUM/test/ # Output dir based on split number 
-NPROC=$(nproc) # Setting number of processors to use based on available resources
+#NPROC=$(nproc) # Setting number of processors to use based on available resources
 SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 echo $OUTDIR
@@ -64,7 +65,7 @@ mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
 	get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups=${testIDS%?}, column="${DIST}");
 	sub.sample(fasta=current, count=current, taxonomy=current, size="${SUBSIZE}");
 	rename.seqs(fasta=current,count=current);
-	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed);
+	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed, printref = t);
 	remove.seqs(count=current, accnos=current);
 	make.shared(list=current, count=current, label=0.03);
 	list.seqs(list=current)"  # creates accnos file of seqs in OTUs

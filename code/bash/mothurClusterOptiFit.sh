@@ -17,10 +17,12 @@ TAXONOMY=${3:?ERROR: Need to define TAXONOMY.} # Preclustered tax file
 DIST=${4:?ERROR: Need to define DIST.} # Preclustered distance file
 SPLIT=${5:?ERROR: Need to define SPLIT.} #file defining test/train split
 NUM=`basename $SPLIT .csv`
+NPROC=${6:?ERROR: Need to define NPROC.} # number or processors to use
+
 
 # Other variables
 OUTDIR=data/process/optifit/$NUM/train/ # Output dir based on split number
-NPROC=$(nproc) # Setting number of processors to use based on available resources
+#NPROC=$(nproc) # Setting number of processors to use based on available resources
 SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 ###################

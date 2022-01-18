@@ -12,8 +12,8 @@
 # Other variables
 OUTDIR=data/references/ # Directory for storing mothur reference files
 TMP="${OUTDIR}"/tmp/
-NPROC=$(nproc) # Setting number of processors to use based on available resources
-
+#NPROC=$(nproc) # Setting number of processors to use based on available resources
+NPROC=${1:?ERROR: Need to define NPROC.}
 
 
 ####################################
@@ -75,4 +75,4 @@ tar xvzf "${TMP}"/trainset14_032015.pds.tgz -C "${TMP}"/
 mv "${TMP}"/trainset14_032015.pds/trainset14_032015* "${OUTDIR}"/
 
 # Cleaning up reference dir
-rm -rf "${TMP}"/
+#rm -rf "${TMP}"/

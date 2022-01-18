@@ -14,11 +14,12 @@ FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups an
 SILVAV4=${2:?ERROR: Need to define SILVAV4.}
 RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
 RDPTAX=${4:?ERROR: Need to define RDPTAX.}
+NPROC=${5:?ERROR: Need to define NPROC.}
 
 # Other variables
 OUTDIR=data/process/precluster/
 TMP="${OUTDIR}"/tmp/
-NPROC=$(nproc) # Setting number of processors to use based on available resources
+#NPROC=$(nproc) # Setting number of processors to use based on available resources
 
 
 
