@@ -53,8 +53,7 @@ rule results:
         "results/tables/fraction_reads_mapped.tsv",
         "data/learning/summary/merged_predictions.csv",
         "results/tables/mergedMCC.csv",
-        "data/learning/summary/all_sens_spec.csv",
-        "data/learning/summary/all_test_AUC.csv"#,
+        "data/learning/summary/all_sens_spec.csv"#,
         #"analysis/pct_class_correct.csv"
 
 ##################################################################
@@ -386,7 +385,19 @@ rule mergePerformanceResults:
         mergedPerf="data/learning/summary/merged_performance.csv"
     shell:
         "Rscript {input.script} {input.opticlustPerf} {input.optifitPerf}"
-    
+
+rule mergeHPperformance:
+    input:
+        script="code/R/mergeHP.R",
+        opticlustHP=expand("data/learning/results/opticlust/hp_split_{num}.csv",
+                           num = split_nums),
+        optifitHP=expand("data/learning/results/optifit/hp_split_4.csv",
+                         num = split_nums)
+    output:
+        mergedHP=
+    shell:
+        "Rscript {input.script} {input.opti"
+        
 rule getMCCdata:
     input:
         script="code/R/get_mcc.R",
@@ -409,18 +420,6 @@ rule get_sens_spec:
                             num = split_nums)   
     output:
         allSensSpec="data/learning/summary/all_sens_spec.csv"
-    shell:
-        "Rscript {input.script}"
-
-rule get_test_auc:
-    input:
-        script="code/R/get_test_AUC.R",
-        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
-                              num = split_nums),
-        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
-                            num = split_nums) 
-    output:
-        allTestAUC="data/learning/summary/all_test_AUC.csv"
     shell:
         "Rscript {input.script}"
     

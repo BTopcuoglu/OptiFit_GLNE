@@ -1,6 +1,6 @@
 ################################
 # Courtney R Armour
-# November 2021
+# January 2022
 # Schloss Lab
 # University of Michigan
 ################################
@@ -12,27 +12,27 @@ outDir <- "data/learning/summary/"
 if(!dir.exists(outDir)){dir.create(outDir)}
 
 input <- commandArgs(trailingOnly = TRUE)
-# input1 <- list.files(path="data/learning/results/opticlust/",pattern="prediction*",full.names=T)
-# input2 <- list.files(path="data/learning/results/optifit/",pattern="prediction*",full.names=T)
-# input <- c(input1,input2)
+input1 <- list.files(path="data/learning/results/opticlust/",pattern="hp*",full.names=T)
+input2 <- list.files(path="data/learning/results/optifit/",pattern="hp*",full.names=T)
+input <- c(input1,input2)
 
 ### FUNCTIONS -------------------
-read_pred <- function(file){
+read_hp <- function(file){
     file_parts <- unlist(str_split(file,"/|\\."))
     
     split <- file_parts[grepl(pattern="split",file_parts)]
-    split <- gsub("prediction_results_","",split)
+    split <- gsub("hp_","",split)
     
     algorithm <- file_parts[grepl(pattern="^opticlust$|^optifit$",file_parts)]
     
-    pred <- read_csv(file,na = c("","NA","NaN")) %>% #some of the Pos/Neg Pred Values were NaN 
+    hp <- read_csv(file,na = c("","NA","NaN")) %>% 
         mutate(split=split,algorithm=algorithm)
   
-  return(pred)
+  return(hp)
 }
 
 ### MAIN -------------------
 
-mergedPred <- map_dfr(input,read_pred)
+mergedHP <- map_dfr(input,read_hp)
 
-write_csv(mergedPred,paste0(outDir,"merged_predictions.csv"))
+write_csv(mergedHP,paste0(outDir,"merged_HP.csv"))

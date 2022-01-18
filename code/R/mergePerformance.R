@@ -35,4 +35,4 @@ read_perf <- function(file){
 
 mergedPerf <- map_dfr(input,read_perf)
 
-write.csv(mergedPerf,paste0(outDir,"merged_performance.csv"))
+write_csv(mergedPerf,paste0(outDir,"merged_performance.csv"))
