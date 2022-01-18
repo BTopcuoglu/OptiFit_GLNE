@@ -1,53 +1,38 @@
-##################################################################
-# Author: Courtney Armour 
-# Date: November 2021
-# Description: merge prediction results from run_model.R
-##################################################################
+################################
+# Courtney R Armour
+# November 2021
+# Schloss Lab
+# University of Michigan
+################################
 
+### SETUP -------------------
 library(tidyverse)
 
 outDir <- "data/learning/summary/"
+if(!dir.exists(outDir)){dir.create(outDir)}
 
-# get files from command line
-input <- commandArgs(trailingOnly=TRUE)
+input <- commandArgs(trailingOnly = TRUE)
+# input1 <- list.files(path="data/learning/results/opticlust/",pattern="prediction*",full.names=T)
+# input2 <- list.files(path="data/learning/results/optifit/",pattern="prediction*",full.names=T)
+# input <- c(input1,input2)
 
-#separate optifit and opticlust files
-opticlust_files <- input[grepl(pattern="opticlust",input)]
-optifit_files <- input[grepl(pattern="optifit",input)]
-
-print("opticlust files: ")
-print(opticlust_files)
-print("optifit files: ")
-print(optifit_files)
-
-#################################
 ### FUNCTIONS -------------------
-#################################
-read_files <- function(file){
-    #get split and algorithm info from filename
+read_pred <- function(file){
     file_parts <- unlist(str_split(file,"/|\\."))
-    split <- file_parts[grepl(pattern="split",file_parts)] 
-    split <- gsub(pattern="prediction_results_",replacement="",split)
-    algorithm <- file_parts[grepl(pattern="opti",file_parts)]
     
-    pred <- read_csv(file) %>% 
+    split <- file_parts[grepl(pattern="split",file_parts)]
+    split <- gsub("performance_","",split)
+    
+    algorithm <- file_parts[grepl(pattern="^opticlust$|^optifit$",file_parts)]
+    
+    pred <- read_csv(file,na = c("","NA","NaN")) %>% #some of the Pos/Neg Pred Values were NaN 
         mutate(split=split,algorithm=algorithm)
-        
-    return(pred)
+  
+  return(pred)
 }
 
-
-#################################
 ### MAIN -------------------
-#################################
 
-# merge opticlust files
-opticlust_pred <- map_dfr(opticlust_files, read_files) 
+mergedPred <- map_dfr(input,read_pred)
 
-# merge optifit files
-optifit_pred <- map_dfr(optifit_files, read_files) 
-
-# merge all files together
-all_pred <- bind_rows(opticlust_pred,optifit_pred)
-
-write_csv(all_pred,paste0(outDir,"merged_predictions.csv"))
+write.csv(mergedPred,paste0(outDir,"merged_predictions.csv"))

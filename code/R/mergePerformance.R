@@ -1,6 +1,6 @@
 ################################
 # Courtney R Armour
-# November 2021
+# Janurary 2022
 # Schloss Lab
 # University of Michigan
 ################################
@@ -9,26 +9,30 @@
 library(tidyverse)
 
 outDir <- "data/learning/summary/"
+if(!dir.exists(outDir)){dir.create(outDir)}
 
 input <- commandArgs(trailingOnly = TRUE)
+# input1 <- list.files(path="data/learning/results/opticlust/",pattern="performance*",full.names=T)
+# input2 <- list.files(path="data/learning/results/optifit/",pattern="performance*",full.names=T)
+# input <- c(input1,input2)
 
 ### FUNCTIONS -------------------
-read_cv <- function(file){
+read_perf <- function(file){
     file_parts <- unlist(str_split(file,"/|\\."))
     
     split <- file_parts[grepl(pattern="split",file_parts)]
-    split <- gsub("cv_results_","",split)
+    split <- gsub("performance_","",split)
     
     algorithm <- file_parts[grepl(pattern="^opticlust$|^optifit$",file_parts)]
     
-    cv <- read_csv(file,na = c("","NA","NaN")) %>% #some of the Pos/Neg Pred Values were NaN 
+    perf <- read_csv(file,na = c("","NA","NaN")) %>% #some of the Pos/Neg Pred Values were NaN 
         mutate(split=split,algorithm=algorithm)
   
-  return(cv)
+  return(perf)
 }
 
 ### MAIN -------------------
 
-mergedCV <- map_dfr(input,read_cv)
+mergedPerf <- map_dfr(input,read_perf)
 
-write.csv(mergedCV,paste0(outDir,"merged_CV.csv"))
+write.csv(mergedPerf,paste0(outDir,"merged_performance.csv"))
