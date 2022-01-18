@@ -11,12 +11,14 @@
 SHARED=${1:?ERROR: Need to define SHARED.}
 SPLIT=${2:?ERROR: Need to define SPLITS.} 
 NUM=`basename $SPLIT .csv`
+NPROC=${3:?ERROR: Need to define NPROC.} # number or processors to use
+
 
 #SHARED=${argvals[0]}
 #SPLITS=(${argvals[@]:1}) 
 
 OUTDIR=data/process/opticlust/$NUM/ # Output dir based on sample name to keep things separate during parallelization/organized
-NPROC=$(nproc) # Setting number of processors to use based on available resources
+#NPROC=$(nproc) # Setting number of processors to use based on available resources
 
 ###################
 ### GROUP SETUP ###
