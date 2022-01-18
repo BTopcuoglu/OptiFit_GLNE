@@ -1,5 +1,21 @@
-cluster-config: "config/slurm/cluster.yaml"
-cluster: "sbatch --job-name={cluster.jobname} --nodes={cluster.nodes} --ntasks-per-node={cluster.ntaskspernode} --cpus-per-task={cluster.cpuspertask} --mem-per-cpu={cluster.mempercpu} --time={cluster.time} --account={cluster.account} --partition={cluster.partition} --mail-user={cluster.mailuser} --mail-type={cluster.mailtype} --output={cluster.output} --export=ALL "
-jobs: 99998
+cluster: "sbatch --job-name={rule}_{wildcards} 
+                 --nodes=1
+                 --mem={resources.mem_mb} 
+                 --time={resources.time_min} 
+                 --account=pschloss99 
+                 --partition=standard 
+                 --mail-user=armourc@umich.edu 
+                 --mail-type=FAIL 
+                 -c {resources.ncores} 
+                 --output=logs/slurm/%x-%j.out"
+
+# snakemake args
+jobs: 100
+use-conda: true
 verbose: true
+keep-going: true
+conda-frontend: "mamba"
 notemp: true
+default-resources: [ncores=1,
+                    mem_mb=1000,
+                    time_min=15]

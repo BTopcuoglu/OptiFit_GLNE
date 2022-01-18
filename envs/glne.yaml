@@ -2,6 +2,18 @@ name: glne
 channels:
   - conda-forge
   - bioconda
+  - r
+  - defaults
 dependencies:
-  - snakemake-minimal=5.7.1
-  - pandas=0.25.3
+  - mothur=1.46.1
+  - python=3
+  - pandas>=0.25
+  - r-base=4
+  - r-tidyverse>=1.3
+  - r-mikropml>=1.2
+  - r-foreach=1.5
+  - r-future=1.23
+  - r-future.apply=1.8
+  - r-doFuture=0.12
+  - snakemake>=5.5
+  - sra-tools>=2.10

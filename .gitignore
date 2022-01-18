@@ -10,7 +10,7 @@ logs/mothur/*
 
 # Snakemake
 /.snakemake/**
-/snakemake-*.out
+/smk_optifit-*.out
 
 # Misc
 .DS_Store

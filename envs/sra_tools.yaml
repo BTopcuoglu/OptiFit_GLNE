@@ -1,6 +1,0 @@
-name: sra_tools
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - sra-tools=2.10.0

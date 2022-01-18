@@ -1,6 +1,0 @@
-name: mothur
-channels:
-  - conda-forge
-  - bioconda
-dependencies:
-  - mothur=1.46.1
