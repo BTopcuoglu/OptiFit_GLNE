@@ -12,9 +12,9 @@ outDir <- "data/learning/summary/"
 if(!dir.exists(outDir)){dir.create(outDir)}
 
 input <- commandArgs(trailingOnly = TRUE)
-input1 <- list.files(path="data/learning/results/opticlust/",pattern="hp*",full.names=T)
-input2 <- list.files(path="data/learning/results/optifit/",pattern="hp*",full.names=T)
-input <- c(input1,input2)
+#  input1 <- list.files(path="data/learning/results/opticlust/",pattern="hp*",full.names=T)
+#  input2 <- list.files(path="data/learning/results/optifit/",pattern="hp*",full.names=T)
+# input <- c(input1,input2)
 
 ### FUNCTIONS -------------------
 read_hp <- function(file){

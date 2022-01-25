@@ -74,6 +74,9 @@ grps <- c(paste0("TR",seq(1,nrow(train))),
 #set seed to split number
 sd <- as.numeric(str_replace(split,"split_",""))
 
+#set hyperparameters
+new_hp = list(mtry = c(68,137,274,350))
+
 # Run the model
 results <- mikropml::run_ml(dataset = allData,
                             method = model,
@@ -82,7 +85,8 @@ results <- mikropml::run_ml(dataset = allData,
                             #group_partitions = list(train = c("TR"),test = c("TE")),
                             group_partitions = list(train = c(paste0("TR",seq(1,nrow(train)))),
                                                     test = c(paste0("TE",seq(1,nrow(test))))),
-                            seed = sd)
+                            seed = sd,
+                            hyperparameters = new_hp)
 
 performance <- results$performance
 

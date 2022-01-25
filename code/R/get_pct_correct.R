@@ -1,5 +1,7 @@
 library(tidyverse)
 
+outDir <- "results/tables/"
+
 ### FUNCTIONS ##########################################
 get_pred_file_list <- function(algorithm){
   list.files(path=paste0("data/learning/results/",algorithm),
@@ -46,7 +48,7 @@ algorithms=c("opticlust","optifit")
 pct_correct <- map_dfr(algorithms, get_pct_correct, threshold=0.5) %>%
   mutate(Group=as.character(Group))
   
-write_csv(pct_correct,"analysis/pct_class_correct.csv")
+write_csv(pct_correct,paste0(outDir,"pct_class_correct.csv"))
 
 
 ### TEST ########
