@@ -5,10 +5,10 @@
 # Schloss Lab
 # University of Michigan
 
-# Purpose: Snakemake file for running mothur 16S pipeline with 
+# Purpose: Snakemake file for running mothur 16S pipeline with
 # OptiFit/OptiClust and comparing prediction performance
 
-# Code for creating list of sample and sequence names after filtering out names of mock samples (not used in this study).
+# Code for creating list of sample and sequence names after filtering out names of mock samples (not used in this study)
 import pandas as pd
 import re
 data = pd.read_csv("data/metadata/SraRunTable.txt")
@@ -18,9 +18,9 @@ sampleNames = set([i for i in names if regex.match(i)])
 sequenceNames = set(data[data["Sample Name"].isin(sampleNames)]["Run"].tolist())
 
 alogrithmNames = ['optifit','opticlust']
-#split_nums = range(1,101) # number of test/train splits to make
+split_nums = range(1,101) # number of test/train splits to make
 #split_nums = range(0,1)
-split_nums = range(1,21)
+#split_nums = range(1,21)
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
@@ -49,12 +49,18 @@ rule all:
 
 rule results:
     input:
-        "analysis/view_splits.png",
         "results/tables/fraction_reads_mapped.tsv",
         "data/learning/summary/merged_predictions.csv",
-        "results/tables/mergedMCC.csv",
+        "data/learning/summary/merged_performance.csv",
+        "data/learning/summary/merged_HP.csv",
+        "data/learning/summary/merged_MCC.csv",
         "data/learning/summary/all_sens_spec.csv"#,
-        #"analysis/pct_class_correct.csv"
+        #"results/tables/pct_class_correct.csv"
+        
+rule plots: 
+    input:
+        "results/figures/view_splits.png",
+        "results/figures/HP_performance.png"
 
 ##################################################################
 #
@@ -131,7 +137,8 @@ rule preclusterSequences:
         dist="data/process/precluster/glne.precluster.dist"
     resources:
         ncores=12,
-        time_min=60
+        time_min=500,
+        mem_mb=10000
     shell:
         "bash {input.script} {input.files} {input.refs} {resources.ncores}"
 
@@ -150,7 +157,8 @@ rule clusterOptiClust:
         shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared"
     resources:
         ncores=12,
-        time_min=60
+        time_min=60,
+        mem_mb=30000
     shell:
         "bash {input.script} {input.precluster} {resources.ncores}"
 
@@ -171,16 +179,6 @@ rule make8020splits:
     shell:
         "Rscript {input.script} {input.shared} {params.n_splits}"
 
-#view how many times each sample is in train/test set across splits
-rule plot8020splits:
-    input:
-        script="code/R/view_splits.R",
-        splits=rules.make8020splits.output.splits
-    output:
-        split_plot="analysis/view_splits.png"
-    shell:
-        "Rscript {input.script} {input.splits}"
-        
 ##################################################################
 #
 # Part N: Generate OptiClust data
@@ -197,7 +195,8 @@ rule generateOptiClustData:
         test="data/process/opticlust/split_{num}/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
     resources:
         ncores=12,
-        time_min=60
+        time_min=60,
+        mem_mb=30000
     shell:
         "bash {input.script} {input.shared} {input.split} {resources.ncores}"
 
@@ -222,7 +221,7 @@ rule clusterOptiFitData:
     resources:
         ncores=12,
         time_min=60,
-        mem_mb=10000
+        mem_mb=30000
     shell:
         "bash {input.script} {input.precluster} {input.split} {resources.ncores}"
 
@@ -242,8 +241,8 @@ rule fitOptiFit:
         list_accnos='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
     resources:
         ncores=12,
-        time_min=60,
-        mem_mb=10000
+        time_min=120,
+        mem_mb=30000
     shell:
         "bash {input.script} {input.precluster} {input.split} {input.reffasta} {input.refdist} {input.reflist} {resources.ncores}"
 
@@ -358,7 +357,7 @@ rule runOptiFitModels:
         
 ##################################################################
 #
-# Part N: Analysis
+# Part N: Merge Results
 #
 ##################################################################        
 
@@ -391,12 +390,12 @@ rule mergeHPperformance:
         script="code/R/mergeHP.R",
         opticlustHP=expand("data/learning/results/opticlust/hp_split_{num}.csv",
                            num = split_nums),
-        optifitHP=expand("data/learning/results/optifit/hp_split_4.csv",
+        optifitHP=expand("data/learning/results/optifit/hp_split_{num}.csv",
                          num = split_nums)
     output:
-        mergedHP=
+        mergedHP="data/learning/summary/merged_HP.csv"
     shell:
-        "Rscript {input.script} {input.opti"
+        "Rscript {input.script} {input.opticlustHP} {input.optifitHP}"
         
 rule getMCCdata:
     input:
@@ -404,39 +403,66 @@ rule getMCCdata:
         opticlustSensspec="data/process/opticlust/shared/glne.precluster.opti_mcc.sensspec",
         optifitTrainSensspec=expand("data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.sensspec",
                                     num = split_nums),
-        optifitTestSensspec=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.sensspec",
+        optifitTestSensspec=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.steps",
                                    num = split_nums)
     output:
-        mergedMCC="results/tables/mergedMCC.csv"
+        mergedMCC="data/learning/summary/merged_MCC.csv"
     shell:
         "Rscript {input.script} {input.opticlustSensspec} {input.optifitTrainSensspec} {input.optifitTestSensspec}"
     
 rule get_sens_spec:
     input: 
-        script="code/R/get_sens_spec.R",
         opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
                               num = split_nums),
         optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
                             num = split_nums)   
     output:
         allSensSpec="data/learning/summary/all_sens_spec.csv"
-    shell:
-        "Rscript {input.script}"
-    
+    script:
+        "code/R/get_sens_spec.R"
+   
+##################################################################
+#
+# Part N: Plots
+#
+##################################################################        
+
+rule plotHPperformance:
+    input:
+        hp=rules.mergeHPperformance.output.mergedHP
+    output:
+        hpPlot="results/figures/hp_performance.png"
+    script:
+        "code/R/plot_HP_performance.R"
+        
 rule calc_pct_correct:
     input:
-        script="code/R/get_pct_correct.R",
         opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
                               num = split_nums),
         optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
                             num = split_nums)
     output:
-        pct_correct="analysis/pct_class_correct.csv"
-    shell:
-        "Rscript {input.script}"    
-    
-    
-    
+        pct_correct="results/tables/pct_class_correct.csv"
+    script:
+        "code/R/get_pct_correct.R"    
+        
+
+#view how many times each sample is in train/test set across splits
+rule plot8020splits:
+    input:
+        splits=rules.make8020splits.output.splits
+    output:
+        split_plot="results/figures/view_splits.png"
+    script:
+        "code/R/view_splits.R"
+            
+
+##################################################################
+#
+# CLEAN UP
+#
+##################################################################                
+
 # remove prior output to force recreation of all files
 rule clean:
     shell:

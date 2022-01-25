@@ -65,7 +65,7 @@ mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
 	get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups=${testIDS%?}, column="${DIST}");
 	sub.sample(fasta=current, count=current, taxonomy=current, size="${SUBSIZE}");
 	rename.seqs(fasta=current,count=current);
-	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed, printref = t);
+	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed, printref=f);
 	remove.seqs(count=current, accnos=current);
 	make.shared(list=current, count=current, label=0.03);
 	list.seqs(list=current)"  # creates accnos file of seqs in OTUs
