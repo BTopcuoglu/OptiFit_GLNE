@@ -1,14 +1,14 @@
 #! /bin/bash
 
-LIST=${1:?ERROR: Need to define LIST.}
-DIST=${2:?ERROR: Need to define DIST.}
-COUNT=${3:?ERROR: Need to define COUNT.}
-SPLIT=${4:?ERROR: Need to define SPLIT.} 
-NPROC=${5:?ERROR: Need to define NPROC.} 
+DIST=${1:?ERROR: Need to define DIST.}
+COUNT=${2:?ERROR: Need to define COUNT.}
+SPLIT=${3:?ERROR: Need to define SPLIT.} 
+NPROC=${4:?ERROR: Need to define NPROC.} 
 
 NUM=`basename $SPLIT .csv`
 
 OUTDIR=data/process/opticlust/$NUM/
+SUBSIZE=10000
 
 ###################
 ### GROUP SETUP ###
@@ -29,7 +29,7 @@ testIDS=()
     done 
 }< "$SPLIT"
 
-echo "training: ${trainIDS%?}" # %? removes last character (extra "-")
+#echo "training: ${trainIDS%?}" # %? removes last character (extra "-")
 echo "testing: ${testIDS%?}"
 
 ##############
@@ -47,5 +47,7 @@ fi
 
 # Create OptiClust shared file for training data
  mothur "#set.current(outputdir="${OUTDIR}"/sub/,processors="${NPROC}");
- 	get.groups(list="${LIST}", column="${DIST}", count="${COUNT}", groups=${testIDS%?});
-    sens.spec(list=current,column=current,count=current)"
+ 	get.groups(column="${DIST}", count="${COUNT}", groups=${testIDS%?});
+    cluster(column=current, count=current);
+    make.shared(list=current, count=current, label=0.03);
+	sub.sample(shared=current, label=0.03, size="${SUBSIZE}")"
