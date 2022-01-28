@@ -14,11 +14,12 @@ FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups an
 SILVAV4=${2:?ERROR: Need to define SILVAV4.}
 RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
 RDPTAX=${4:?ERROR: Need to define RDPTAX.}
+NPROC=${5:?ERROR: Need to define NPROC.}
 
 # Other variables
 OUTDIR=data/process/precluster/
 TMP="${OUTDIR}"/tmp/
-NPROC=$(nproc) # Setting number of processors to use based on available resources
+#NPROC=$(nproc) # Setting number of processors to use based on available resources
 
 
 
@@ -53,16 +54,10 @@ mothur "#make.contigs(file="${FILESFILE}", outputdir="${TMP}"/, processors="${NP
 
 
 # Moving and renaming important files for downstream use
-#mv "${TMP}"/*.precluster.pick.pick.fasta "${OUTDIR}"/glne.precluster.fasta
-#mv "${TMP}"/*.precluster.denovo.vsearch.pick.pick.count_table "${OUTDIR}"/glne.precluster.count_table
-#mv "${TMP}"/*.precluster.pick.pds.wang.pick.taxonomy "${OUTDIR}"/glne.precluster.taxonomy
-#mv "${TMP}"/*.precluster.pick.pick.dist "${OUTDIR}"/glne.precluster.dist
-
-#new filenames with 1.45
-mv "${TMP}"/*.precluster.pick.fasta "${OUTDIR}"/glne.precluster.fasta
-mv "${TMP}"/*.precluster.pick.count_table "${OUTDIR}"/glne.precluster.count_table
-mv "${TMP}"/*.precluster.pds.wang.taxonomy "${OUTDIR}"/glne.precluster.taxonomy
-mv "${TMP}"/*.precluster.pick.dist "${OUTDIR}"/glne.precluster.dist
+mv "${TMP}"/*.precluster.pick.pick.fasta "${OUTDIR}"/glne.precluster.fasta
+mv "${TMP}"/*.precluster.denovo.vsearch.pick.pick.count_table "${OUTDIR}"/glne.precluster.count_table
+mv "${TMP}"/*.precluster.pick.pds.wang.pick.taxonomy "${OUTDIR}"/glne.precluster.taxonomy
+mv "${TMP}"/*.precluster.pick.pick.dist "${OUTDIR}"/glne.precluster.dist
 
 
 ###############

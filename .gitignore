@@ -10,10 +10,11 @@ logs/mothur/*
 
 # Snakemake
 /.snakemake/**
-/snakemake-*.out
+/smk_optifit-*.out
 
 # Misc
 .DS_Store
 *Rproj*
 .Rproj.user
 .Rhistory
+Rplots.pdf

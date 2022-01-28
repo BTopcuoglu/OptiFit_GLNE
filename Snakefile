@@ -1,14 +1,14 @@
 # Snakefile
+# Courtney R Armour
 # William L. Close
 # Begum Topcuoglu
 # Schloss Lab
 # University of Michigan
 
-# Purpose: Snakemake file for running mothur 16S pipeline with Leave-One-Out for OptiFit/OptiClust and diagnosis prediction
+# Purpose: Snakemake file for running mothur 16S pipeline with
+# OptiFit/OptiClust and comparing prediction performance
 
-
-
-# Code for creating list of sample and sequence names after filtering out names of mock samples (not used in this study).
+# Code for creating list of sample and sequence names after filtering out names of mock samples (not used in this study)
 import pandas as pd
 import re
 data = pd.read_csv("data/metadata/SraRunTable.txt")
@@ -18,15 +18,27 @@ sampleNames = set([i for i in names if regex.match(i)])
 sequenceNames = set(data[data["Sample Name"].isin(sampleNames)]["Run"].tolist())
 
 alogrithmNames = ['optifit','opticlust']
+split_nums = range(1,101) # number of test/train splits to make
+#split_nums = range(0,1)
+#split_nums = range(1,21)
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
     input:
-        expand("data/learning/summary/{alogrithm}/model_results.tsv",
-            alogrithm = alogrithmNames),
-        expand("data/learning/summary/{alogrithm}/confusion_matrix.tsv",
-            alogrithm = alogrithmNames),
-        "results/tables/fraction_reads_mapped.tsv"
+        # "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
+        # "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
+        # "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
+        # "data/process/optifit/split_1/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared",
+        #"data/learning/results/opticlust/preproc_test_split_1.csv",
+        #"data/learning/results/optifit/preproc_test_split_1.csv",
+        #"data/learning/results/opticlust/cv_results_split_1.csv",
+        #"data/learning/results/optifit/cv_results_split_1.csv"
+        #"data/learning/results/opticlust/performance_split_1.csv",
+        #"data/learning/results/optifit/performance_split_1.csv"
+        expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+               num = split_nums),
+        expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+               num = split_nums)        
     shell:
         '''
         if $(ls | grep -q "mothur.*logfile"); then
@@ -35,9 +47,21 @@ rule all:
         fi
         '''
 
-
-
-
+rule results:
+    input:
+        "results/tables/fraction_reads_mapped.tsv",
+        "data/learning/summary/merged_predictions.csv",
+        "data/learning/summary/merged_performance.csv",
+        "data/learning/summary/merged_HP.csv",
+        "data/learning/summary/merged_MCC.csv",
+        "data/learning/summary/all_sens_spec.csv",
+        "results/tables/pct_class_correct.csv",
+        "results/tables/opticlust_20_mcc.csv"
+        
+rule plots: 
+    input:
+        "results/figures/view_splits.png",
+        "results/figures/hp_performance.png"
 
 ##################################################################
 #
@@ -54,11 +78,10 @@ rule getSRASequences:
     output:
         read1="data/raw/{sequence}_1.fastq.gz",
         read2="data/raw/{sequence}_2.fastq.gz"
-    conda:
-        "envs/sra_tools.yaml"
+    resources:
+        time_min=45
     shell:
         "bash {input.script} {params.sequence}"
-
 
 # Retrieve tidied metadata from https://github.com/SchlossLab/Baxter_glne007Modeling_GenomeMed_2015
 rule getMetadata:
@@ -79,14 +102,10 @@ rule get16SReferences:
         silvaV4="data/references/silva.v4.align",
         rdpFasta="data/references/trainset14_032015.pds.fasta",
         rdpTax="data/references/trainset14_032015.pds.tax"
-    conda:
-        "envs/mothur.yaml"
+    resources:  
+        ncores=4
     shell:
-        "bash {input.script}"
-
-
-
-
+        "bash {input.script} {resources.ncores}"
 
 ##################################################################
 #
@@ -103,11 +122,8 @@ rule makeFilesFile:
             sequence = sequenceNames)
     output:
         files="data/process/glne.files"
-    conda:
-        "envs/r.yaml"
     shell:
         "Rscript {input.script} {input.sra} {input.sequences}"
-
 
 # Preclustering and preparing sequences for leave one out analysis.
 rule preclusterSequences:
@@ -117,90 +133,19 @@ rule preclusterSequences:
         refs=rules.get16SReferences.output
     output:
         fasta="data/process/precluster/glne.precluster.fasta",
-        count="data/process/precluster/glne.precluster.count_table",
+        count_table="data/process/precluster/glne.precluster.count_table",
         tax="data/process/precluster/glne.precluster.taxonomy",
         dist="data/process/precluster/glne.precluster.dist"
-    conda:
-        "envs/mothur.yaml"
+    resources:
+        ncores=12,
+        time_min=500,
+        mem_mb=10000
     shell:
-        "bash {input.script} {input.files} {input.refs}"
-
-
-
-
+        "bash {input.script} {input.files} {input.refs} {resources.ncores}"
 
 ##################################################################
 #
-# Part 3: OptiFit Leave One Out (LOO)
-#
-##################################################################
-
-# Removing one sample at a time and generating cluster files separately for that sample and for
-# the remaining data.
-rule leaveOneOutOptiFit:
-    input:
-        script="code/bash/mothurOptiFitLOO.sh",
-        precluster=rules.preclusterSequences.output
-    params:
-        sample="{sample}"
-    output:
-        refFasta="data/process/optifit/{sample}/out/glne.precluster.pick.fasta",
-        refDist="data/process/optifit/{sample}/out/glne.precluster.pick.dist",
-        refList="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.list",
-        optifitLooShared="data/process/optifit/{sample}/out/glne.precluster.pick.opti_mcc.0.03.subsample.shared", # Used in ML pipeline
-        refCount="data/process/optifit/{sample}/out/glne.precluster.pick.count_table"
-    conda:
-        "envs/mothur.yaml"
-    shell:
-        "bash {input.script} {input.precluster} {params.sample}"
-
-
-# Using OptiFit to cluster the output files from the leave-one-out rule
-rule clusterOptiFit:
-    input:
-        script="code/bash/mothurOptiFit.sh",
-        precluster=rules.preclusterSequences.output,
-        ref=rules.leaveOneOutOptiFit.output
-    params:
-        sample="{sample}"
-    output:
-        optifitSampleShared="data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared", # Used in ML pipeline
-        query_count='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.count_table',
-        list='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.list',
-        list_accnos='data/process/optifit/{sample}/in/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
-    conda:
-        "envs/mothur.yaml"
-    shell:
-        "bash {input.script} {input.precluster} {params.sample} {input.ref}"
-
-
-rule calc_fraction_mapped:
-    input:
-        script="code/fraction_reads_mapped.py",
-        query=rules.clusterOptiFit.output.query_count,
-        ref=rules.leaveOneOutOptiFit.output.refCount,
-        mapped=rules.clusterOptiFit.output.list_accnos
-    output:
-        tsv="data/process/optifit/{sample}/in/fraction_reads_mapped.tsv"
-    script:
-        "code/fraction_reads_mapped.py"
-
-rule cat_fraction_mapped:
-    input:
-        expand("data/process/optifit/{sample}/in/fraction_reads_mapped.tsv",
-            sample = sampleNames)
-    output:
-        tsv="results/tables/fraction_reads_mapped.tsv"
-    shell:
-        """
-        echo "sample\tfraction_mapped\n" > {output.tsv}
-        cat {input} >> {output.tsv}
-        """
-
-
-##################################################################
-#
-# Part 4: OptiClust Leave One Out (LOO)
+# Part 3: Cluster OptiClust
 #
 ##################################################################
 
@@ -210,135 +155,367 @@ rule clusterOptiClust:
         script="code/bash/mothurOptiClust.sh",
         precluster=rules.preclusterSequences.output
     output:
-        shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared"
-    conda:
-        "envs/mothur.yaml"
+        shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared",
+        lst="data/process/opticlust/shared/glne.precluster.opti_mcc.list"
+    resources:
+        ncores=12,
+        time_min=60,
+        mem_mb=30000
     shell:
-        "bash {input.script} {input.precluster}"
+        "bash {input.script} {input.precluster} {resources.ncores}"
 
+##################################################################
+#
+# Part 4: Generate Data Splits
+#
+##################################################################
 
-# Removing one group at a time from the OptiClust-generated shared file.
-rule leaveOneOutOptiClust:
+rule make8020splits:
     input:
-        script="code/bash/mothurOptiClustLOO.sh",
-        subShared=rules.clusterOptiClust.output.shared
+        script="code/R/generate_splits.R",
+        shared=rules.clusterOptiClust.output.shared
     params:
-        sample="{sample}"
+        n_splits=len(split_nums)
     output:
-        opticlustLooShared="data/process/opticlust/{sample}/out/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared", # Used in ML pipeline
-        opticlustSampleShared="data/process/opticlust/{sample}/in/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared" # Used in ML pipeline
-    conda:
-        "envs/mothur.yaml"
+        splits=expand("data/process/splits/split_{num}.csv", num = split_nums)
     shell:
-        "bash {input.script} {input.subShared} {params.sample}"
-
-
-
-
+        "Rscript {input.script} {input.shared} {params.n_splits}"
 
 ##################################################################
 #
-# Part 5: Running ML Model
+# Part N: Generate OptiClust data
 #
 ##################################################################
 
-# Predicting diagnosis using OptiFit shared files.
-rule predictOptiFitDiagnosis:
+rule generateOptiClustData:
+    input: 
+        script="code/bash/splitOptiClust.sh",
+        shared=rules.clusterOptiClust.output.shared,
+        split="data/process/splits/split_{num}.csv"
+    output:
+        train="data/process/opticlust/split_{num}/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
+        test="data/process/opticlust/split_{num}/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
+    resources:
+        ncores=12,
+        time_min=60,
+        mem_mb=30000
+    shell:
+        "bash {input.script} {input.shared} {input.split} {resources.ncores}"
+
+##################################################################
+#
+# Part N: Generate OptiFit data
+#
+##################################################################
+
+# cluster the training datasets
+rule clusterOptiFitData:
     input:
-        script="code/learning/main.R",
-        optifitLooShared=rules.leaveOneOutOptiFit.output.optifitLooShared,
-        optifitSampleShared=rules.clusterOptiFit.output.optifitSampleShared,
-        metadata=rules.getMetadata.output.metadata
+        script="code/bash/mothurClusterOptiFit.sh",
+        precluster=rules.preclusterSequences.output,
+        split="data/process/splits/split_{num}.csv"
+    output:
+        shared="data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
+        reffasta="data/process/optifit/split_{num}/train/glne.precluster.pick.fasta",
+        refdist="data/process/optifit/split_{num}/train/glne.precluster.pick.dist",
+        reflist="data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.list",
+        refCount="data/process/optifit/split_{num}/train/glne.precluster.pick.count_table"
+    resources:
+        ncores=12,
+        time_min=60,
+        mem_mb=30000
+    shell:
+        "bash {input.script} {input.precluster} {input.split} {resources.ncores}"
+
+# fit test data to the training clusters
+rule fitOptiFit:
+    input:
+        script="code/bash/mothurFitOptiFit.sh",
+        precluster=rules.preclusterSequences.output,
+        split="data/process/splits/split_{num}.csv",
+        reffasta=rules.clusterOptiFitData.output.reffasta,
+        refdist=rules.clusterOptiFitData.output.refdist,
+        reflist=rules.clusterOptiFitData.output.reflist
+    output:
+        fit="data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared",
+        query_count='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.count_table',
+        list='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.list',
+        list_accnos='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
+    resources:
+        ncores=12,
+        time_min=120,
+        mem_mb=30000
+    shell:
+        "bash {input.script} {input.precluster} {input.split} {input.reffasta} {input.refdist} {input.reflist} {resources.ncores}"
+
+rule calc_fraction_mapped:
+    input:
+        script="code/fraction_reads_mapped.py",
+        query=rules.fitOptiFit.output.query_count,
+        ref=rules.clusterOptiFitData.output.refCount,
+        mapped=rules.fitOptiFit.output.list_accnos
+    output:
+        tsv="data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv"
+    script:
+        "code/fraction_reads_mapped.py"
+
+rule cat_fraction_mapped:
+    input:
+        expand("data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv",
+            num = split_nums)
+    output:
+        tsv="results/tables/fraction_reads_mapped.tsv"
+    shell:
+        """
+        echo "sample\tfraction_mapped\n" > {output.tsv}
+        cat {input} >> {output.tsv}
+        """
+
+##################################################################
+#
+# Part N: Preprocess Data
+#
+##################################################################
+
+rule preprocessOptiClust:
+    input:
+        script="code/R/preprocess.R",
+        metadata=rules.getMetadata.output.metadata,
+        train=rules.generateOptiClustData.output.train,
+        test=rules.generateOptiClustData.output.test
+    output:
+        preprocTrain="data/learning/results/opticlust/preproc_train_split_{num}.csv",
+        preprocTest="data/learning/results/opticlust/preproc_test_split_{num}.csv" 
+    resources:
+        ncores=12,
+        time_min="1:00:00",
+        mem_mb=50000
+    shell:
+        "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
+
+rule preprocessOptiFit:
+    input: 
+        script="code/R/preprocess.R",
+        metadata=rules.getMetadata.output.metadata,
+        train=rules.clusterOptiFitData.output.shared,
+        test=rules.fitOptiFit.output.fit
+    output:
+        preprocTrain="data/learning/results/optifit/preproc_train_split_{num}.csv",
+        preprocTest="data/learning/results/optifit/preproc_test_split_{num}.csv"
+    resources:
+        ncores=12,
+        time_min="1:00:00",
+        mem_mb=50000
+    shell:
+        "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
+
+
+##################################################################
+#
+# Part N: Run Models
+#
+##################################################################
+
+rule runOptiClustModels:
+    input:
+        script="code/R/run_model.R",
+        train=rules.preprocessOptiClust.output.preprocTrain,
+        test=rules.preprocessOptiClust.output.preprocTest
     params:
-        model="L2_Logistic_Regression",
+        model="rf",
         outcome="dx"
     output:
-        cvauc="data/learning/results/optifit/cv_results_{sample}.csv",
-        prediction="data/learning/results/optifit/prediction_results_{sample}.csv"
-    conda:
-        "envs/r.yaml"
+        performance="data/learning/results/opticlust/performance_split_{num}.csv",
+        model="data/learning/results/opticlust/model_split_{num}.rds",
+        prediction="data/learning/results/opticlust/prediction_results_split_{num}.csv",
+        hp_performance="data/learning/results/opticlust/hp_split_{num}.csv"
+    resources: 
+        ncores=12,
+        time_min="72:00:00",
+        mem_mb=50000        
     shell:
-        "Rscript --max-ppsize=500000 {input.script} {input.optifitLooShared} {input.optifitSampleShared} {input.metadata} {params.model} {params.outcome}"
-
-
-# Predicting diagnosis using OptiClust shared files.
-rule predictOptiClustDiagnosis:
+        "Rscript --max-ppsize=500000 {input.script} {input.train} {input.test} {params.model} {params.outcome} {resources.ncores}"
+        
+rule runOptiFitModels:
     input:
-        script="code/learning/main.R",
-        opticlustLooShared=rules.leaveOneOutOptiClust.output.opticlustLooShared,
-        opticlustSampleShared=rules.leaveOneOutOptiClust.output.opticlustSampleShared,
-        metadata=rules.getMetadata.output.metadata
+        script="code/R/run_model.R",
+        metadata=rules.getMetadata.output.metadata,
+        train=rules.preprocessOptiFit.output.preprocTrain,
+        test=rules.preprocessOptiFit.output.preprocTest
     params:
-        model="L2_Logistic_Regression",
+        model="rf",
         outcome="dx"
     output:
-        cvauc="data/learning/results/opticlust/cv_results_{sample}.csv",
-        prediction="data/learning/results/opticlust/prediction_results_{sample}.csv"
-    conda:
-        "envs/r.yaml"
+        performance="data/learning/results/optifit/performance_split_{num}.csv",
+        model="data/learning/results/optifit/model_split_{num}.rds",
+        prediction="data/learning/results/optifit/prediction_results_split_{num}.csv",
+        hp_performance="data/learning/results/optifit/hp_split_{num}.csv"
+    resources: 
+        ncores=12,
+        time_min="72:00:00",
+        mem_mb=50000  
     shell:
-        "Rscript --max-ppsize=500000 {input.script} {input.opticlustLooShared} {input.opticlustSampleShared} {input.metadata} {params.model} {params.outcome}"
+        "Rscript --max-ppsize=500000 {input.script} {input.train} {input.test} {params.model} {params.outcome} {resources.ncores}"
+        
+##################################################################
+#
+# Part N: Merge Results
+#
+##################################################################        
 
-
-# Collating all ML pipeline results and constructing confusion matrix
-rule makeOptiFitConfusionMatrix:
+rule mergePredictionResults:
     input:
-        script="code/R/makeConfusionMatrix.R",
-        metadata=rules.getMetadata.output.metadata,
-        results=expand(rules.predictOptiFitDiagnosis.output,
-            sample = sampleNames)
-    params:
-        dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
-        classThresh=0.5 # Threshold for calling normal based on prediction values
+        script="code/R/merge_predictions.R",
+        opticlustPred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                             num = split_nums),
+        optifitPred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                           num = split_nums)
     output:
-        results="data/learning/summary/optifit/model_results.tsv",
-        confusion="data/learning/summary/optifit/confusion_matrix.tsv"
-    conda:
-        "envs/r.yaml"
+        mergedPrediction="data/learning/summary/merged_predictions.csv",
     shell:
-        "Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
-
-
-# Collating all ML pipeline results and constructing confusion matrix
-rule makeOptiClustConfusionMatrix:
+        "Rscript {input.script} {input.opticlustPred} {input.optifitPred}"
+        
+rule mergePerformanceResults:
     input:
-        script="code/R/makeConfusionMatrix.R",
-        metadata=rules.getMetadata.output.metadata,
-        results=expand(rules.predictOptiClustDiagnosis.output,
-            sample = sampleNames)
-    params:
-        dxDiffThresh=0.05, # Threshold for wanting to investigate health data because prediction scores are too close
-        classThresh=0.5 # Threshold for calling normal based on prediction values
+        script="code/R/mergePerformance.R",
+        opticlustPerf=expand("data/learning/results/opticlust/performance_split_{num}.csv",
+                           num = split_nums),
+        optifitPerf=expand("data/learning/results/optifit/performance_split_{num}.csv",
+                           num = split_nums)
     output:
-        results="data/learning/summary/opticlust/model_results.tsv",
-        confusion="data/learning/summary/opticlust/confusion_matrix.tsv"
-    conda:
-        "envs/r.yaml"
+        mergedPerf="data/learning/summary/merged_performance.csv"
     shell:
-        "Rscript {input.script} {input.metadata} {input.results} {params.dxDiffThresh} {params.classThresh}"
+        "Rscript {input.script} {input.opticlustPerf} {input.optifitPerf}"
 
-rule makeMergedSensspec:
+rule mergeHPperformance:
     input:
-        script="code/R/get_sensspec.R"
+        script="code/R/mergeHP.R",
+        opticlustHP=expand("data/learning/results/opticlust/hp_split_{num}.csv",
+                           num = split_nums),
+        optifitHP=expand("data/learning/results/optifit/hp_split_{num}.csv",
+                         num = split_nums)
     output:
-        results="results/tables/merged_sensspec.csv"
-    conda:
-        "envs/r.yaml"
+        mergedHP="data/learning/summary/merged_HP.csv"
     shell:
-        "Rscript code/R/get_sensspec.R"
+        "Rscript {input.script} {input.opticlustHP} {input.optifitHP}"
+        
+rule getMCCdata:
+    input:
+        script="code/R/get_mcc.R",
+        opticlustSensspec="data/process/opticlust/shared/glne.precluster.opti_mcc.sensspec",
+        optifitTrainSensspec=expand("data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.sensspec",
+                                    num = split_nums),
+        optifitTestSensspec=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.steps",
+                                   num = split_nums)
+    output:
+        mergedMCC="data/learning/summary/merged_MCC.csv"
+    shell:
+        "Rscript {input.script} {input.opticlustSensspec} {input.optifitTrainSensspec} {input.optifitTestSensspec}"
+    
+rule get_sens_spec:
+    input: 
+        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                              num = split_nums),
+        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                            num = split_nums)   
+    output:
+        allSensSpec="data/learning/summary/all_sens_spec.csv"
+    script:
+        "code/R/get_sens_spec.R"
+        
+rule get_opticlust_20_mcc: 
+    input:
+        script="code/bash/get_opticlust_20_mcc.sh",
+        dist=rules.preclusterSequences.output.dist,
+        count_table=rules.preclusterSequences.output.count_table,
+        split="data/process/splits/split_{num}.csv"
+    output:
+        sensspec="data/process/opticlust/split_{num}/sub/glne.precluster.pick.opti_mcc.sensspec",
+        shared="data/process/opticlust/split_{num}/sub/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
+    resources:
+        ncores=12,
+        time_min=60,
+        mem_mb=30000
+    shell:
+        "bash {input.script} {input.dist} {input.count_table} {input.split} {resources.ncores}"
 
+rule merge_opticlust_20_mcc:
+    input:
+        sensspec=expand("data/process/opticlust/split_{num}/sub/glne.precluster.pick.opti_mcc.sensspec",
+                        num = split_nums)
+    output:
+        opticlust_20_mcc="results/tables/opticlust_20_mcc.csv"
+    script:
+        "code/R/merge_opticlust_20_mcc.R"
 
+rule calc_pct_correct:
+    input:
+        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                              num = split_nums),
+        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                            num = split_nums)
+    output:
+        pct_correct="results/tables/pct_class_correct.csv"
+    script:
+        "code/R/get_pct_correct.R"    
+        
+##################################################################
+#
+# Part N: Plots
+#
+##################################################################        
+
+rule plotHPperformance:
+    input:
+        hp=rules.mergeHPperformance.output.mergedHP
+    output:
+        hpPlot="results/figures/hp_performance.png"
+    script:
+        "code/R/plot_HP_performance.R"
+
+#view how many times each sample is in train/test set across splits
+rule plot8020splits:
+    input:
+        splits=rules.make8020splits.output.splits
+    output:
+        split_plot="results/figures/view_splits.png"
+    script:
+        "code/R/view_splits.R"
+            
+##################################################################
+#
+# DOCUMENTS
+#
+##################################################################                
+
+rule update_pages:
+    input: 
+        exploratory="exploratory/exploratory.html"
+    output:
+        pages="docs/exploratory.html"
+    shell:
+        "cp {input.exploratory} docs/"
 
 ##################################################################
 #
-# Part 6: Cleaning
+# CLEAN UP
 #
-##################################################################
+##################################################################                
 
-# Resets directory by deleting all files created by this workflow.
+# remove prior output to force recreation of all files
 rule clean:
     shell:
         """
-        echo PROGRESS: Removing all workflow output.
-        rm -rf data/raw/ data/references/ data/process/ data/learning/ data/metadata/metadata.tsv
+        rm -rf data/raw
+        rm -rf data/process
+        rm -rf data/learning
+        rm analysis/*
+        rm logs/mothur/*
+        rm logs/slurm/*
         """
+        
+onsuccess:
+    print("🎉 completed successfully")
+
+onerror:
+    print("💥 errors occured")

@@ -1,0 +1,58 @@
+{
+    "__default__": {
+        "jobname": "{rule}.{wildcards}",
+        "nodes": 1,
+        "ncores": 1,
+        "mem": "6GB",
+        "time": "15:00",
+        "account": "pschloss99",
+        "partition": "standard",
+        "mailuser": "armourc@umich.edu",
+        "mailtype": "FAIL",
+        "output": "logs/slurm/%x-%j.out"
+    },
+    "getSRASequences": {
+        "time": "45:00"  
+    },
+    "get16SReferences": {
+        "ncores": "{resources.ncores}"
+    },
+    "preclusterSequences": {
+        "ncores": "{resources.ncores}",
+        "time": "1:00:00"
+    },
+    "clusterOptiClust": {
+        "ncores": "{resources.ncores}",
+        "time": "1:00:00"
+    },
+    "generateOptiClustData": {
+        "ncores": "{resources.ncores}",
+        "time": "1:00:00"
+    },
+    "clusterOptiFitData": {
+        "ncores": "{resources.ncores}",
+        "time": "1:00:00"
+    },
+    "fitOptiFit": {
+        "ncores": "{resources.ncores}",
+        "time": "1:00:00"
+    },
+    "preprocessOptiClust": {
+        "ncores": "{resources.ncores}",
+        "time": "1:00:00",
+        "mem": "6GB"
+    },
+    "preprocessOptiFit": {
+        "ncores": "{resources.ncores}",
+        "time": "1:00:00",
+        "mem": "6GB"
+    },
+    "runOptiClustModels": {
+        "ncores": "{resources.ncores}",
+        "time": "72:00:00"
+    },
+    "runOptiFitModels": {
+        "ncores": "{resources.ncores}",
+        "time": "72:00:00"
+    }
+}
