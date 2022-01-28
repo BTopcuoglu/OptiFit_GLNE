@@ -79,7 +79,7 @@ ggplot(pct_mapped,aes(x=fraction_mapped)) +
 merged_mcc <- read_csv("../data/learning/summary/merged_MCC.csv") %>% 
   mutate(label = case_when(algorithm == "opticlust" ~ algorithm,
                            TRUE ~ paste0(algorithm,"_",subset))) %>% 
-  mutate(color=case_when(algorithm == "opticlust" ~ "OptiClust",
+  mutate(Group=case_when(algorithm == "opticlust" ~ "OptiClust",
                          subset == "train" ~ "OptiFit Reference",
                          state == "fit" ~ "Optifit Fit without Reference",
                          TRUE ~ "Optifit Fit with Reference")) %>% 
@@ -87,7 +87,7 @@ merged_mcc <- read_csv("../data/learning/summary/merged_MCC.csv") %>%
                         labels = c("OptiClust","OptiFit Train","OptiFit Test")))
 
 merged_mcc %>% 
-  ggplot(aes(x=label,y=mcc,color=color)) +
+  ggplot(aes(x=label,y=mcc,color=Group)) +
     geom_jitter(height=0,width=0.2,alpha=0.5,size=3) +
     theme_bw() +
     xlab("") + ylab("MCC") +
@@ -97,6 +97,24 @@ merged_mcc %>%
     geom_text(aes(label,mcc,label=split),data=subset(merged_mcc, mcc < 0.7),color="black",hjust=0) #+
     # geom_text(aes(label,mcc,label=split),data=subset(merged_mcc, split == lowest_pct_mapped),color="black",hjust=0) +
     # geom_text(aes(label,mcc,label=split),data=subset(merged_mcc, split == highest_pct_mapped),color="black",hjust=0)
+
+```
+```{r opticlust_20_mcc}
+
+opticlust_20_mcc <- read_csv("../results/tables/opticlust_20_mcc.csv") %>% 
+  mutate(Group="OptiClust 20%")
+
+merged_mcc %>% 
+  filter(algorithm=="optifit",subset=="test") %>% 
+  select(mcc,split,algorithm,Group) %>% 
+  bind_rows(opticlust_20_mcc) %>% 
+  ggplot(aes(x=algorithm,y=mcc,color=Group)) +
+    geom_jitter(height=0,width=0.2,alpha=0.5,size=3) +
+    theme_bw() +
+    xlab("") + ylab("MCC") +
+    theme(panel.grid.major.y = element_line(color="grey85"),
+          panel.grid.minor.y = element_line(color="grey85"),
+          panel.grid.major.x = element_blank())
 
 ```
 
