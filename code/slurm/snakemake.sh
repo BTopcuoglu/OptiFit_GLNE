@@ -31,4 +31,4 @@ conda activate glne
 mkdir -p logs/slurm/
 
 # Initiating snakemake and running workflow in cluster mode
-snakemake --profile config/slurm/ --latency-wait 90 --rerun-incomplete
+snakemake --profile config/slurm/ --latency-wait 90

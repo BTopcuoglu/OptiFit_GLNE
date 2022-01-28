@@ -54,13 +54,14 @@ rule results:
         "data/learning/summary/merged_performance.csv",
         "data/learning/summary/merged_HP.csv",
         "data/learning/summary/merged_MCC.csv",
-        "data/learning/summary/all_sens_spec.csv"#,
-        #"results/tables/pct_class_correct.csv"
+        "data/learning/summary/all_sens_spec.csv",
+        "results/tables/pct_class_correct.csv",
+        "results/tables/opticlust_20_mcc.csv"
         
 rule plots: 
     input:
         "results/figures/view_splits.png",
-        "results/figures/HP_performance.png"
+        "results/figures/hp_performance.png"
 
 ##################################################################
 #
@@ -154,7 +155,8 @@ rule clusterOptiClust:
         script="code/bash/mothurOptiClust.sh",
         precluster=rules.preclusterSequences.output
     output:
-        shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared"
+        shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared",
+        lst="data/process/opticlust/shared/glne.precluster.opti_mcc.list"
     resources:
         ncores=12,
         time_min=60,
@@ -420,7 +422,43 @@ rule get_sens_spec:
         allSensSpec="data/learning/summary/all_sens_spec.csv"
     script:
         "code/R/get_sens_spec.R"
-   
+        
+rule get_opticlust_20_mcc: 
+    input:
+        script="code/bash/get_opticlust_20_mcc.sh",
+        dist=rules.preclusterSequences.output.dist,
+        count_table=rules.preclusterSequences.output.count_table,
+        split="data/process/splits/split_{num}.csv"
+    output:
+        sensspec="data/process/opticlust/split_{num}/sub/glne.precluster.pick.opti_mcc.sensspec",
+        shared="data/process/opticlust/split_{num}/sub/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
+    resources:
+        ncores=12,
+        time_min=60,
+        mem_mb=30000
+    shell:
+        "bash {input.script} {input.dist} {input.count_table} {input.split} {resources.ncores}"
+
+rule merge_opticlust_20_mcc:
+    input:
+        sensspec=expand("data/process/opticlust/split_{num}/sub/glne.precluster.pick.opti_mcc.sensspec",
+                        num = split_nums)
+    output:
+        opticlust_20_mcc="results/tables/opticlust_20_mcc.csv"
+    script:
+        "code/R/merge_opticlust_20_mcc.R"
+
+rule calc_pct_correct:
+    input:
+        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+                              num = split_nums),
+        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+                            num = split_nums)
+    output:
+        pct_correct="results/tables/pct_class_correct.csv"
+    script:
+        "code/R/get_pct_correct.R"    
+        
 ##################################################################
 #
 # Part N: Plots
@@ -434,18 +472,6 @@ rule plotHPperformance:
         hpPlot="results/figures/hp_performance.png"
     script:
         "code/R/plot_HP_performance.R"
-        
-rule calc_pct_correct:
-    input:
-        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
-                              num = split_nums),
-        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
-                            num = split_nums)
-    output:
-        pct_correct="results/tables/pct_class_correct.csv"
-    script:
-        "code/R/get_pct_correct.R"    
-        
 
 #view how many times each sample is in train/test set across splits
 rule plot8020splits:
@@ -456,6 +482,19 @@ rule plot8020splits:
     script:
         "code/R/view_splits.R"
             
+##################################################################
+#
+# DOCUMENTS
+#
+##################################################################                
+
+rule update_pages:
+    input: 
+        exploratory="exploratory/exploratory.html"
+    output:
+        pages="docs/exploratory.html"
+    shell:
+        "cp {input.exploratory} docs/"
 
 ##################################################################
 #
