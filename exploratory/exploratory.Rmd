@@ -41,34 +41,34 @@ knitr::include_graphics("../results/figures/view_splits.png")
 ### Percent of reads mapped with OptiFit {#pct_mapped}
 
 ```{r pct_mapped}
-pct_mapped <- read_tsv("../results/tables/fraction_reads_mapped.tsv") %>% 
-  rename(split=sample) %>% 
-  mutate(algorithm="optifit") %>% 
-  mutate(split=paste0("split_",split))
-
-# ggplot(pct_mapped,aes(x=algorithm,y=fraction_mapped)) + 
-#   geom_jitter(width=0.2,color="blue",size=3,alpha = 0.5) +
-#   stat_summary(fun.data=median_hilow, fun.args=0.5, geom="crossbar", width=0.5, color="black") +
+# pct_mapped <- read_tsv("../results/tables/fraction_reads_mapped.tsv") %>% 
+#   rename(split=sample) %>% 
+#   mutate(algorithm="optifit") %>% 
+#   mutate(split=paste0("split_",split))
+# 
+# # ggplot(pct_mapped,aes(x=algorithm,y=fraction_mapped)) + 
+# #   geom_jitter(width=0.2,color="blue",size=3,alpha = 0.5) +
+# #   stat_summary(fun.data=median_hilow, fun.args=0.5, geom="crossbar", width=0.5, color="black") +
+# #   theme_bw() +
+# #   xlab("") + ylab("Fraction of Reads Mapped with OptiFit") +
+# #   scale_y_continuous(limits=c(.98,1),labels = scales::percent_format(accuracy=0.1))
+# 
+# 
+# highest_pct_mapped <- pct_mapped %>% 
+#   filter(fraction_mapped == max(fraction_mapped)) %>% 
+#   pull(split)
+# lowest_pct_mapped <- pct_mapped %>% 
+#   filter(fraction_mapped == min(fraction_mapped)) %>% 
+#   pull(split)
+# 
+# ggplot(pct_mapped,aes(x=fraction_mapped)) + 
+#   geom_histogram(color="black",fill="grey") +
 #   theme_bw() +
-#   xlab("") + ylab("Fraction of Reads Mapped with OptiFit") +
-#   scale_y_continuous(limits=c(.98,1),labels = scales::percent_format(accuracy=0.1))
-
-
-highest_pct_mapped <- pct_mapped %>% 
-  filter(fraction_mapped == max(fraction_mapped)) %>% 
-  pull(split)
-lowest_pct_mapped <- pct_mapped %>% 
-  filter(fraction_mapped == min(fraction_mapped)) %>% 
-  pull(split)
-
-ggplot(pct_mapped,aes(x=fraction_mapped)) + 
-  geom_histogram(color="black",fill="grey") +
-  theme_bw() +
-  xlab("Percent of Reads Mapped with OptiFit") +
-  scale_x_continuous(labels = scales::percent_format(accuracy = 0.1)) +
-  scale_y_continuous(expand=c(0,0)) +
-  geom_text(x=max(pct_mapped$fraction_mapped),y=1.5,label=highest_pct_mapped,hjust=0.25,size=3) +
-  geom_text(x=min(pct_mapped$fraction_mapped),y=1.5,label=lowest_pct_mapped,hjust=0.5,size=3)
+#   xlab("Percent of Reads Mapped with OptiFit") +
+#   scale_x_continuous(labels = scales::percent_format(accuracy = 0.1)) +
+#   scale_y_continuous(expand=c(0,0)) +
+#   geom_text(x=max(pct_mapped$fraction_mapped),y=1.5,label=highest_pct_mapped,hjust=0.25,size=3) +
+#   geom_text(x=min(pct_mapped$fraction_mapped),y=1.5,label=lowest_pct_mapped,hjust=0.5,size=3)
 
 
 ```
@@ -91,6 +91,7 @@ merged_mcc %>%
     geom_jitter(height=0,width=0.2,alpha=0.5,size=3) +
     theme_bw() +
     xlab("") + ylab("MCC") +
+    #scale_y_continuous(expand=c(0,0),limits=c(0.85,0.91)) +
     theme(panel.grid.major.y = element_line(color="grey85"),
           panel.grid.minor.y = element_line(color="grey85"),
           panel.grid.major.x = element_blank()) +
@@ -120,52 +121,52 @@ merged_mcc %>%
 
 ### Percent Mapped VS MCC (without reference) {#pct_v_mcc_ref}
 ```{r pct_map_v_mcc_ref}
-
-sub_pct <- pct_mapped %>% 
-  select(split,fraction_mapped)
-
-mcc_pct <- merged_mcc %>% 
-  filter(algorithm == "optifit" & subset == "test",state == "fit") %>% 
-  select(split,mcc) %>% 
-  inner_join(., sub_pct ,by="split") 
-
-mcc_pct %>% 
-  ggplot(aes(x=fraction_mapped,y=mcc)) +
-    geom_point(size=2,alpha = 0.5) +
-    theme_bw() +
-    xlab("Percent of Reads Mapped with OptiFit") +
-    ylab("OptiFit MCC (printref=f)") +
-    geom_text(aes(fraction_mapped,mcc,label=split),
-              data=subset(mcc_pct, (fraction_mapped > 0.997 | fraction_mapped < 0.98)),
-              color="black",vjust=-1,size=3) +
-    geom_text(aes(fraction_mapped,mcc,label=split),
-              data=subset(mcc_pct, (mcc > 0.775 | mcc < 0.7)),
-              color="black",vjust=-1,size=3)
+# 
+# sub_pct <- pct_mapped %>% 
+#   select(split,fraction_mapped)
+# 
+# mcc_pct <- merged_mcc %>% 
+#   filter(algorithm == "optifit" & subset == "test",state == "fit") %>% 
+#   select(split,mcc) %>% 
+#   inner_join(., sub_pct ,by="split") 
+# 
+# mcc_pct %>% 
+#   ggplot(aes(x=fraction_mapped,y=mcc)) +
+#     geom_point(size=2,alpha = 0.5) +
+#     theme_bw() +
+#     xlab("Percent of Reads Mapped with OptiFit") +
+#     ylab("OptiFit MCC (printref=f)") +
+#     geom_text(aes(fraction_mapped,mcc,label=split),
+#               data=subset(mcc_pct, (fraction_mapped > 0.997 | fraction_mapped < 0.98)),
+#               color="black",vjust=-1,size=3) +
+#     geom_text(aes(fraction_mapped,mcc,label=split),
+#               data=subset(mcc_pct, (mcc > 0.775 | mcc < 0.7)),
+#               color="black",vjust=-1,size=3)
 ```
 
 ### Percent Mapped VS MCC (WITH reference) {#pct_v_mcc_noref}
 ```{r pct_map_v_mcc}
 
-sub_pct <- pct_mapped %>% 
-  select(split,fraction_mapped)
-
-mcc_pct <- merged_mcc %>% 
-  filter(algorithm == "optifit" & subset == "test",state == "combo") %>% 
-  select(split,mcc) %>% 
-  inner_join(., sub_pct ,by="split") 
-
-mcc_pct %>% 
-  ggplot(aes(x=fraction_mapped,y=mcc)) +
-    geom_point(size=2,alpha = 0.5) +
-    theme_bw() +
-    xlab("Percent of Reads Mapped with OptiFit") +
-    ylab("OptiFit MCC (printref=t)") +
-    geom_text(aes(fraction_mapped,mcc,label=split),
-              data=subset(mcc_pct, (fraction_mapped > 0.997 | fraction_mapped < 0.98)),
-              color="black",vjust=-1,size=3) +
-    geom_text(aes(fraction_mapped,mcc,label=split),
-              data=subset(mcc_pct, (mcc > 0.8961 | mcc < 0.8905)),
-              color="black",vjust=-1,size=3)
+# sub_pct <- pct_mapped %>% 
+#   select(split,fraction_mapped)
+# 
+# mcc_pct <- merged_mcc %>% 
+#   filter(algorithm == "optifit" & subset == "test",state == "combo") %>% 
+#   select(split,mcc) %>% 
+#   inner_join(., sub_pct ,by="split") 
+# 
+# mcc_pct %>% 
+#   ggplot(aes(x=fraction_mapped,y=mcc)) +
+#     geom_point(size=2,alpha = 0.5) +
+#     theme_bw() +
+#     xlab("Percent of Reads Mapped with OptiFit") +
+#     ylab("OptiFit MCC (printref=t)") +
+#     geom_text(aes(fraction_mapped,mcc,label=split),
+#               data=subset(mcc_pct, (fraction_mapped > 0.997 | fraction_mapped < 0.98)),
+#               color="black",vjust=-1,size=3) +
+#     geom_text(aes(fraction_mapped,mcc,label=split),
+#               data=subset(mcc_pct, (mcc > 0.8961 | mcc < 0.8905)),
+#               color="black",vjust=-1,size=3)
 ```
 
 ### HP performance {#hp_performance}  
@@ -485,21 +486,116 @@ allAUCs %>%
 
 ### Correct Classification Frequency {#class_correct_freq}
 
-```{r pct_correct}
+For each split, a cutoff of 0.5 was used to determine whether each sample was correctly or incorrectly classified. This data was merged for all splits to quantify the percent of splits each sample was correctly classified in. For normal samples it is the frequency that sample was a true negative and for cancer samples its the frequency that sample was a true positive. For example, if a cancer sample had a probabily of being cancer greater than 0.5 for 10 of the 20 splits it was in the test set for, it would have a percent correct value of 50%. I'm trying to figure out how to visualize this data...
+
+```{r pct_correct_hist, out.width="50%"}
 pct_correct <- read_csv("../results/tables/pct_class_correct.csv")
 
+# pct_correct %>%
+#   ggplot(aes(x=factor(algorithm,levels=c("opticlust","optifit"),labels=c("OptiClust","OptiFit")),
+#              y=pct_correct,group=Group,color=dx)) +
+#     geom_jitter(height=0,width=0.2,alpha=0.7,size=1.8) +
+#     theme_bw() + xlab("") +
+#     ylab("Percent of splits sample is correctly classified (TP or TN)") +
+#     scale_y_continuous(labels = scales::percent_format(accuracy=1),
+#                        breaks = seq(0,1,0.1)) +
+#     theme(panel.grid.major.y = element_line(color="grey85")) +
+#     scale_color_manual(values=c("brown3","deepskyblue3"),name="Actual Diagnosis")
+# 
+
+
 pct_correct %>%
-  ggplot(aes(x=factor(algorithm,levels=c("opticlust","optifit"),labels=c("OptiClust","OptiFit")),
-             y=pct_correct,group=Group,color=dx)) +
-    geom_jitter(height=0,width=0.2,alpha=0.7,size=1.8) +
-    theme_bw() + xlab("") +
-    ylab("Percent of splits sample is correctly classified (TP or TN)") +
-    scale_y_continuous(labels = scales::percent_format(accuracy=1),
-                       breaks = seq(0,1,0.1)) +
-    theme(panel.grid.major.y = element_line(color="grey85")) +
-    scale_color_manual(values=c("brown3","deepskyblue3"),name="Actual Diagnosis")
+  ggplot(aes(x=pct_correct,fill=algorithm)) +
+  geom_histogram(binwidth=0.1,color="black",alpha=0.5,position = "identity") +
+  facet_grid(.~dx) +
+  theme_bw() +
+  xlab("Percent of splits sample is correctly classified (TP or TN)") +
+  theme(legend.position = "top")
+
+pct_correct %>%
+  ggplot(aes(x=pct_correct,fill=algorithm)) +
+  geom_histogram(binwidth=0.1,color="black",alpha=0.5,position = "dodge") +
+  facet_grid(.~dx) +
+  theme_bw() +
+  xlab("Percent of splits sample is correctly classified (TP or TN)") +
+  theme(legend.position = "top")
+
+pct_correct %>%
+  ggplot(aes(x=pct_correct,fill=algorithm)) +
+  #geom_histogram(binwidth=0.1,color="black",alpha=0.8) +
+  geom_density(alpha=0.5) +
+  facet_grid(.~dx) +
+  theme_bw() +
+  xlab("Percent of splits sample is correctly classified (TP or TN)") +
+  theme(legend.position = "top")
+
+pct_correct %>%
+  ggplot(aes(x=pct_correct,color=algorithm)) +
+  #geom_histogram(binwidth=0.1,color="black",alpha=0.8) +
+  geom_density(alpha=0.5) +
+  facet_grid(.~dx) +
+  theme_bw() +
+  xlab("Percent of splits sample is correctly classified (TP or TN)") +
+  theme(legend.position = "top")
 
 ```
+
+The scatter plot below has the samples along the x-axis without labels because they are not readable. The y-axis is the percent correct. The color of the points is the algorithm. There is a separate plot for cancer samples and normal samples.
+
+```{r pct_correct_point}
+#order samples by difference in pct_correct between algorithms
+samp_order <- pct_correct %>% 
+  pivot_wider(id_cols = c("Group","dx"),
+              names_from = algorithm,
+              values_from = pct_correct) %>% 
+  mutate(difference = abs(opticlust - optifit)) %>% 
+  arrange(difference) %>% 
+  pull(Group)
+
+pct_correct %>% 
+  ggplot(aes(x=factor(Group,levels = samp_order),y=pct_correct,color=algorithm)) +
+  geom_point(alpha=0.7) +
+  facet_wrap(.~dx,nrow=2) +
+  theme_bw() + 
+  ylab("Percent of splits sample is correctly classified (TP or TN)") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  xlab("Sample")
+```
+
+To eliminate some noise, I removed any samples where there was no difference in the percent correct between the two algorithms.  
+
+```{r mod_pct_correct_point}
+#get rid of samples that are perfectly classified with both algorithms
+#and samples that have the samp pct_correct
+#order samples by difference in pct_correct between algorithms
+samp_order <- pct_correct %>% 
+  pivot_wider(id_cols = c("Group","dx"),
+              names_from = algorithm,
+              values_from = pct_correct) %>% 
+  filter(optifit != 1 & opticlust != 1) %>% 
+  mutate(difference = abs(opticlust - optifit)) %>% 
+  filter(difference > 0) %>% 
+  arrange(difference) %>% 
+  pull(Group)
+
+pct_correct %>% 
+  filter(Group %in% samp_order) %>% 
+  ggplot(aes(x=factor(Group,levels = samp_order),y=pct_correct,color=algorithm)) +
+  geom_point(alpha=0.7) +
+  facet_wrap(.~dx,nrow=2) +
+  theme_bw() + 
+  ylab("Percent of splits sample is correctly classified (TP or TN)") +
+  theme(axis.text.x = element_blank(),
+        axis.ticks.x = element_blank()) +
+  xlab("Sample")
+
+
+
+
+```
+
+
 ```{r test}
 # 
 # get_categories <- function(filename,threshold){
