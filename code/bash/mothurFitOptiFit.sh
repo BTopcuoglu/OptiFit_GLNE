@@ -62,10 +62,18 @@ fi
 
 # Selecting test data to be fit, subsampling input files to account for 'closed' clustering method, and fitting sample to previous shared file
 mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
-	get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups=${testIDS%?}, column="${DIST}");
-	sub.sample(fasta=current, count=current, taxonomy=current, size="${SUBSIZE}");
+	get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}", groups=${testIDS%?});
 	rename.seqs(fasta=current,count=current);
-	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed, printref=f);
-	remove.seqs(count=current, accnos=current);
+	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=open, printref=f);
 	make.shared(list=current, count=current, label=0.03);
-	list.seqs(list=current)"  # creates accnos file of seqs in OTUs
+	sub.sample(shared=current, size="${SUBSIZE}")"
+	
+# # Selecting test data to be fit, subsampling input files to account for 'closed' clustering method, and fitting sample to previous shared file
+# mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
+# 	get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups=${testIDS%?}, column="${DIST}");
+# 	sub.sample(fasta=current, count=current, taxonomy=current, size="${SUBSIZE}");
+# 	rename.seqs(fasta=current,count=current);
+# 	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed, printref=f);
+# 	remove.seqs(count=current, accnos=current);
+# 	make.shared(list=current, count=current, label=0.03);
+# 	list.seqs(list=current)"  # creates accnos file of seqs in OTUs

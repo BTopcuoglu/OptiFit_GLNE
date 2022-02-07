@@ -19,10 +19,10 @@ ncores   <- as.numeric(input[4])
 
 #for testing the pipeline
 # metadata <- "data/metadata/metadata.tsv"
-# training <- "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
-# #training <- "data/process/optifit/split_5/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
-# testing  <- "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
-# #testing <- "data/process/optifit/split_5/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared"
+# #training <- "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
+# training <- "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
+# #testing  <- "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
+# testing <- "data/process/optifit/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared"
 # ncores=12
 
 split <- unlist(str_split(training,"/"))[4]
@@ -57,7 +57,8 @@ if (str_detect(testing, "optifit")) {
   test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
                                                   .default = col_double())) %>%
     select(-label, -numRefOtus) %>%
-    rename_all(str_replace, "Ref_", "")
+    select(Group,starts_with("Ref_")) %>% #select only OTUs in reference
+    rename_all(str_replace, "Ref_", "") #remove Ref_ label to match train data
 } else {
   test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
                                                   .default = col_double())) %>%
