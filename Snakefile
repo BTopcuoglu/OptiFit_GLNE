@@ -28,13 +28,15 @@ rule all:
         # "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
         # "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
         # "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
-        # "data/process/optifit/split_1/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared",
+        #"data/process/optifit/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
         #"data/learning/results/opticlust/preproc_test_split_1.csv",
         #"data/learning/results/optifit/preproc_test_split_1.csv",
         #"data/learning/results/opticlust/cv_results_split_1.csv",
         #"data/learning/results/optifit/cv_results_split_1.csv"
         #"data/learning/results/opticlust/performance_split_1.csv",
         #"data/learning/results/optifit/performance_split_1.csv"
+        # expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
+        #        num = split_nums)
         expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
                num = split_nums),
         expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
@@ -49,14 +51,14 @@ rule all:
 
 rule results:
     input:
-        "results/tables/fraction_reads_mapped.tsv",
+        #"results/tables/fraction_reads_mapped.tsv",
         "data/learning/summary/merged_predictions.csv",
         "data/learning/summary/merged_performance.csv",
         "data/learning/summary/merged_HP.csv",
         "data/learning/summary/merged_MCC.csv",
         "data/learning/summary/all_sens_spec.csv",
-        "results/tables/pct_class_correct.csv",
-        "results/tables/opticlust_20_mcc.csv"
+        "results/tables/pct_class_correct.csv"#,
+        #"results/tables/opticlust_20_mcc.csv"
         
 rule plots: 
     input:
@@ -237,10 +239,10 @@ rule fitOptiFit:
         refdist=rules.clusterOptiFitData.output.refdist,
         reflist=rules.clusterOptiFitData.output.reflist
     output:
-        fit="data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.shared",
-        query_count='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.count_table',
-        list='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.list',
-        list_accnos='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
+        fit="data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
+        query_count='data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.count_table',
+        list='data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.list',
+        #list_accnos='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
     resources:
         ncores=12,
         time_min=120,
@@ -248,28 +250,28 @@ rule fitOptiFit:
     shell:
         "bash {input.script} {input.precluster} {input.split} {input.reffasta} {input.refdist} {input.reflist} {resources.ncores}"
 
-rule calc_fraction_mapped:
-    input:
-        script="code/fraction_reads_mapped.py",
-        query=rules.fitOptiFit.output.query_count,
-        ref=rules.clusterOptiFitData.output.refCount,
-        mapped=rules.fitOptiFit.output.list_accnos
-    output:
-        tsv="data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv"
-    script:
-        "code/fraction_reads_mapped.py"
+# rule calc_fraction_mapped:
+#     input:
+#         script="code/fraction_reads_mapped.py",
+#         query=rules.fitOptiFit.output.query_count,
+#         ref=rules.clusterOptiFitData.output.refCount,
+#         mapped=rules.fitOptiFit.output.list_accnos
+#     output:
+#         tsv="data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv"
+#     script:
+#         "code/fraction_reads_mapped.py"
 
-rule cat_fraction_mapped:
-    input:
-        expand("data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv",
-            num = split_nums)
-    output:
-        tsv="results/tables/fraction_reads_mapped.tsv"
-    shell:
-        """
-        echo "sample\tfraction_mapped\n" > {output.tsv}
-        cat {input} >> {output.tsv}
-        """
+# rule cat_fraction_mapped:
+#     input:
+#         expand("data/process/optifit/split_{num}/test/fraction_reads_mapped.tsv",
+#             num = split_nums)
+#     output:
+#         tsv="results/tables/fraction_reads_mapped.tsv"
+#     shell:
+#         """
+#         echo "sample\tfraction_mapped\n" > {output.tsv}
+#         cat {input} >> {output.tsv}
+#         """
 
 ##################################################################
 #
@@ -405,7 +407,7 @@ rule getMCCdata:
         opticlustSensspec="data/process/opticlust/shared/glne.precluster.opti_mcc.sensspec",
         optifitTrainSensspec=expand("data/process/optifit/split_{num}/train/glne.precluster.pick.opti_mcc.sensspec",
                                     num = split_nums),
-        optifitTestSensspec=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.steps",
+        optifitTestSensspec=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.steps",
                                    num = split_nums)
     output:
         mergedMCC="data/learning/summary/merged_MCC.csv"

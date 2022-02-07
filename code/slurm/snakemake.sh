@@ -6,7 +6,7 @@
 #SBATCH --cpus-per-task=1
 #SBATCH --mem-per-cpu=6GB
 #SBATCH --time=5-00:00:00
-#SBATCH --account=pschloss99
+#SBATCH --account=pschloss1
 #SBATCH --partition=standard
 #SBATCH --mail-user=armourc@umich.edu
 #SBATCH --mail-type=FAIL
