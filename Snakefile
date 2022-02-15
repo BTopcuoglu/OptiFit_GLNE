@@ -365,6 +365,14 @@ rule runOptiFitModels:
 #
 ##################################################################        
 
+rule quantifySplitTogetherFreq:
+    input:
+        splits=rules.make8020splits.output.splits
+    output:
+        splitTogetherFreq="results/tables/splitTogetherFrequency.csv"
+    script:
+        "code/R/quantifySplitTogether.R"
+
 rule mergePredictionResults:
     input:
         script="code/R/merge_predictions.R",
