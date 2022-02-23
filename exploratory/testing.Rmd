@@ -1,0 +1,90 @@
+---
+title: "Testing OptiFit"
+author: "Courtney R Armour"
+date: "1/31/2022"
+output: pdf_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = FALSE,message=FALSE)
+
+library(tidyverse)
+
+```
+### MCC OptiFit vs OptiClust 
+
+We've been running OptiFit using 80% of samples as the reference. I wanted to see if there would be any change if a higher % of samples was used in the reference. Here I am comparing the MCC scores from 80% (8020) of samples as reference to 90% (9010) of samples as reference. Additionally, when chatting with Kelly about OptiFit she mentioned that she did not do any subsampling in her OptiFit analysis. I ran an addition set where I removed all the subsampling steps and the MCC is plotted below. 
+
+```{r mcc}
+presubsamp_merged_mcc <- read_csv("data/presubsamp_merged_MCC.csv") %>% 
+  mutate(label = case_when(algorithm == "opticlust" ~ algorithm,
+                           TRUE ~ paste0(algorithm,"_",subset))) %>% 
+  mutate(Group=case_when(algorithm == "opticlust" ~ "OptiClust",
+                         subset == "train" ~ "OptiFit Reference",
+                         state == "fit" ~ "Optifit Fit w/o Reference",
+                         TRUE ~ "Optifit Fit w/ Reference")) %>% 
+  mutate(label = factor(label,levels=c("opticlust","optifit_train","optifit_test"),
+                        labels = c("OptiClust","OptiFit Train","OptiFit Test"))) %>% 
+  mutate(data_split = "8020 - presubsamp")
+```
+
+```{r mcc}
+postsubsamp_merged_mcc <- read_csv("data/postsubsamp_merged_MCC.csv") %>% 
+  mutate(label = case_when(algorithm == "opticlust" ~ algorithm,
+                           TRUE ~ paste0(algorithm,"_",subset))) %>% 
+  mutate(Group=case_when(algorithm == "opticlust" ~ "OptiClust",
+                         subset == "train" ~ "OptiFit Reference",
+                         state == "fit" ~ "Optifit Fit w/o Reference",
+                         TRUE ~ "Optifit Fit w/ Reference")) %>% 
+  mutate(label = factor(label,levels=c("opticlust","optifit_train","optifit_test"),
+                        labels = c("OptiClust","OptiFit Train","OptiFit Test"))) %>% 
+  mutate(data_split = "8020 - postsubsamp")
+```
+
+```{r mcc_9010}
+merged_mcc_9010 <- read_csv("data/9010split_merged_MCC.csv") %>% 
+  mutate(label = case_when(algorithm == "opticlust" ~ algorithm,
+                           TRUE ~ paste0(algorithm,"_",subset))) %>% 
+  mutate(Group=case_when(algorithm == "opticlust" ~ "OptiClust",
+                         subset == "train" ~ "OptiFit Reference",
+                         state == "fit" ~ "Optifit Fit w/o Reference",
+                         TRUE ~ "Optifit Fit w/ Reference")) %>% 
+  mutate(label = factor(label,levels=c("opticlust","optifit_train","optifit_test"),
+                        labels = c("OptiClust","OptiFit Train","OptiFit Test"))) %>% 
+  mutate(data_split = "9010 - presubsamp")
+```
+
+
+```{r nosubsamp}
+merged_mcc_nosubsamp <- read_csv("data/nosubsamp_merged_MCC.csv") %>% 
+  mutate(label = case_when(algorithm == "opticlust" ~ algorithm,
+                           TRUE ~ paste0(algorithm,"_",subset))) %>% 
+  mutate(Group=case_when(algorithm == "opticlust" ~ "OptiClust",
+                         subset == "train" ~ "OptiFit Reference",
+                         state == "fit" ~ "Optifit Fit w/o Reference",
+                         TRUE ~ "Optifit Fit w/ Reference")) %>% 
+  mutate(label = factor(label,levels=c("opticlust","optifit_train","optifit_test"),
+                        labels = c("OptiClust","OptiFit Train","OptiFit Test"))) %>% 
+  mutate(data_split = "No Subsample")
+
+```
+
+
+```{r plot}
+
+bind_rows(presubsamp_merged_mcc,merged_mcc_9010) %>% 
+  bind_rows(merged_mcc_nosubsamp) %>% 
+  bind_rows(postsubsamp_merged_mcc) %>% 
+  ggplot(aes(x=label,y=mcc,color=Group)) +
+    geom_jitter(height=0,width=0.2,alpha=0.5,size=3) +
+    theme_bw() +
+    xlab("") + ylab("MCC") +
+    theme(panel.grid.major.y = element_line(color="grey85"),
+          panel.grid.minor.y = element_line(color="grey85"),
+          panel.grid.major.x = element_blank(),
+          legend.position = "top",
+          axis.text.x = element_text(angle=45,hjust=1)) +
+    #geom_text(aes(label,mcc,label=split),data=subset(merged_mcc, mcc < 0.7),color="black",hjust=0) +
+    facet_grid(.~data_split)
+
+```
