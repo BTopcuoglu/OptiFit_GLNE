@@ -1,47 +1,52 @@
-\documentclass[11pt,]{article}
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+  11pt,
+]{article}
+\title{\textbf{TITLE}}
+\author{}
+\date{\vspace{-2.5em}}
+
+\usepackage{amsmath,amssymb}
 \usepackage{lmodern}
-\usepackage{amssymb,amsmath}
-\usepackage{ifxetex,ifluatex}
-\usepackage{fixltx2e} % provides \textsubscript
-\ifnum 0\ifxetex 1\fi\ifluatex 1\fi=0 % if pdftex
+\usepackage{iftex}
+\ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
-\else % if luatex or xelatex
-  \ifxetex
-    \usepackage{mathspec}
-    \usepackage{xltxtra,xunicode}
-  \else
-    \usepackage{fontspec}
-  \fi
-  \defaultfontfeatures{Mapping=tex-text,Scale=MatchLowercase}
-  \newcommand{\euro}{€}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
 \fi
-% use upquote if available, for straight quotes in verbatim environments
+% Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
-% use microtype if available
-\IfFileExists{microtype.sty}{%
-\usepackage{microtype}
-\UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
 }{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\hypersetup{
+  pdftitle={TITLE},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+\urlstyle{same} % disable monospaced font for URLs
 \usepackage[margin=1.0in]{geometry}
-\ifxetex
-  \usepackage[setpagesize=false, % page size defined by xetex
-              unicode=false, % unicode breaks when used with xetex
-              xetex]{hyperref}
-\else
-  \usepackage[unicode=true]{hyperref}
-\fi
-\hypersetup{breaklinks=true,
-            bookmarks=true,
-            pdfauthor={},
-            pdftitle={NAME OF THIS STUDY},
-            colorlinks=true,
-            citecolor=blue,
-            urlcolor=blue,
-            linkcolor=magenta,
-            pdfborder={0 0 0}}
-\urlstyle{same}  % don't use monospace font for urls
-\usepackage{graphicx,grffile}
+\usepackage{graphicx}
 \makeatletter
 \def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
 \def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
@@ -50,36 +55,14 @@
 % margins by default, and it is still possible to overwrite the defaults
 % using explicit options in \includegraphics[width, height, ...]{}
 \setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
-\setlength{\parindent}{0pt}
-\setlength{\parskip}{6pt plus 2pt minus 1pt}
-\setlength{\emergencystretch}{3em}  % prevent overfull lines
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
-\setcounter{secnumdepth}{0}
-
-%%% Use protect on footnotes to avoid problems with footnotes in titles
-\let\rmarkdownfootnote\footnote%
-\def\footnote{\protect\rmarkdownfootnote}
-
-%%% Change title format to be more compact
-\usepackage{titling}
-
-% Create subtitle command for use in maketitle
-\newcommand{\subtitle}[1]{
-  \posttitle{
-    \begin{center}\large#1\end{center}
-    }
-}
-
-\setlength{\droptitle}{-2em}
-  \title{\textbf{NAME OF THIS STUDY}}
-  \pretitle{\vspace{\droptitle}\centering\huge}
-  \posttitle{\par}
-  \author{}
-  \preauthor{}\postauthor{}
-  \date{}
-  \predate{}\postdate{}
-
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
 \usepackage{helvet} % Helvetica font
 \renewcommand*\familydefault{\sfdefault} % Use the sans serif version of the font
 \usepackage[T1]{fontenc}
@@ -93,70 +76,252 @@
 \usepackage{lineno}
 
 \usepackage{pdfpages}
-
-% Redefines (sub)paragraphs to behave more like sections
-\ifx\paragraph\undefined\else
-\let\oldparagraph\paragraph
-\renewcommand{\paragraph}[1]{\oldparagraph{#1}\mbox{}}
-\fi
-\ifx\subparagraph\undefined\else
-\let\oldsubparagraph\subparagraph
-\renewcommand{\subparagraph}[1]{\oldsubparagraph{#1}\mbox{}}
+\usepackage{helvet}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
 \begin{document}
 \maketitle
 
-\vspace{35mm}
+\vspace{20mm}
 
 Running title: INSERT RUNNING TITLE HERE
 
-\vspace{35mm}
+\vspace{20mm}
 
-Your Name Here\^{}1, Joeseph P. Schmo\^{}2, Sally J. Rivers\^{}1,
-Patrick D. Schloss\textsuperscript{1\(\dagger\)}
+Courtney R. Armour\({^1}\), William L. Close\(^{1,*}\), Begüm D.
+Topçuoğlu\(^{1,\#}\), Patrick D. Schloss \(^{1,\dagger}\)
 
-\vspace{40mm}
+\vspace{5mm}
+
+\({^1}\) Department of Microbiology and Immunology, University of
+Michigan, Ann Arbor MI.
+
+\({^\#}\) Current Affiliation: Bristol Myers Squibb, Summit, New Jersey,
+USA~
+
+\({^*}\) Current Affiliation:
+
+\vspace{20mm}
 
 \(\dagger\) To whom correspondence should be addressed:
 \href{mailto:pschloss@umich.edu}{\nolinkurl{pschloss@umich.edu}}
 
-1. Department of Microbiology and Immunology, University of Michigan,
-Ann Arbor, MI 48109
+\vspace{20mm}
 
-2. Other department contact information
+\textbf{observation format} (max 1200 words, 2 figures, 25 ref)
 
 \newpage
 
 \linenumbers
 
-\subsection{Abstract}\label{abstract}
+\hypertarget{abstract-250-word-max}{%
+\subsection{Abstract (250 word max)}\label{abstract-250-word-max}}
+
+\hypertarget{importance-150-word-max}{%
+\subsection{Importance (150 word max)}\label{importance-150-word-max}}
 
 \newpage
 
-\subsection{Introduction}\label{introduction}
+\hypertarget{introduction-250-words}{%
+\subsection{Introduction (\textasciitilde250
+words)}\label{introduction-250-words}}
 
-\subsection{Results and Discussion}\label{results-and-discussion}
+\begin{itemize}
+\tightlist
+\item
+  Gut microbiome community composition has proven useful as a resource
+  for machine learning prediction of various diseases \{examples\}.
+\item
+  Amplicon sequencing of the 16S rRNA gene is a reliable tool for
+  assessing the taxonomic composition of microbial communities.
+\item
+  Analysis of 16S rRNA sequence data generally relies on clustering of
+  sequences based on similarity into operational taxonomic units (OTUs).
+\item
+  However OTU clustering depends on the data in the dataset and the
+  addition of new data may change the overall OTU clusters.
+\item
+  The unstable nature of OTU clustering complicates machine learning.
+  When building a classification model, changes to the OTU clusters
+  means you have to re-create the model. This can change the underlying
+  model and be time consuming and resource intensive.
+\item
+  The ability to integrate new data into an existing model could allow
+  for deployment of a single model that new data can be continually
+  added to and predicted on.
+\item
+  Recently Sovacool \emph{et al} described a new method for fitting new
+  data into existing OTU clusters \{Kelly optifit 2022\}.
+\item
+  While OptiFit works well to fit new sequence data and provide high
+  quality OTU clusters, it is unknown if the use of OptiFit will have an
+  impact on machine learning predictions.
+\item
+  Here, we use OptiFit with a 16S rRNA sequence dataset consisting of
+  normal and SRN samples to test how well new data integrated with
+  OptiFit performs for prediction of SRN.
+\end{itemize}
 
-\subsection{Conclusions}\label{conclusions}
+\hypertarget{results-700-words}{%
+\subsection{Results (\textasciitilde700
+words)}\label{results-700-words}}
 
-\subsection{Materials and Methods}\label{materials-and-methods}
+\begin{itemize}
+\tightlist
+\item
+  Utilize public dataset with normal and SRN samples to compare
+  prediction between OptiFit and OptiClust
+\item
+  randomly split data into 80\% training 20\% test sets 100 times
+\item
+  Processed the data with both algorithms - Figure 1
+
+  \begin{itemize}
+  \item
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \tightlist
+    \item
+      Used traditional OptiClust method to cluster all data, then split
+      into training and test set
+    \end{enumerate}
+  \item
+    \begin{enumerate}
+    \def\labelenumi{\arabic{enumi}.}
+    \setcounter{enumi}{1}
+    \tightlist
+    \item
+      Used OptiClust on the 80\% training set, then used OptiFit to fit
+      the remaining 20\%
+    \end{enumerate}
+  \end{itemize}
+\item
+  OptiFit produces similar quality OTU clusters based on MCC
+  (supplement?)
+\item
+  Used mikropml to train a model on the 80\% training set for each data
+  split, then predicted dx on the 20\% test set
+\item
+  Training performance almost identical (OptiClust median CV AUC 0.694,
+  OptiFit median CV AUC 0.693) - Figure 2
+\item
+  Performance on the test set comparable (OptiClust median CV AUC 0.694,
+  OptiFit median CV AUC 0.693) - Figure 2
+\item
+  Maybe expand on where optifit did better/worse?
+\end{itemize}
+
+\hypertarget{discussionconclusions-250-words}{%
+\subsection{Discussion/Conclusions (\textasciitilde250
+words)}\label{discussionconclusions-250-words}}
+
+\begin{itemize}
+\tightlist
+\item
+  OptiFit works!
+\item
+  future questions:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    how much reference do you need?
+  \item
+    does it work well for other situations?
+
+    \begin{itemize}
+    \tightlist
+    \item
+      what if we used a new dataset for test set instead of a subset of
+      the full dataset?
+    \item
+      other diseases?
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{materials-and-methods}{%
+\subsection{Materials and Methods}\label{materials-and-methods}}
+
+\begin{itemize}
+\tightlist
+\item
+  16S rRNA amplicon sequence data from 490 subjects \{baxter\}
+
+  \begin{itemize}
+  \tightlist
+  \item
+    261 controls
+  \item
+    229 SRN
+  \end{itemize}
+\item
+  created 100 random splits of the data (80\% training, 20\% test)
+\item
+  preprocessed data with mothur v1.45
+\item
+  two pathways\\
+  -opticlust:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    clustered all data together
+  \item
+    split the shared file based on the random splits
+  \end{itemize}
+
+  -optifit:
+
+  \begin{itemize}
+  \tightlist
+  \item
+    split the data
+  \item
+    opticlust on the 80\% training set
+  \item
+    optifit to fit the remaining 20\% to the training set OTUs
+  \end{itemize}
+\item
+  ML with mikropml package (version)
+
+  \begin{itemize}
+  \tightlist
+  \item
+    preprocessed training set and applied preprocessing to test set
+
+    \begin{itemize}
+    \tightlist
+    \item
+      correlated collapsed, removed nzv
+    \end{itemize}
+  \end{itemize}
+\end{itemize}
+
+\hypertarget{acknowledgements}{%
+\subsection{Acknowledgements}\label{acknowledgements}}
+
+\begin{itemize}
+\tightlist
+\item
+  funding
+\end{itemize}
 
 \newpage
 
-Insert figure legends with the first sentence in bold, for example:
+\hypertarget{figures}{%
+\subsection{Figures}\label{figures}}
 
-\textbf{Figure 1. Number of OTUs sampled among bacterial and archaeal
-16S rRNA gene sequences for different OTU definitions and level of
-sequencing effort.} Rarefaction curves for different OTU definitions of
-Bacteria (A) and Archaea (B). Rarefaction curves for the coarse
-environments in Table 1 for Bacteria (C) and Archaea (D).
+\textbf{Figure 1. Workflow} description.
+
+\textbf{Figure 2. Model Performance.} \textbf{A)} Mean AUC \textbf{B)}
+Averaged ROC curves
 
 \newpage
 
-\subsection*{References}\label{references}
-\addcontentsline{toc}{subsection}{References}
-
-\hypertarget{refs}{}
+\hypertarget{references}{%
+\subsection{References}\label{references}}
 
 \end{document}
