@@ -2,6 +2,7 @@
 ** text=auto
 *.smk linguist-language=Python
 *.R linguist-language=R
+*.html linguist-detectable=false
 #paper/paper.tex linguist-vendored=true
 #paper/references.bib linguist-vendored=true
 #code/tests/data/* linguist-vendored=true
