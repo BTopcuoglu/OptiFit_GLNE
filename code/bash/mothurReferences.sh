@@ -35,44 +35,29 @@ mkdir -p "${TMP}"/
 echo PROGRESS: Preparing SILVA database v4 sequence alignment files.
 
 # Downloading the prepared SILVA database from the mothur website
-# This version is from v123 and described at http://blog.mothur.org/2015/12/03/SILVA-v123-reference-files/
-# This version is used to maintain methods from Baxter NT, et al. Microbiota-based model improves the sensitivity
-# of fecal immunochemical test for detecting colonic lesions. Genome Med. 2016;8(1):37.
-# wget -N -P "${TMP}"/ http://mothur.org/w/images/1/15/Silva.seed_v123.tgz
-# updated location of silva reference v123
-wget -N -P "${TMP}"/ https://mothur.s3.us-east-2.amazonaws.com/wiki/silva.seed_v123.tgz
+wget -N -P "${TMP}"/ https://mothur.s3.us-east-2.amazonaws.com/wiki/silva.seed_v132.tgz
 
 # Decompressing the database
-# tar xvzf "${TMP}"/Silva.seed_v123.tgz -C "${TMP}"/
-# change capitalization
-tar xvzf "${TMP}"/silva.seed_v123.tgz -C "${TMP}"/
+tar xvzf "${TMP}"/silva.seed_v132.tgz -C "${TMP}"/
 
 # Using mothur to pull out the v4 region from bacterial sequences
 mothur "#set.current(outputdir="${TMP}"/, processors="${NPROC}");
-	get.lineage(fasta="${TMP}"/silva.seed_v123.align, taxonomy="${TMP}"/silva.seed_v123.tax, taxon=Bacteria);
+	get.lineage(fasta="${TMP}"/silva.seed_v132.align, taxonomy="${TMP}"/silva.seed_v132.tax, taxon=Bacteria);
 	pcr.seqs(fasta=current, start=11894, end=25319, keepdots=F)"
 
 # Renaming the output file and moving it from the tmp dir to the output dir
-mv "${TMP}"/silva.seed_v123.pick.align "${OUTDIR}"/silva.seed.align
-mv "${TMP}"/silva.seed_v123.pick.pcr.align "${OUTDIR}"/silva.v4.align
-
-
+mv "${TMP}"/silva.seed_v132.pick.pcr.align "${OUTDIR}"/silva.v4.align
 
 echo PROGRESS: Preparing Ribosomal Database Project taxonomy files.
 
 # Downloading the prepared RDP database from the mothur website
-# For more information see http://blog.mothur.org/2015/05/27/RDP-v14-reference_files/
-# wget -N -P "${TMP}"/ http://mothur.org/w/images/8/88/Trainset14_032015.pds.tgz
-# updated location of trainset v14
-wget -N -P "${TMP}"/ https://mothur.s3.us-east-2.amazonaws.com/wiki/trainset14_032015.pds.tgz
+wget -N -P "${TMP}"/ https://mothur.s3.us-east-2.amazonaws.com/wiki/trainset16_022016.pds.tgz
 
 # Decompressing the database
-tar xvzf "${TMP}"/Trainset14_032015.pds.tgz -C "${TMP}"/
-# change capitalization
-tar xvzf "${TMP}"/trainset14_032015.pds.tgz -C "${TMP}"/
+tar xvzf "${TMP}"/trainset16_022016.pds.tgz -C "${TMP}"/
 
 # Move the taxonomy files out of the tmp dir
-mv "${TMP}"/trainset14_032015.pds/trainset14_032015* "${OUTDIR}"/
+mv "${TMP}"/trainset16_022016.pds/trainset16_022016.pds.* "${OUTDIR}"/
 
 # Cleaning up reference dir
-#rm -rf "${TMP}"/
+rm -rf "${TMP}"/

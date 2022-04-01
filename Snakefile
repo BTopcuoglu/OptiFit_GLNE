@@ -102,8 +102,8 @@ rule get16SReferences:
         script="code/bash/mothurReferences.sh"
     output:
         silvaV4="data/references/silva.v4.align",
-        rdpFasta="data/references/trainset14_032015.pds.fasta",
-        rdpTax="data/references/trainset14_032015.pds.tax"
+        rdpFasta="data/references/trainset16_022016.pds.fasta",
+        rdpTax="data/references/trainset16_022016.pds.tax"
     resources:  
         ncores=4
     shell:
