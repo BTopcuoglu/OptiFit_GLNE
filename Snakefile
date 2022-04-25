@@ -469,6 +469,14 @@ rule calc_pct_correct:
     script:
         "code/R/get_pct_correct.R"    
         
+rule calcPvalues:
+    input:
+        mergedPerf=rules.mergePerformanceResults.output.mergedPerf
+    output:
+        "results/tables/pvalues.csv"
+    script:
+        "code/R/calculate_pvalues.R"
+        
 ##################################################################
 #
 # Part N: Plots
