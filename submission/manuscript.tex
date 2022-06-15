@@ -3,7 +3,6 @@
 \PassOptionsToPackage{hyphens}{url}
 %
 \documentclass[
-  11pt,
 ]{article}
 \usepackage{amsmath,amssymb}
 \usepackage{lmodern}
@@ -37,7 +36,7 @@
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \hypersetup{
-  pdftitle={TITLE},
+  pdftitle={Reference-based OTU clustering for machine learning classification},
   hidelinks,
   pdfcreator={LaTeX via pandoc}}
 \urlstyle{same} % disable monospaced font for URLs
@@ -59,56 +58,75 @@
 \providecommand{\tightlist}{%
   \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
 \setcounter{secnumdepth}{-\maxdimen} % remove section numbering
-\usepackage{helvet} % Helvetica font
-\renewcommand*\familydefault{\sfdefault} % Use the sans serif version of the font
-\usepackage[T1]{fontenc}
-
-\usepackage[none]{hyphenat}
-
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\usepackage{helvet}
+\renewcommand*\familydefault{\sfdefault}
 \usepackage{setspace}
 \doublespacing
-\setlength{\parskip}{1em}
-
-\usepackage{lineno}
-
-\usepackage{pdfpages}
-\usepackage{helvet}
+\usepackage[left]{lineno}
+\usepackage{multirow}
+\usepackage[none]{hyphenat}
 \ifLuaTeX
   \usepackage{selnolig}  % disable illegal ligatures
 \fi
 
-\title{\textbf{TITLE}}
+\title{\textbf{Reference-based OTU clustering for machine learning
+classification}}
 \author{}
 \date{\vspace{-2.5em}}
 
 \begin{document}
 \maketitle
 
-\textbf{Title Options:}\\
-Applying OptiFit: An Improved Method for Fitting Amplicon Sequences to
-Existing OTUs to Predict Colorectal Cancer\\
-Predicting colorectal cancer with an improved method for fitting
-amplicon sequences to existing OTUs\\
-Efficient microbiome-based machine learning prediction of colorectal
-cancer using OptiFit\\
-OptiFit streamlines microbiome-based machine learning prediction of
-colorectal cancer\\
-OptiFit enables integration of new amplicon sequence data to existing
-OTUs for prediction of colorectal cancer
+Other Title Options:\\
+A solution to the problem of inconsistent OTU clustering for machine
+learning classification
 
-\vspace{10mm}
+Optimized reference-based OTU clustering for machine learning
+classification
+
+\vspace{5mm}
 
 Running title: INSERT RUNNING TITLE HERE
 
-\vspace{10mm}
+\vspace{5mm}
 
-Courtney R. Armour\({^1}\), William L. Close\(^{1,*}\), Begüm D.
-Topçuoğlu\(^{1,\#}\), Patrick D. Schloss \(^{1,\dagger}\)
+Courtney R. Armour\({^1}\), Kelly L. Sovacool\({^2}\), William L.
+Close\(^{1,*}\), Begüm D. Topçuoğlu\(^{1,\#}\), Jenna Wiens\({^3}\),
+Patrick D. Schloss \(^{1,\dagger}\)
 
 \vspace{5mm}
 
 \({^1}\) Department of Microbiology and Immunology, University of
-Michigan, Ann Arbor MI.
+Michigan, Ann Arbor, Michigan, USA
+
+\({^2}\) Department of Computational Medicine and Bioinformatics,
+University of Michigan, Ann Arbor, Michigan, USA
+
+\({^3}\) Department of Electrical Engineering and Computer Science,
+University of Michigan, Ann Arbor, Michigan, USA
 
 \({^*}\) Current Affiliation:
 
@@ -129,92 +147,181 @@ USA~
 \hypertarget{abstract-250-word-max}{%
 \subsection{Abstract (250 word max)}\label{abstract-250-word-max}}
 
+Machine learning classification of disease based on the gut microbiome
+often relies on operational taxonomic units (OTUs) to quantify microbial
+composition. The standard methodology for quantifying taxonomic
+composition is clustering 16S rRNA amplicon sequences \emph{de novo}
+into OTUs and using their abundances to train a classification model.
+However, OTU clusters depend on the sequences in the data set and
+therefore can change if new data is added. This inconsistency
+complicates machine learning classification because in order to use the
+model to classify additional samples, the OTUs have to be re-clustered
+to include the new sequences and the model retrained with the new OTU
+clusters. A new algorithm in mothur, called OptiFit, addresses this
+issue by clustering new sequences into the existing OTU clusters. While
+OptiFit is proven to produce high quality OTU clusters, it is unclear
+whether this method for clustering new sequence data into existing OTUs
+will have any impact on machine learning classification using the OTU
+abundances. To evaluate the potential for use in machine learning
+classification, we used OptiFit to cluster additional data into existing
+OTU clusters and quantified model performance in classifying a data set
+containing samples from controls and people with advanced adenoma and
+carcinoma (SRN). We compared the model performance using OptiFit to the
+standard procedure of clustering all the data together. We found that
+OptiFit can be used to fit new sequence data to existing OTUs and
+perform equally in classifying SRNs. Moving forward, when OTUs are used
+in machine learning classification problems, OptiFit can be used to
+avoid the need to re-cluster sequences into OTUs when classifying
+additional samples that were not part of the data set used to build the
+model.
+
 \hypertarget{importance-150-word-max}{%
 \subsection{Importance (150 word max)}\label{importance-150-word-max}}
+
+There are instances when OTU abundance data is optimal for machine
+learning prediction of disease based on microbiome composition. The
+current methodology for OTU clustering complicates machine learning
+since \emph{de novo} OTU clusters can change depending on the data in
+the data set. Attempting to classify additional samples that were not
+part of the original model build requires re-clustering OTUs and
+re-training the model. OptiFit provides an elegant solution to the
+problem of OTU inconsistency by enabling new data to be fit to the
+existing OTUs while maintaining machine learning classification
+performance. The use of OptiFit will enable a single model based on OTU
+abundance data to be used in classifying additional samples that were
+not part of the original OTU clustering.
 
 \newpage
 
 Gut microbiome community composition is useful as a resource for machine
-learning prediction of various diseases \{\}. Amplicon sequencing of the
-16S rRNA gene is a reliable tool for assessing the taxonomic composition
-of microbial communities. Analysis of 16S rRNA sequence data generally
-relies on clustering of sequences based on similarity into operational
-taxonomic units (OTUs). However, OTU clustering depends on the data in
-the dataset and the addition of new data could change the overall OTU
-clusters. The unstable nature of OTU clustering complicates deployment
-of machine learning models since integration of additional data requires
+learning prediction of diseases, including colorectal cancer
+(\protect\hyperlink{ref-baxter2016}{1},
+\protect\hyperlink{ref-zackular2014}{2}). Amplicon sequencing of the 16S
+rRNA gene is a reliable tool for assessing the taxonomic composition of
+microbial communities. Analysis of 16S rRNA amplicon sequence (16S) data
+generally relies on clustering of sequences based on similarity into
+operational taxonomic units (OTUs). The process of OTU clustering can
+either be reference-based or \emph{de novo}. The quality of OTUs
+generated with reference-based clustering is dependent on the quality of
+the reference used, while OTUs generated with \emph{de novo} clustering
+are optimized to the data set (\protect\hyperlink{ref-westcott2015}{3}).
+While \emph{de novo} clustering can produce high-quality OTU clusters
+where sequences are accurately grouped based on similarity thresholds,
+the resulting OTU clusters depend on the data in the data set and the
+addition of new data could change the overall OTU clusters. The
+inconsistent nature of OTU clustering complicates deployment of machine
+learning models since integration of additional data requires
 re-clustering all the data and re-training of the model. The ability to
 integrate new data into an existing model without re-clustering and
 re-training could allow for deployment of a single model that new data
-can be continually added to and predicted on. Recently Sovacool \emph{et
-al} described a new method for fitting new data into existing OTU
-clusters \{Kelly optifit 2022\}. While OptiFit works well to fit new
-sequence data and provide high quality OTU clusters, it is unknown if
-the use of OptiFit will have an impact on machine learning predictions.
-Here, we use OptiFit with a 16S rRNA sequence dataset consisting of
-normal and SRN samples to test how well new data integrated with OptiFit
-performs for prediction of SRN.
+can be continually added to. Recently Sovacool \emph{et al} introduced
+OptiFit: a method for fitting new data into existing OTU clusters
+(\protect\hyperlink{ref-sovacool2022}{4}). While OptiFit is proven to
+effectively fit new sequence data to existing OTU clusters, it is
+unknown if the use of OptiFit will have an impact on machine learning
+classification. Here we test the ability of OptiFit to cluster new
+sequence data into existing OTU clusters for the purpose of machine
+learning classification of disease based on gut microbiome composition.
 
-To assess machine learning prediction performance using OptiFit, we
-downloaded a publicly available dataset of 16S rRNA amplicon sequences
-from stool samples. The data set includes samples from healthy subjects
-as well as subjects with screen-relevant neoplasia (SRN) consisting of
-advanced adenoma and carcinoma. To simulate a scenario where we build a
-model with a set of data and then add additional data, we randomly split
-the dataset where 80\% of the data was clustered into OTUs and the
-remaining 20\% was used integrated into the existing OTUs with the
-OptiFit algorithm (Figure 1A). To account for variation depending on the
-split of the data, the data was randomly split 100 times and the process
-repeated for each of the 100 data splits. For comparison, the standard
-process using OptiClust was conducted where all of the data was
-clustered into OTUs using the OptiClust algorithm and the resulting OTU
-abundance table was split into the testing and training set (Figure 1B).
+When using OTU abundances for machine learning classification, the
+current methodology is to \emph{de novo} cluster all of the sequence
+data into OTUs with the OptiClust algorithm in mothur
+(\protect\hyperlink{ref-westcott2017}{5}). The resulting abundance data
+is then split into training and testing sets, where the training set is
+used to tune hyperparameters and ultimately train the model. The testing
+set is then classified with the model and the performance of the model
+can be quantified (Figure 1A). However, with this methodology we would
+have to re-generate the OTU clusters and re-train the model if we wanted
+to classify additional samples. The OptiFit algorithm
+(\protect\hyperlink{ref-sovacool2022}{4}) addresses this problem by
+enabling new sequences to be clustered into existing OTUs. The OptiFit
+workflow is similar to the OptiClust workflow where the data is
+clustered into OTUs and used to tune hyperparameters and ultimately
+train the model. Then, we can use OptiFit to fit sequence data of
+samples not part of the original data set into the existing OTUs and use
+the same model to classify the samples (Figure 1B). To test how the
+model performance compares between these two methodologies, we used a
+publicly available data set of 16S sequences from stool samples of
+healthy subjects as well as subjects with SRN consisting of advanced
+adenoma and carcinoma (\protect\hyperlink{ref-baxter2016}{1}). The data
+set was randomly split into an 80\% train set and 20\% test set. For the
+standard OptiClust workflow, the training and test sets were \emph{de
+novo} clustered together into OTUs then the resulting abundance table
+was split into the training and testing set. For the OptiFit workflow,
+the train set was clustered \emph{de novo} into OTUs and the remaining
+test set was fit to the OTU clusters using the OptiFit algorithm. For
+both workflows, the abundance table of the train set was used to tune
+hyperparameters and train a random forest model to classify SRN. The
+test set was classified as either control or SRN using the trained
+models.To account for variation depending on the split of the data, the
+data set was randomly split 100 times and the process repeated for each
+of the 100 data splits. By comparing the model performance of
+classifying the samples in the test data set between the OptiFit and
+OptiClust algorithms, we can quantify the impact of using OptiFit on
+model classification performance.
 
-One way to examine the quality of the OTU clusters is with the Matthews
-correlation coefficient (MCC) which looks at the similarity between all
-pairs of sequences and assess whether they are appropriately in the same
-OTU or not \{Westcott 2017 mSphere OptiClust\}. An MCC score of zero
-indicates low quality OTU clusters while a score of 1 indicates high
-quality OTU clusters. Since the data is only clustered once in the
-OptiClust pathway there is only one MCC score while the OptiFit method
-produces an MCC score for the OTU clusters from each data split. Overall
-the MCC scores were similar between OptiClust (MCC = 0.895) and OptiFit
-(average MCC = 0.892) indicating that OptiFit does a good job of
-appropriately integrating new sequences into the existing OTUs.
+We first examined the quality of the resulting OTU clusters from the two
+algorithms using the Matthews correlation coefficient (MCC). The MCC
+score is quantified by examining all pairs of sequences and assessing
+whether they belong together in an OTU or not based on sequence
+similarity (\protect\hyperlink{ref-westcott2017}{5}). MCC scores range
+between negative one and one. A score of negative one means none of the
+sequences in an OTU are within the similarity threshold and any
+sequences within the similarity threshold are not in an OTU together. An
+MCC score of zero essentially means the sequences are randomly
+clustered. An MCC score of 1 means all sequences in an OTU are within
+the similarity threshold and all sequence pairs within the similarity
+threshold are in the same OTU. To ensure that OptiFit is appropriately
+integrating new sequence data into the existing OTUs, we would expect
+that the MCC scores produced by the OptiClust and OptiFit workflows are
+similar. Since the data is only clustered once in the OptiClust workflow
+there is only one MCC score while the OptiFit workflow produces an MCC
+score for the OTU clusters from each data split. Overall the MCC scores
+were similar between OptiClust (MCC = 0.884) and OptiFit (average MCC =
+0.879) indicating that OptiFit performs as well as OptiClust when
+integrating new sequences into the existing OTUs.
 
-A potential problem to using OptiFit for machine learning prediction is
-that any sequences in the new data that do not map to the existing OTU
-clusters will be discarded resulting in a possible loss of information.
-To quantify whether this impacts model performance we used the taxonomic
-abundances of the training data from the OptiClust and OptiFit pathways
-to train a model to predict SRNs based on OTU abundances. This model was
-then deployed to predict the diagnosis classification of the held out
-test data. To compare model performance we calculated the area under the
-receiver operating characteristic curve (AUROC) for each data split on
-both the training data and the testing data. The model performance
-during training was equivalent between the two algorithms (OptiClust
-median CV AUC 0.694, OptiFit median CV AUC 0.693, Figure 2A).
-Additionally, the performance on the test data was equivalent between
-the two algorithms (OptiClust median CV AUC 0.694, OptiFit median CV AUC
-0.693, Figure 2A,B) indicating that new data can be integrated into
-existing OTU clusters without impacting model performance.
+After verifying that the quality of the OTUs was consistent between
+OptiClust and OptiFit, we next examined the model performance for
+classifying samples in the test data set as control or SRN. To quantify
+model performance we used the taxonomic abundances of the training data
+from the OptiClust and OptiFit workflows to train a model to predict
+SRNs. Using the predicted and actual diagnosis classification, we
+calculated the area under the receiver operating characteristic curve
+(AUROC) for each data split to quantify model performance. During
+cross-validation (CV) training, the model performance was equivalent
+between the two algorithms (p-value = 0.13, OptiClust mean CV AUROC =
+0.694, OptiFit mean CV AUROC = 0.697, Figure 2A). The trained model was
+then deployed to classify the samples of the test data as control or
+SRN. The performance on the test data was equivalent between the two
+algorithms (p-value = 0.63, OptiClust mean test AUROC = 0.709, OptiFit
+mean test AUROC = 0.712, Figure 2B,C) indicating that new data can be
+fit to existing OTU clusters without impacting model performance.
 
-Overall this analysis demonstrated that OptiFit can be used to fit new
-sequence data into existing OTU clusters and perform equally in
-predicting SRNs compared to clustering all of the sequence data
-together. The ability to integrate new data into existing OTUs enables
-the deployment of a single machine learning model based on microbiome
-composition that new data can be predicted on. These results are based
-on a single dataset and disease. Further analysis is needed to determine
-if the process works well for data collected or processed with different
-methodology or prediction of other conditions.
+We tested the ability of OptiFit to integrate new data into existing
+OTUs for the purpose of machine learning classification of disease based
+on microbiome abundance. A potential problem to using OptiFit for
+machine learning prediction is that any sequences in the new data that
+do not map to the existing OTU clusters will be discarded resulting in a
+possible loss of information. However, we demonstrated that OptiFit can
+be used to fit new sequence data into existing OTU clusters and perform
+equally in predicting SRN compared to clustering all of the sequence
+data together. The ability to integrate new data into existing OTUs
+enables the deployment of a single machine learning model based on
+microbiome composition that new data can be classified with. These
+results are based on a single data set and disease. Further analysis is
+needed to determine the data size necessary to build a robust model
+capable of classifying diverse data sets. A robust machine learning
+model could be implemented as part of a non-invasive and low-cost aid in
+diagnosing SRN.
 
 \hypertarget{materials-and-methods}{%
 \subsection{Materials and Methods}\label{materials-and-methods}}
 
 \textbf{\emph{Data Set.}} Raw 16S rRNA amplicon sequence data isolated
 from human stool samples was downloaded from NCBI Sequence Read Archive
-(accession no. SRP062005) \{baxter\}. This data set contains stool
+(accession no. SRP062005) (\protect\hyperlink{ref-baxter2016}{1}).;
+(\protect\hyperlink{ref-edgar2011}{6}) This data set contains stool
 samples from a total of N subjects, however after preprocessing to
 screen for sequence quality and subsample to 10,000 reads per sample,
 490 samples remained. For this analysis, samples from subjects
@@ -225,9 +332,11 @@ neoplasia'' (SRN). The resulting data set consisted of 261 normal
 samples and 229 SRN samples.
 
 \textbf{\emph{Data Processing.}} The full dataset was pre-processed with
-mothur (v1.45) using the SILVA reference database (v132) \{silva\} to
-join forward and reverse reads, merge duplicate reads, align to the
-reference, pre-cluster, remove chimeras, assign taxonomy, and remove
+mothur (v1.45) (\protect\hyperlink{ref-schloss2009}{7}) using the SILVA
+reference database (v132) (\protect\hyperlink{ref-quast2013}{8}) to join
+forward and reverse reads, merge duplicate reads, align to the
+reference, pre-cluster, remove chimeras with UCHIME
+(\protect\hyperlink{ref-edgar2011}{6}), assign taxonomy, and remove
 non-bacterial reads following the Schloss Lab MiSeq standard operating
 procedure described on the mothur website
 (\url{https://mothur.org/wiki/miseq_sop/}). 100 splits of the 490
@@ -236,33 +345,47 @@ randomly assigned to the training set and the remaining 20\% (98
 samples) were assigned to the test set. Using 100 splits of the data
 accounts for the variation that may be observed depending on the samples
 that are in the training or test sets. Each samples was in the training
-set an average of N times and the test set and average of N times.
+set an average of 80 times (SD=4.1) and the test set an average of 20
+times (SD=4.1).
 
-The data was processed through two pathways. First, the standard pathway
-using the OptiClust algorithm. In this pathway, all of the data was
-clustered together to generate OTUs and the resulting abundance tables
-were split into the training and testing sets. In the second pathway,
-the pre-processed data was split into the training and testing sets. The
-training set was clustered into OTUs, then the test set was fit to the
-OTUs of the training set using the OptiFit algorithm. The OptiFit
+The data was processed through two workflows. First, the standard
+workflow using the OptiClust algorithm
+(\protect\hyperlink{ref-westcott2017}{5}). In this pathway, all of the
+data was clustered together with OptiClust to generate OTUs and the
+resulting abundance tables were split into the training and testing
+sets. In the second workflow, the pre-processed data was split into the
+training and testing sets. The training set was clustered into OTUs,
+then the test set was fit to the OTUs of the training set using the
+OptiFit algorithm (\protect\hyperlink{ref-sovacool2022}{4}). The OptiFit
 algorithm was run with method open so that any sequences that didn't map
 to the existing OTU clusters would form new OTUs. Any OTUs that were not
 in the training set were removed prior to machine learning. For both
-pathways all data was sub-sampled to 10,000 reads per sample.
+pathways, the shared files were sub-sampled to 10,000 reads per sample.
 
 \textbf{\emph{Machine Learning.}} Machine learning using Random Forest
-was conducted with the R package mikrompl (v XXXX) \{\} to predict the
-diagnosis (SRN or normal) for the samples in the test set for each data
-split. The training set was preprocessed to normalize values
-(scale/center), collapse colinear features, and remove features with
-zero-variance. The preprocessing from the training set was then applied
-to the test set. P values comparing model performance were calculated as
-previously described \{\}. The averaged ROC curves were plotted by
-taking the average and standard deviation of the sensitivity at each
-specificity value.
+was conducted with the R package mikrompl (v XXXX)
+(\protect\hyperlink{ref-topuxe7uoglu2021}{9}) to predict the diagnosis
+(SRN or normal) for the samples in the test set for each data split. The
+training set was preprocessed to normalize values (scale/center),
+collapse correlated features, and remove features with zero-variance.
+The preprocessing from the training set was then applied to the test
+set. P values comparing model performance were calculated as previously
+described \{\}. The averaged ROC curves were plotted by taking the
+average and standard deviation of the sensitivity at each specificity
+value.
 
-\textbf{\emph{Code Availability.}} all code used in this analysis is
-available at
+\textbf{\emph{Code Availability.}} The analysis workflow was implemented
+in Snakemake (\protect\hyperlink{ref-koster2012}{10}) . Scripts for
+analysis were written in R (\protect\hyperlink{ref-R2020}{11}) and GNU
+bash (\protect\hyperlink{ref-GNUbash}{12}). The software used includes
+mothur v1.47.0 (\protect\hyperlink{ref-schloss2009}{7}), RStudio
+(\protect\hyperlink{ref-RStudio2019}{13}), the Tidyverse metapackage
+(\protect\hyperlink{ref-wickham2019}{14}), R Markdown
+(\protect\hyperlink{ref-xie_r_2018}{15}), the SRA toolkit
+(\protect\hyperlink{ref-noauthor_sra-tools_nodate}{16}), and conda
+(\protect\hyperlink{ref-noauthor_anaconda_2016}{17}). The complete
+workflow and supporting files required to reproduce this study are
+available at:
 \url{https://github.com/SchlossLab/Armour_OptiFitGLNE_XXXX_2021}
 
 \hypertarget{acknowledgements}{%
@@ -272,22 +395,212 @@ available at
 
 \newpage
 
-\hypertarget{figures}{%
-\subsection{Figures}\label{figures}}
+\hypertarget{references}{%
+\subsection{References}\label{references}}
 
-\includegraphics{../exploratory/figures/figure1B.png}
-\includegraphics{../exploratory/figures/figure1Apng.png}
+\setlength{\parindent}{-0.25in}
+\setlength{\leftskip}{0.25in}
 
-\textbf{Figure 1. Workflow} description.
+\noindent
 
-\includegraphics{../exploratory/figures/Figure2.png}
+\hypertarget{refs}{}
+\begin{CSLReferences}{0}{1}
+\leavevmode\vadjust pre{\hypertarget{ref-baxter2016}{}}%
+\CSLLeftMargin{1. }
+\CSLRightInline{\textbf{Baxter NT}, \textbf{Ruffin MT}, \textbf{Rogers
+MAM}, \textbf{Schloss PD}. 2016. Microbiota-based model improves the
+sensitivity of fecal immunochemical test for detecting colonic lesions.
+Genome Medicine \textbf{8}:37.
+doi:\href{https://doi.org/10.1186/s13073-016-0290-3}{10.1186/s13073-016-0290-3}.}
 
-\textbf{Figure 2. Model Performance.} \textbf{A)} Mean AUC \textbf{B)}
-Averaged ROC curves
+\leavevmode\vadjust pre{\hypertarget{ref-zackular2014}{}}%
+\CSLLeftMargin{2. }
+\CSLRightInline{\textbf{Zackular JP}, \textbf{Rogers MAM},
+\textbf{Ruffin MT,I}, \textbf{Schloss PD}. 2014. The human gut
+microbiome as a screening tool for colorectal cancer. Cancer Prevention
+Research \textbf{7}:1112--1121.
+doi:\href{https://doi.org/10.1158/1940-6207.CAPR-14-0129}{10.1158/1940-6207.CAPR-14-0129}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-westcott2015}{}}%
+\CSLLeftMargin{3. }
+\CSLRightInline{\textbf{Westcott SL}, \textbf{Schloss PD}. 2015. De novo
+clustering methods outperform reference-based methods for assigning 16S
+rRNA gene sequences to operational taxonomic units. PeerJ
+\textbf{3}:e1487.
+doi:\href{https://doi.org/10.7717/peerj.1487}{10.7717/peerj.1487}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-sovacool2022}{}}%
+\CSLLeftMargin{4. }
+\CSLRightInline{\textbf{Sovacool KL}, \textbf{Westcott SL},
+\textbf{Mumphrey MB}, \textbf{Dotson GA}, \textbf{Schloss PD}. 2022.
+OptiFit: An improved method for fitting amplicon sequences to existing
+OTUs. mSphere \textbf{7}:e00916--21.
+doi:\href{https://doi.org/10.1128/msphere.00916-21}{10.1128/msphere.00916-21}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-westcott2017}{}}%
+\CSLLeftMargin{5. }
+\CSLRightInline{\textbf{Westcott SL}, \textbf{Schloss PD}. 2017.
+OptiClust, an improved method for assigning amplicon-based sequence data
+to operational taxonomic units. mSphere \textbf{2}:e00073--17.
+doi:\href{https://doi.org/10.1128/mSphereDirect.00073-17}{10.1128/mSphereDirect.00073-17}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-edgar2011}{}}%
+\CSLLeftMargin{6. }
+\CSLRightInline{\textbf{Edgar RC}, \textbf{Haas BJ}, \textbf{Clemente
+JC}, \textbf{Quince C}, \textbf{Knight R}. 2011. UCHIME improves
+sensitivity and speed of chimera detection. Bioinformatics
+\textbf{27}:2194--2200.
+doi:\href{https://doi.org/10.1093/bioinformatics/btr381}{10.1093/bioinformatics/btr381}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-schloss2009}{}}%
+\CSLLeftMargin{7. }
+\CSLRightInline{\textbf{Schloss PD}, \textbf{Westcott SL},
+\textbf{Ryabin T}, \textbf{Hall JR}, \textbf{Hartmann M},
+\textbf{Hollister EB}, \textbf{Lesniewski RA}, \textbf{Oakley BB},
+\textbf{Parks DH}, \textbf{Robinson CJ}, \textbf{Sahl JW}, \textbf{Stres
+B}, \textbf{Thallinger GG}, \textbf{Van Horn DJ}, \textbf{Weber CF}.
+2009. Introducing mothur: Open-source, platform-independent,
+community-supported software for describing and comparing microbial
+communities. Applied and Environmental Microbiology
+\textbf{75}:7537--7541.
+doi:\href{https://doi.org/10.1128/AEM.01541-09}{10.1128/AEM.01541-09}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-quast2013}{}}%
+\CSLLeftMargin{8. }
+\CSLRightInline{\textbf{Quast C}, \textbf{Pruesse E}, \textbf{Yilmaz P},
+\textbf{Gerken J}, \textbf{Schweer T}, \textbf{Yarza P}, \textbf{Peplies
+J}, \textbf{Glöckner FO}. 2013. The SILVA ribosomal RNA gene database
+project: Improved data processing and web-based tools. Nucleic Acids
+Research \textbf{41}:D590--D596.
+doi:\href{https://doi.org/10.1093/nar/gks1219}{10.1093/nar/gks1219}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-topuxe7uoglu2021}{}}%
+\CSLLeftMargin{9. }
+\CSLRightInline{\textbf{Topçuoğlu BD}, \textbf{Lapp Z}, \textbf{Sovacool
+KL}, \textbf{Snitkin E}, \textbf{Wiens J}, \textbf{Schloss PD}. 2021.
+mikropml: User-Friendly R Package for Supervised Machine Learning
+Pipelines. Journal of Open Source Software \textbf{6}:3073.
+doi:\href{https://doi.org/10.21105/joss.03073}{10.21105/joss.03073}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-koster2012}{}}%
+\CSLLeftMargin{10. }
+\CSLRightInline{\textbf{Koster J}, \textbf{Rahmann S}. 2012.
+Snakemake--a scalable bioinformatics workflow engine. Bioinformatics
+\textbf{28}:2520--2522.
+doi:\href{https://doi.org/10.1093/bioinformatics/bts480}{10.1093/bioinformatics/bts480}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R2020}{}}%
+\CSLLeftMargin{11. }
+\CSLRightInline{\textbf{R Core Team}. 2020.
+\href{https://www.R-project.org/}{R: A language and environment for
+statistical computing}. R Foundation for Statistical Computing, Vienna,
+Austria.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-GNUbash}{}}%
+\CSLLeftMargin{12. }
+\CSLRightInline{\textbf{GNU Project}.
+\href{https://www.gnu.org/software/bash/\%20manual/bash.html/}{Bash
+reference manual}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-RStudio2019}{}}%
+\CSLLeftMargin{13. }
+\CSLRightInline{\textbf{RStudio Team}. 2019.
+\href{http://www.rstudio.com/}{RStudio: Integrated development
+environment for r}. RStudio, Inc., Boston, MA.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-wickham2019}{}}%
+\CSLLeftMargin{14. }
+\CSLRightInline{\textbf{Wickham H}, \textbf{Averick M}, \textbf{Bryan
+J}, \textbf{Chang W}, \textbf{McGowan LD}, \textbf{François R},
+\textbf{Grolemund G}, \textbf{Hayes A}, \textbf{Henry L}, \textbf{Hester
+J}, \textbf{Kuhn M}, \textbf{Pedersen TL}, \textbf{Miller E},
+\textbf{Bache SM}, \textbf{Müller K}, \textbf{Ooms J}, \textbf{Robinson
+D}, \textbf{Seidel DP}, \textbf{Spinu V}, \textbf{Takahashi K},
+\textbf{Vaughan D}, \textbf{Wilke C}, \textbf{Woo K}, \textbf{Yutani H}.
+2019. Welcome to the Tidyverse. Journal of Open Source Software
+\textbf{4}:1686.
+doi:\href{https://doi.org/10.21105/joss.01686}{10.21105/joss.01686}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-xie_r_2018}{}}%
+\CSLLeftMargin{15. }
+\CSLRightInline{\textbf{Xie Y}, \textbf{Allaire JJ}, \textbf{Grolemund
+G}. 2018. R {Markdown}: {The Definitive Guide}. {Taylor \& Francis, CRC
+Press}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-noauthor_sra-tools_nodate}{}}%
+\CSLLeftMargin{16. }
+\CSLRightInline{{SRA}-{Tools} - {NCBI}.
+http://ncbi.github.io/sra-tools/.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-noauthor_anaconda_2016}{}}%
+\CSLLeftMargin{17. }
+\CSLRightInline{2016. Anaconda {Software Distribution}. Anaconda
+Documentation. Anaconda Inc.}
+
+\end{CSLReferences}
+
+\setlength{\parindent}{0in}
+\setlength{\leftskip}{0in}
 
 \newpage
 
-\hypertarget{references}{%
-\subsection{References}\label{references}}
+\hypertarget{figures}{%
+\subsection{Figures}\label{figures}}
+
+\includegraphics{../exploratory/figures/figure1_a.pdf}
+
+\includegraphics{../exploratory/figures/figure1_b.pdf}
+
+\textbf{Figure 1: Workflows.} \textbf{A)} OptiClust workflow: The full
+data set was clustered into OTUs using the OptiClust algorithm in
+mothur. The data was then split into two sets where 80\% of the samples
+were assigned to the training set and 20\% to the testing set. The
+training set was preprocessed with mikropml to normalize values
+(scale/center), collapse correlated features, and remove features with
+zero-variance. Using mikropml, the training set was split into train and
+validate sets to compare results using different hyperparameter
+settings. The highest performing hyperparameter setting was then used to
+train the model with the full training set. The preprocessing scale from
+the training set was applied to the test data set, then the trained
+model was used to classify the samples in the test set. Based on the
+actual classification and predicted classification, the area under the
+receiver operating characteristic curve (AUROC) was calculated to
+summarize model performance. The entire process was repeated 100 times
+to account for variability depending on the split of the data resulting
+in a total of 100 AUROC values summarizing the performance of the
+standard OptiClust workflow. \textbf{B)} OptiFit workflow: The data set
+was first split into two sets where 80\% of the samples were assigned to
+the training set and 20\% to the testing set. The training set was then
+clustered into OTUs using the OptiClust algorithm in mothur. The
+resulting abundance data was preprocessed with mikropml to normalize
+values (scale/center), collapse correlated features, and remove features
+with zero-variance. Using mikropml, the training set was split into
+train and validate sets to compare results using different
+hyperparameter settings. The highest performing hyperparameter setting
+was then used to train the model with the full training set. The OptiFit
+algorithm in mothur was used to cluster the left out testing data set
+using the OTUs of the training set as a reference. The preprocessing
+scale from the training set was applied to the test data set, then the
+trained model was used to classify the samples in the test set. Based on
+the actual classification and predicted classification, the area under
+the receiver operating characteristic curve (AUROC) was calculated to
+summarize model performance. The entire process was repeated 100 times
+to account for variability depending on the split of the data resulting
+in a total of 100 AUROC values summarizing the performance of the new
+OptiFit workflow.
+
+\newpage
+
+\includegraphics{../exploratory/figures/figure2.pdf}
+
+\textbf{Figure 2: Model Performance.} \textbf{A)} Area under the
+receiver operating characteristic (AUROC) curve during cross-validation
+for the OptiClust and OptiFit workflows. Mean and standard deviation of
+the AUROC is represented by the black dot and whiskers. Mean AUROC is
+printed to the right of the points. \textbf{B)} AUROC on the test data
+for the OptiClust and OptiFit workflows. Mean and standard deviation of
+the AUROC is represented by the black dot and whiskers. Mean AUROC is
+printed to the right of the points. \textbf{C)} Receiver operating
+characteristic (ROC)Averaged ROC curves
 
 \end{document}
