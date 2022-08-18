@@ -58,10 +58,11 @@ University of Michigan, Ann Arbor, Michigan, USA
 ${^3}$ Department of Electrical Engineering and Computer Science,
 University of Michigan, Ann Arbor, Michigan, USA
 
-${^*}$ Current Affiliation:
+${^*}$ Current Affiliation: Bio-Rad Laboratories, Hercules, California,
+USA
 
 ${^\#}$ Current Affiliation: Bristol Myers Squibb, Summit, New Jersey,
-USA 
+USA
 
 $\dagger$ To whom correspondence should be addressed:
 [pschloss\@umich.edu](mailto:pschloss@umich.edu)
@@ -74,116 +75,118 @@ $\dagger$ To whom correspondence should be addressed:
 
 \linenumbers
 
-## Abstract 
+## Abstract
 
 Machine learning classification of disease based on the gut microbiome
 often relies on clustering 16S rRNA gene sequences into operational
-taxonomic units (OTUs) to quantify microbial composition. The standard
-approach to clustering sequences into OTUs leverages the similarity of
-the sequences to each other rather than to a reference database. The
-abundance of each OTU is used to train a classification model. However,
-OTU assignments depend on the sequences in the data set and therefore
-can change if new data are added. This lack of stability complicates
-classification because in order to use the model to classify additional
-samples, the OTUs have to be reclustered to include the new sequences
-and the model retrained with the new OTU clusters. A new reference-based
-clustering algorithm, called OptiFit, addresses this issue by fitting
-new sequences into existing OTUs. While OptiFit is proven to produce
-high quality OTU clusters, it is unclear whether this method for fitting
-new sequence data into existing OTUs will impact the performance of
-classification models. We used OptiFit to cluster additional data into
-existing OTU clusters and quantified model performance in classifying a
-data set containing samples from patients with and without colonic
-screen relevant neoplasias (SRN). We compared the performance of this
-model to the standard procedure of clustering all the data together. We
-found that both approaches performed equally well in classifying SRNs.
-Moving forward, when OTUs are used in classification problems, OptiFit
-can be used to avoid the need to retrain models using reclustered
-sequences when classifying new samples.
+taxonomic units (OTUs) to quantify microbial composition. The abundance
+of each OTU is then used to train a classification model. The standard
+*de novo* approach to clustering sequences into OTUs leverages the
+similarity of the sequences to each other rather than to a reference
+database. However, OTU assignments depend on the sequences in the data
+set and therefore can change if new data are added. This lack of
+stability complicates classification because in order to use the model
+to classify additional samples, the new sequences must be reclustered
+with the old data and the model must be retrained with the new OTU
+assignments. The new reference-based clustering algorithm, OptiFit,
+addresses this issue by fitting new sequences into existing OTUs. While
+OptiFit can produce high quality OTU clusters, it is unclear whether
+this method for fitting new sequence data into existing OTUs will impact
+the performance of classification models. We used OptiFit to cluster
+additional data into existing OTU clusters and then quantified model
+performance in classifying a data set containing samples from patients
+with and without colonic screen relevant neoplasia (SRN). We compared
+the performance of this model to the standard procedure of *de novo*
+clustering all the data together. We found that both approaches
+performed equally well in classifying SRNs. Moving forward, when OTUs
+are used in classification problems, OptiFit can streamline the process
+of classifying new samples by avoiding the need to retrain models using
+reclustered sequences.
 
-## Importance 
+## Importance
 
 There is great potential for using microbiome data to non-invasively
 diagnose people. One of the challenges with using classification models
-generated using the relative abundance of operational taxonomic unit
-(OTU) data is that 16S rRNA gene sequences are assigned to OTUs based on
-their similarity to other sequences in the dataset. If data are
-generated from new patients seeking a diagnosis, then it would be
-necessary to reassign sequences to OTUs and retrain the classification
-model. Yet there is a desire to have a single, validated model that can
-be deployed. To overcome this obstacle, we applied the OptiFit
-clustering algorithm which fits new sequence data to existing OTUs
-allowing the reuse of a consistent model. A random forest machine
-learning model deployed using OptiFit performed as well as the
-traditional reassignment and retraining approach. This result indicates
-there is potential for developing machine learning classification models
-based on OTU relative abundance data.
+based on the relative abundance of operational taxonomic units (OTUs) is
+that 16S rRNA gene sequences are assigned to OTUs based on their
+similarity to other sequences in the data set. If data are generated
+from new patients seeking a diagnosis, then it would be necessary to
+reassign sequences to OTUs and retrain the classification model. Yet
+there is a desire to have a single, validated model that can be widely
+deployed. To overcome this obstacle, we applied the OptiFit clustering
+algorithm which fits new sequence data to existing OTUs and allows for
+the reuse of a consistent model. A random forest machine learning model
+deployed using OptiFit performed as well as the traditional reassignment
+and retrain approach. This result indicates that there is potential for
+developing deployable machine learning classification models based on
+OTU relative abundance data.
 
 \newpage
 
 Gut community composition is useful as a resource for machine learning
-classification of diseases, including colorectal cancer [@baxter2016;
-@zackular2014]. Amplicon sequencing of the 16S rRNA gene is a reliable
-tool for assessing the taxonomic composition of microbial communities,
-which is the input to these models. Analysis of 16S rRNA gene sequence
-data generally relies on clustering of sequences based on similarity
-into operational taxonomic units (OTUs). The process of OTU clustering
-can either be reference-based or *de novo*. The quality of OTUs
-generated with reference-based clustering is generally poor compared to
-those generated with *de novo* clustering @westcott2015. While *de novo*
+classification of diseases, such as colorectal cancer [@baxter2016;
+@zackular2014]. Taxonomic composition of microbial communities can be
+assessed using amplicon sequencing of the 16S rRNA gene, which is the
+input to classification models. Analysis of 16S rRNA gene sequence data
+generally relies on similarity-based clustering of sequences into
+operational taxonomic units (OTUs). The process of OTU clustering can
+either be reference-based or *de novo*. The quality of OTUs generated
+with reference-based clustering is generally poor compared to those
+generated with *de novo* clustering @westcott2015. While *de novo*
 clustering produces high-quality OTU clusters where sequences are
 accurately grouped based on similarity thresholds, the resulting OTU
-clusters depend on the data in the data set and the addition of new data
-could change the overall OTU clusters. The unstable nature of OTU
-clustering complicates deployment of machine learning models since
-integration of additional data requires reclustering all the data and
-retraining of the model. The ability to integrate new data into a
-validated model without reclustering and retraining could allow for
-deployment of a single model that new data can be continually added to.
-Recently Sovacool *et al* introduced OptiFit: a method for fitting new
-sequence data into existing OTUs @sovacool2022. While OptiFit is proven
-to effectively fit new sequence data to existing OTU clusters, it is
-unknown if the use of OptiFit will have an impact on classification.
-Here we tested the ability of OptiFit to cluster new sequence data into
-existing OTU clusters for the purpose of classification of disease based
-on gut microbiome composition.
+clusters depend on the sequences within the data set and the addition of
+new data has the potential to redefine OTU cluster composition. The
+unstable nature of *de novo* OTU clustering complicates deployment of
+machine learning models since integration of additional data requires
+reclustering all the data and retraining the model. The ability to
+integrate new data into a validated model without reclustering and
+retraining could allow for deployment of a single model that new data
+can be continually tested against. Recently, Sovacool *et al* introduced
+OptiFit, a method for fitting new sequence data into existing OTUs
+@sovacool2022. While OptiFit can effectively fit new sequence data to
+existing OTU clusters, it is unknown if the use of OptiFit will have an
+impact on classification performance. Here, we tested the ability of
+OptiFit to cluster new sequence data into existing OTU clusters for the
+purpose of classifying disease based on gut microbiome composition.
 
-We compared two approaches, one using all of the data to generate OTU
-clusters and the other generating OTU clusters with a portion of the
-data and then fitting the remaining sequence data to the existing OTUs
-using OptiFit. In the first approach, all of the 16S rRNA sequence data
-was *de novo* clustered into OTUs with the OptiClust algorithm in mothur
-@westcott2017. The resulting abundance data was then split into training
-and testing sets, where the training set was used to tune
+We compared two approaches, one using all the data to generate OTU
+clusters, and the other generating *de novo* OTU clusters with a portion
+of the data and then fitting the remaining sequence data to the existing
+OTUs using OptiFit. In the first approach, all the 16S rRNA sequence
+data was *de novo* clustered into OTUs with the OptiClust algorithm in
+mothur @westcott2017. The resulting abundance data was then split into
+training and testing sets, where the training set was used to tune
 hyperparameters and ultimately train the model. The testing set was then
 classified with the model and the performance of the model was
-quantified (Figure 1A). However, with this methodology we would have to
+quantified (Figure 1A). However, with this methodology, we would have to
 regenerate the OTU clusters and retrain the model if we wanted to
 classify additional samples. The OptiFit algorithm @sovacool2022
 addresses this problem by enabling new sequences to be clustered into
-existing OTUs. The OptiFit workflow is similar to the OptiClust workflow
-where the data was clustered into OTUs and used to tune hyperparameters
-and ultimately train the model. Then, we used OptiFit to fit sequence
-data of samples not part of the original data set into the existing OTUs
-and used the same model to classify the samples (Figure 1B). To test how
-the model performance compares between these two methodologies, we used
-a publicly available data set of 16S rRNA gene sequences from stool
-samples of healthy subjects as well as subjects with SRN consisting of
-advanced adenoma and carcinoma @baxter2016. The data set was randomly
-split into an 80% train set and 20% test set. For the standard OptiClust
-workflow, the training and test sets were *de novo* clustered together
-into OTUs then the resulting abundance table was split into the training
-and testing set. For the OptiFit workflow, the train set was clustered
-*de novo* into OTUs and the remaining test set was fit to the OTU
-clusters using the OptiFit algorithm. For both workflows, the abundance
-table of the train set was used to tune hyperparameters and train a
-random forest model to classify SRN. The test set was classified as
-either control or SRN using the trained models.To account for variation
-depending on the split of the data, the data set was randomly split 100
-times and the process repeated for each of the 100 data splits. By
-comparing the model performance of classifying the samples in the test
-data set between the OptiFit and OptiClust algorithms, we quantified the
-impact of using OptiFit on model classification performance.
+existing OTUs. The OptiFit workflow is similar to the OptiClust
+workflow, where the data was clustered into OTUs and used to tune
+hyperparameters and ultimately train the model. Then, we used OptiFit to
+fit sequence data of samples not part of the original data set into the
+existing OTUs, and used the same model to classify the samples (Figure
+1B). To test how the model performance compared between these two
+approaches, we used a publicly available data set of 16S rRNA gene
+sequences from stool samples of healthy subjects (n = 261) as well as
+subjects with SRN consisting of advanced adenoma and carcinoma (n = 229)
+@baxter2016. The data set was randomly split into an 80% train set and
+20% test set. For the standard OptiClust workflow, the training and test
+sets were *de novo* clustered together into OTUs, then the resulting
+abundance table was split into the training and testing set. For the
+OptiFit workflow, the train set was clustered *de novo* into OTUs, and
+the remaining test set was fit to the OTU clusters using the OptiFit
+algorithm. For both workflows, the abundance table of the train set was
+used to tune hyperparameters and train a random forest model to classify
+SRN. The test set was classified as either control or SRN using the
+trained models. To account for variation, the data set was randomly
+split 100 times and the process repeated for each of the 100 data
+splits. By comparing the model performance of classifying the samples in
+the test data set between the OptiFit and OptiClust algorithms, we
+quantified the impact of using OptiFit on model classification
+performance.
 
 ```{r mcc,include=F}
 merged_mcc <- read_csv("../data/learning/summary/merged_MCC.csv")
@@ -194,7 +197,8 @@ opticlust_mcc <- merged_mcc %>%
 
 optifit_avg_mcc <- merged_mcc %>% 
   filter(algorithm == "optifit" & state=="combo") %>% 
-  summarise(mean_mcc = mean(mcc))
+  summarise(mean_mcc = mean(mcc),
+            sd_mcc = sd(mcc))
 ```
 
 We first examined the quality of the resulting OTU clusters from the two
@@ -204,20 +208,21 @@ whether they belonged together in an OTU based on their similarity
 @westcott2017. MCC scores range between negative one and one. A score of
 negative one means none of the sequences in an OTU are within the
 similarity threshold and any sequences within the similarity threshold
-are not in an OTU together. An MCC score of zero essentially means the
-sequences are randomly clustered. An MCC score of 1 means all sequences
-in an OTU are within the similarity threshold and all sequence pairs
-within the similarity threshold are in the same OTU. To ensure that
-OptiFit is appropriately integrating new sequence data into the existing
-OTUs, we expected the MCC scores produced by the OptiClust and OptiFit
-workflows to be similar. Since the data was only clustered once in the
-OptiClust workflow there was only one MCC score while the OptiFit
-workflow produced an MCC score for the OTU clusters from each data
-split. Overall the MCC scores were similar between OptiClust (MCC =
+are not in an OTU together. An MCC score of zero means the sequences are
+randomly clustered. An MCC score of 1 means all sequences in an OTU are
+within the similarity threshold and all sequence pairs within the
+similarity threshold are in the same OTU. To ensure that OptiFit is
+appropriately integrating new sequence data into the existing OTUs, we
+expected the MCC scores produced by the OptiClust and OptiFit workflows
+to be similar. Since the data was only clustered once in the OptiClust
+workflow there was only one MCC score while the OptiFit workflow
+produced an MCC score for the OTU clusters from each data split.
+Overall, the MCC scores were similar between OptiClust (MCC =
 `r round(opticlust_mcc,digits=3)`) and OptiFit (average MCC =
-`r round(optifit_avg_mcc,digits=3)`). This indicated that OptiFit
-performed as well as OptiClust when integrating new sequences into the
-existing OTUs.
+`r round(optifit_avg_mcc %>% pull(mean_mcc),digits=3)`, standard
+deviation = `r round(optifit_avg_mcc %>% pull(sd_mcc),digits=3)`). This
+indicated that OptiFit performed as well as OptiClust when integrating
+new sequences into the existing OTUs.
 
 ```{r performance,include=F}
 performance <- read_csv("../data/learning/summary/merged_performance.csv",
@@ -240,7 +245,7 @@ pvals <- read_csv("../results/tables/pvalues.csv",col_types = cols(p_value = col
 
 After verifying that the quality of the OTUs was consistent between
 OptiClust and OptiFit, we examined the model performance for classifying
-samples in the held out test data set. To quantify model performance we
+samples in the held out test data set. To quantify model performance, we
 used the OTU relative abundances from the training data from the
 OptiClust and OptiFit workflows to train a model to predict SRNs. Using
 the predicted and actual diagnosis classification, we calculated the
@@ -252,7 +257,7 @@ algorithms (p-value =
 OptiClust mean CV AUROC =
 `r format_decimal(performance_summary %>% filter(algorithm == "opticlust") %>% select(mean_cv_AUC),3)`,
 OptiFit mean CV AUROC =
-`r format_decimal(performance_summary %>% filter(algorithm == "optifit") %>% select(mean_cv_AUC),3)`,
+`r format_decimal(performance_summary %>% filter(algorithm == "optifit") %>% select(mean_cv_AUC),3)`;
 Figure 2A). The trained model was then deployed to classify the samples
 of the test data as control or SRN. The performance on the test data was
 equivalent between the two algorithms (p-value =
@@ -260,25 +265,24 @@ equivalent between the two algorithms (p-value =
 OptiClust mean test AUROC =
 `r format_decimal(performance_summary %>% filter(algorithm == "opticlust") %>% select(mean_AUC),3)`,
 OptiFit mean test AUROC =
-`r format_decimal(performance_summary %>% filter(algorithm == "optifit") %>% select(mean_AUC),3)`,
-Figure 2B,C) indicating that new data could be fit to existing OTU
+`r format_decimal(performance_summary %>% filter(algorithm == "optifit") %>% select(mean_AUC),3)`;
+Figures 2B and 2C) indicating that new data could be fit to existing OTU
 clusters without impacting model performance.
 
 We tested the ability of OptiFit to integrate new data into existing
 OTUs for the purpose of machine learning classification using OTU
 relative abundance. A potential problem with using OptiFit is that any
-sequences in the new data that do not map to the existing OTU clusters
-will be discarded resulting in a possible loss of information. However,
-we demonstrated that OptiFit can be used to fit new sequence data into
-existing OTU clusters and perform equally well in predicting SRN
-compared to clustering all of the sequence data together. The ability to
-integrate data from new samples into existing OTUs enables the
-deployment of a single machine learning model. These results are based
-on a single data set and disease. Further analysis is needed to
-determine the number of samples that are necessary to build a robust
-model capable of classifying diverse samples. A robust machine learning
-model could be implemented as part of a non-invasive and low-cost aid in
-diagnosing SRN and other diseases.
+sequences from the new samples that do not map to the existing OTU
+clusters will be discarded, resulting in a possible loss of information.
+Regardless, we demonstrated that OptiFit can be used to fit new sequence
+data into existing OTU clusters and performs equally well in predicting
+SRN compared to *de novo* clustering all the sequence data together. The
+ability to integrate data from new samples into existing OTUs enables
+the deployment of a single machine learning model. Further analysis is
+needed to determine the number of samples that are necessary to build a
+robust model capable of classifying diverse samples. A robust machine
+learning model could be implemented as part of a non-invasive and
+low-cost aid in diagnosing SRN and other diseases.
 
 ## Materials and Methods
 
@@ -287,7 +291,7 @@ stool samples was downloaded from NCBI Sequence Read Archive (accession
 no. SRP062005) [@edgar2011; @baxter2016]. This data set contains stool
 samples from a total of 490 subjects. For this analysis, samples from
 subjects identified in the metadata as normal, high risk normal, or
-adenoma were categorized as "normal" while samples from subjects
+adenoma were categorized as "normal", while samples from subjects
 identified as advanced adenoma or carcinoma were categorized as "screen
 relevant neoplasia" (SRN). The resulting data set consisted of 261
 normal samples and 229 SRN samples.
@@ -303,7 +307,7 @@ n_test_train <- read_csv("../results/tables/splitTogetherFrequency.csv") %>%
             sd_train = sd(n_train))
 ```
 
-***Data Processing.*** The full dataset was preprocessed with mothur
+***Data Processing.*** The full data set was preprocessed with mothur
 (v1.47) @schloss2009 to join forward and reverse reads, merge duplicate
 reads, align to the SILVA reference database (v132) @quast2013,
 precluster, remove chimeras with UCHIME @edgar2011, assign taxonomy, and
@@ -315,34 +319,35 @@ assigned to the training set and the remaining 20% (98 samples) were
 assigned to the test set. Using 100 splits of the data accounts for the
 variation that may be observed depending on the samples that are in the
 training or test sets. Each sample was in the training set an average of
-`r n_test_train %>% pull(avg_train)` times
-(SD=`r format_decimal(n_test_train %>% pull(sd_train),digits = 1)`) and
-the test set an average of `r n_test_train %>% pull(avg_test)` times
-(SD=`r format_decimal(n_test_train %>% pull(sd_test),digits = 1)`).
+`r n_test_train %>% pull(avg_train)` times (standard deviation =
+`r format_decimal(n_test_train %>% pull(sd_train),digits = 1)`) and the
+test set an average of `r n_test_train %>% pull(avg_test)` times
+(standard deviation =
+`r format_decimal(n_test_train %>% pull(sd_test),digits = 1)`).
 
-The data was processed through two workflows. First, the standard
-workflow using the OptiClust algorithm @westcott2017. In this pathway,
-all of the data was clustered together with OptiClust to generate OTUs
-and the resulting abundance tables were split into the training and
-testing sets. In the second workflow, the preprocessed data was split
-into the training and testing sets. The training set was clustered into
-OTUs, then the test set was fit to the OTUs of the training set using
-the OptiFit algorithm @sovacool2022. The OptiFit algorithm was run with
-method open so that any sequences that did not map to the existing OTU
-clusters would form new OTUs. For both pathways, the shared files were
-sub-sampled to 10,000 reads per sample.
+The data was processed through two workflows. In the control workflow,
+all the data was clustered together with OptiClust @westcott2017 to
+generate OTUs and the resulting abundance tables were split into the
+training and testing sets. In the experimental workflow, the
+preprocessed data was split into the training and testing sets. The
+training set was clustered into OTUs using OptiClust, then the test set
+was fit to the OTUs of the training set using the OptiFit algorithm
+@sovacool2022. The OptiFit algorithm was run with method open so that
+any sequences that did not map to the existing OTU clusters would form
+new OTUs. For both pathways, the shared files were sub-sampled to 10,000
+reads per sample.
 
-***Machine Learning.*** Machine learning using Random Forest was
+***Machine Learning.*** Machine learning using random forest was
 conducted with the R package mikrompl (v 1.2.0) @topçuoglu2021 to
 predict the diagnosis (SRN or normal) for the samples in the test set
 for each data split. The training set was preprocessed to normalize OTU
-counts (scale/center), collapse correlated OTUs, and remove OTUs with
-zero-variance. The preprocessing from the training set was then applied
-to the test set. Any OTUs in the test set that were not in the training
-set were removed. P values comparing model performance were calculated
-as previously described @topçuoglu2020. The averaged ROC curves were
-plotted by taking the average and standard deviation of the sensitivity
-at each specificity value.
+counts (scale and center), collapse correlated OTUs, and remove OTUs
+with zero variance. The preprocessing from the training set was then
+applied to the test set. Any OTUs in the test set that were not in the
+training set were removed. P values comparing model performance were
+calculated as previously described @topçuoglu2020. The averaged ROC
+curves were plotted by taking the average and standard deviation of the
+sensitivity at each specificity value.
 
 ***Code Availability.*** The analysis workflow was implemented in
 Snakemake @koster2012 . Scripts for analysis were written in R @R2020
@@ -387,10 +392,10 @@ This work was supported through a grant from the NIH (R01CA215574).
 was clustered into OTUs using the OptiClust algorithm in mothur. The
 data was then split into two sets where 80% of the samples were assigned
 to the training set and 20% to the testing set. The training set was
-preprocessed with mikropml to normalize values (scale/center), collapse
-correlated features, and remove features with zero-variance. Using
-mikropml, the training set was split into train and validate sets to
-compare results using different hyperparameter settings. The highest
+preprocessed with mikropml to normalize values (scale and center),
+collapse correlated features, and remove features with zero variance.
+Using mikropml, the training set was split into train and validate sets
+to compare results using different hyperparameter settings. The highest
 performing hyperparameter setting was then used to train the model with
 the full training set. The preprocessing scale from the training set was
 applied to the test data set, then the trained model was used to
@@ -410,7 +415,7 @@ mikropml, the training set was split into train and validate sets to
 compare results using different hyperparameter settings. The highest
 performing hyperparameter setting was then used to train the model with
 the full training set. The OptiFit algorithm in mothur was used to
-cluster the left out testing data set using the OTUs of the training set
+cluster the held out testing data set using the OTUs of the training set
 as a reference. The preprocessing scale from the training set was
 applied to the test data set, then the trained model was used to
 classify the samples in the test set. Based on the actual classification
@@ -431,6 +436,6 @@ OptiClust and OptiFit workflows. Mean and standard deviation of the
 AUROC is represented by the black dot and whiskers. Mean AUROC is
 printed to the right of the points. **B)** AUROC on the test data for
 the OptiClust and OptiFit workflows. Mean and standard deviation of the
-AUROC is represented by the black dot and whiskers. Mean AUROC is
-printed to the right of the points. **C)** Receiver operating
-characteristic (ROC)Averaged ROC curves
+AUROC is represented by the black dot and whiskers. The mean AUROC is
+printed to the right of the points. **C)** Averaged receiver operating
+characteristic (ROC) curves.
