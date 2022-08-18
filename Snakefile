@@ -26,19 +26,19 @@ split_nums = range(1,101) # number of test/train splits to make
 rule all:
     input:
         # "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
-        # "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
-        # "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
+        # "data/process/opticlust/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared",
+        #"data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
         #"data/process/optifit/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
         #"data/learning/results/opticlust/preproc_test_split_1.csv",
         #"data/learning/results/optifit/preproc_test_split_1.csv",
         #"data/learning/results/opticlust/cv_results_split_1.csv",
-        #"data/learning/results/optifit/cv_results_split_1.csv"
+        #"data/learning/results/optifit/cv_results_split_1.csv",
         #"data/learning/results/opticlust/performance_split_1.csv",
-        #"data/learning/results/optifit/performance_split_1.csv"
+        #"data/learning/results/optifit/performance_split_1.csv",
         # expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
         #        num = split_nums)
         expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
-               num = split_nums),
+              num = split_nums),
         expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
                num = split_nums)        
     shell:
@@ -239,7 +239,8 @@ rule fitOptiFit:
         refdist=rules.clusterOptiFitData.output.refdist,
         reflist=rules.clusterOptiFitData.output.reflist
     output:
-        fit="data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
+        #fit="data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
+        fit="data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared",
         query_count='data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.count_table',
         list='data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.list',
         #list_accnos='data/process/optifit/split_{num}/test/glne.precluster.pick.subsample.renamed.fit.optifit_mcc.accnos'
@@ -373,6 +374,16 @@ rule quantifySplitTogetherFreq:
     script:
         "code/R/quantifySplitTogether.R"
 
+rule calcFracNonMapped:
+    input:
+        script="code/R/calc_nonmapped.R",
+        OFshared=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared",
+                             num = split_nums)
+    output:
+        optifitNonMapped="results/tables/fracNonMapped.csv"
+    shell:
+        "Rscript {input.script} {input.OFshared}"
+    
 rule mergePredictionResults:
     input:
         script="code/R/merge_predictions.R",
@@ -473,7 +484,7 @@ rule calcPvalues:
     input:
         mergedPerf=rules.mergePerformanceResults.output.mergedPerf
     output:
-        "results/tables/pvalues.csv"
+        pvalues="results/tables/pvalues.csv"
     script:
         "code/R/calculate_pvalues.R"
         
@@ -500,6 +511,14 @@ rule plot8020splits:
     script:
         "code/R/view_splits.R"
             
+# rule plotAUROC:
+#     input:
+#         perf=rules.mergePerformanceResults.output.mergedPerf,
+#         pvals=rules.calcPvalues.output.pvalues
+#     output:
+        
+#     script:
+    
 ##################################################################
 #
 # DOCUMENTS
@@ -513,6 +532,31 @@ rule update_pages:
         pages="docs/exploratory.html"
     shell:
         "cp {input.exploratory} docs/"
+
+
+rule createManuscript:
+    input: 
+        script="submission/manuscript.Rmd",
+        fig1a="exploratory/figures/figure1_a.pdf",
+        fig1b="exploratory/figures/figure1_b.pdf",
+        fig2="exploratory/figures/figure2.pdf",
+        ref="submission/references.bib"
+    output:
+        pdf="submission/manuscript.pdf",
+        tex="submission/manuscript.tex"
+    shell:
+        """
+        R -e 'library(rmarkdown);render("submission/manuscript.Rmd", output_format="all")'
+        """
+  
+# FIX: has to be run from teh submission location because of figure relative paths
+# rule createManuscriptWord:
+#     input: 
+#         tex="submission/manuscript.tex"
+#     shell:
+#         """
+#         pandoc -s submission/manuscript.tex -o submission/manuscript.docx
+#         """
 
 ##################################################################
 #

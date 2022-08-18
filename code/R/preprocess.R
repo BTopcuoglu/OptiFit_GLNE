@@ -23,6 +23,8 @@ ncores   <- as.numeric(input[4])
 # training <- "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
 # #testing  <- "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
 # testing <- "data/process/optifit/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared"
+# training <- "data/process/optifit/split_8/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
+# testing <- "data/process/optifit/split_8/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared"
 # ncores=12
 
 split <- unlist(str_split(training,"/"))[4]
@@ -56,7 +58,7 @@ train_shared <- read_tsv(training, col_types = cols(Group=col_character(),
 if (str_detect(testing, "optifit")) { 
   test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
                                                   .default = col_double())) %>%
-    select(-label, -numRefOtus) %>%
+    select(-label, -numOtus) %>%
     select(Group,starts_with("Ref_")) %>% #select only OTUs in reference
     rename_all(str_replace, "Ref_", "") #remove Ref_ label to match train data
 } else {
@@ -82,7 +84,7 @@ missing_cols <- setdiff(train_labels, test_labels)
 
 # Only keeping otus that are in both files and assigning as test data for ML prediction
 test <- test_shared %>%
-  select(common_labels)
+  select(all_of(common_labels))
 
 # Adding in missing otus all coded as 0 so test has the same cols as the loo shared
 test[missing_cols] <- 0
