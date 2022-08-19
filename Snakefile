@@ -57,7 +57,8 @@ rule results:
         "data/learning/summary/merged_HP.csv",
         "data/learning/summary/merged_MCC.csv",
         "data/learning/summary/all_sens_spec.csv",
-        "results/tables/pct_class_correct.csv"#,
+        "results/tables/pct_class_correct.csv",
+        "results/tables/fracNonMapped.csv"
         #"results/tables/opticlust_20_mcc.csv"
         
 rule plots: 
