@@ -58,14 +58,22 @@ rule results:
         "data/learning/summary/merged_MCC.csv",
         "data/learning/summary/all_sens_spec.csv",
         "results/tables/pct_class_correct.csv",
-        "results/tables/fracNonMapped.csv"
+        "results/tables/fracNonMapped.csv",
+        "results/tables/pvalues.csv",
+        "results/tables/splitTogetherFrequency.csv"
         #"results/tables/opticlust_20_mcc.csv"
         
 rule plots: 
     input:
         "results/figures/view_splits.png",
-        "results/figures/hp_performance.png"
+        "results/figures/hp_performance.png",
+        "results/figures/avg_auroc.png",
+        "results/figures/avg_roc.png"
 
+rule submission:
+    input:
+        "submission/figures/fig2.tiff"
+        
 ##################################################################
 #
 # Part 1: Download Data
@@ -512,14 +520,23 @@ rule plot8020splits:
     script:
         "code/R/view_splits.R"
             
-# rule plotAUROC:
-#     input:
-#         perf=rules.mergePerformanceResults.output.mergedPerf,
-#         pvals=rules.calcPvalues.output.pvalues
-#     output:
+rule plotAUROC:
+    input:
+        perf=rules.mergePerformanceResults.output.mergedPerf,
+        pvals=rules.calcPvalues.output.pvalues
+    output:
+        fig_auc="results/figures/avg_auroc.png"
+    script:
+        "code/R/plot_auroc.R"
         
-#     script:
-    
+rule plotAvgROC:
+    input:
+        senspec=rules.get_sens_spec.output.allSensSpec
+    output:
+        fig_roc="results/figures/avg_roc.png"
+    script:
+        "code/R/plot_avgROC.R"
+        
 ##################################################################
 #
 # DOCUMENTS
@@ -534,7 +551,15 @@ rule update_pages:
     shell:
         "cp {input.exploratory} docs/"
 
-
+rule createFig2:
+    input:    
+        fig2ab=rules.plotAUROC.output.fig_auc,
+        fig2c=rules.plotAvgROC.output.fig_roc
+    output:
+        fig2="submission/figures/fig2.tiff"
+    script:
+        "code/R/create_fig2.R"
+    
 rule createManuscript:
     input: 
         script="submission/manuscript.Rmd",
