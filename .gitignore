@@ -19,3 +19,4 @@ logs/mothur/*
 .Rhistory
 Rplots.pdf
 rulegraph.pdf
+.vscode
