@@ -72,7 +72,7 @@ rule plots:
 
 rule submission:
     input:
-        "submission/figures/fig2.tiff"
+        "submission/figures/fig2.png"
         
 ##################################################################
 #
@@ -556,7 +556,7 @@ rule createFig2:
         fig2ab=rules.plotAUROC.output.fig_auc,
         fig2c=rules.plotAvgROC.output.fig_roc
     output:
-        fig2="submission/figures/fig2.tiff"
+        fig2="submission/figures/fig2.png"
     script:
         "code/R/create_fig2.R"
     
