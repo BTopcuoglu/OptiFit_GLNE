@@ -16,7 +16,7 @@ Machine learning classification of disease based on the gut microbiome often rel
    conda env create -f envs/glne.yaml
    conda activate glne
    ```
-3. run the entire pipeline.
+3. run the entire pipeline.  
    locally:
    ```
    snakemake --cores 4
@@ -68,23 +68,3 @@ Machine learning classification of disease based on the gut microbiome often rel
 	| +- scratch/     # temporary files that can be safely deleted or lost
 	|
 	+- Makefile       # executable Makefile for this study, if applicable
-
-
-### How to regenerate this repository
-
-#### Dependencies and locations
-* Gnu Make should be located in the user's PATH
-* mothur (v1.XX.0) should be located in the user's PATH
-* R (v. 3.X.X) should be located in the user's PATH
-* R packages:
-  * `knitr`
-  * `rmarkdown`
-* etc
-
-
-#### Running analysis
-
-```
-git clone https://github.com/SchlossLab/LastName_BriefDescription_Journal_Year.git
-make write.paper
-```
