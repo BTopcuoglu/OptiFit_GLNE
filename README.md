@@ -21,7 +21,7 @@ Machine learning classification of disease based on the gut microbiome often rel
    ```
    snakemake --cores 4
    ```
-   on an HPC running slurm:
+   on an HPC running slurm:  
    (You will first need to edit your email and slurm account info in the
     [submission script](code/slurm/)
     and [cluster config](config/cluster.json).)
