@@ -12,8 +12,6 @@
 # Other variables
 OUTDIR=data/metadata/
 
-
-
 ###########################
 # Download Metadata Table #
 ###########################

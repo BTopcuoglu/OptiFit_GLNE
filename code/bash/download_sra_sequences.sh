@@ -15,8 +15,6 @@ SEQUENCENAME=${1:?ERROR: Need to define SEQUENCENAME.}
 # Other variables
 OUTDIR=data/raw/
 
-
-
 ##################################
 # Download and extract sra files #
 ##################################
