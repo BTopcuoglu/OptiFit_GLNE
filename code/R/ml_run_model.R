@@ -25,8 +25,8 @@ nprocs <- as.numeric(input[5])
 # outcome <- "dx"
 # nprocs <- 12
 
-split <- unlist(str_split(trainingProc,"/|\\."))[5]  %>% 
-    str_replace(.,"preproc_t.+_(split_.+)","\\1")
+split <- unlist(str_split(trainingProc,"/|\\."))[4] %>% 
+  str_replace(.,"preproc_t.+_(split_.+)","\\1")
 
 print(paste0("training file: ",trainingProc))
 print(paste0("testing file: ",testingProc))
@@ -36,11 +36,21 @@ print(paste0("split: ",split))
 print(paste0("nproc: ",nprocs))
 
 # Other variables
-if (str_detect(trainingProc, "optifit")) { # Setting output dir based on source of input
-  outDir <- "data/learning/results/optifit/"
-} else {
-  outDir <- "data/learning/results/opticlust/"
-}
+# if (str_detect(trainingProc, "optifit")) { # Setting output dir based on source of input
+#   outDir <- "data/learning/results/optifit/"
+# } else if(str_detect(trainingProc, "opticlust")){
+#   outDir <- "data/learning/results/opticlust/"
+# } else if(str_detect(trainingProc, "full")){
+#   outDir <- "data/learning/results/gg_full/"
+# } else if(str_detect(trainingProc, "subsample_8000")){
+#   outDir <- "data/learning/results/gg_subsample_8000/"
+# } else {
+#   stop("Not sure where to output data")
+# }
+type <- unlist(str_split(trainingProc,"/|\\."))[3]
+outDir <- paste0("results/ml/",type,"/")
+
+print(paste0("writing output to: ",outDir))
 
 #read in data
 train <- read_csv(trainingProc)

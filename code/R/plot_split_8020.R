@@ -25,4 +25,4 @@ counts  %>%
               legend.text = element_text(size=14),
               legend.title = element_text(size=14)) + 
         xlab("Group") + ylab("Number of times sample is in group") 
-ggsave(paste0(outdir,"view_splits.png"),width = 6, height= 6)
+ggsave(paste0(outdir,"split_8020.png"),width = 6, height= 6)
