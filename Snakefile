@@ -27,22 +27,41 @@ split_nums = range(1,101)
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
     input:
+        # expand("data/process/gg/full/split_{num}/train/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
+        #        num = split_nums),
+        # expand("data/process/gg/full/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
+        #        num = split_nums)
+        # expand("data/process/gg/subsample_8000/split_{num}/train/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
+        #        num = split_nums),
+        # expand("data/process/gg/subsample_8000/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
+        #        num = split_nums)
+        # expand("results/ml/gg_full/preproc_train_split_{num}.csv",
+        #        num = split_nums)
+        # expand("results/ml/gg_subsample_8000/preproc_train_split_{num}.csv",
+        #        num = split_nums)
+        expand("results/ml/gg_full/performance_split_{num}.csv",
+               num = split_nums)
+        # expand("results/ml/gg_subsample_8000/performance_split_{num}.csv",
+        #        num = split_nums)
+        
         # "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
         # "data/process/opticlust/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared",
         #"data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
         #"data/process/optifit/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
-        #"data/learning/results/opticlust/preproc_test_split_1.csv",
-        #"data/learning/results/optifit/preproc_test_split_1.csv",
-        #"data/learning/results/opticlust/cv_results_split_1.csv",
-        #"data/learning/results/optifit/cv_results_split_1.csv",
-        #"data/learning/results/opticlust/performance_split_1.csv",
-        #"data/learning/results/optifit/performance_split_1.csv",
+        #"results/ml/opticlust/preproc_test_split_1.csv",
+        #"results/ml/optifit/preproc_test_split_1.csv",
+        #"results/ml/opticlust/cv_results_split_1.csv",
+        #"results/ml/optifit/cv_results_split_1.csv",
+        #"results/ml/opticlust/performance_split_1.csv",
+        #"results/ml/optifit/performance_split_1.csv",
         # expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
         #        num = split_nums)
-        expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
-              num = split_nums),
-        expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
-               num = split_nums)        
+        
+        
+        # expand("results/ml/opticlust/prediction_results_split_{num}.csv",
+        #       num = split_nums),
+        # expand("results/ml/optifit/prediction_results_split_{num}.csv",
+        #        num = split_nums)        
     shell:
         '''
         if $(ls | grep -q "mothur.*logfile"); then
@@ -184,7 +203,7 @@ rule cluster_OptiClust_all:
 
 ##################################################################
 #
-# Part X: Cluster GG Closed-ref
+# Part X: Cluster GG Closed-ref and fit data 
 #
 ##################################################################
 
@@ -201,43 +220,93 @@ rule precluster_gg:
         tax="data/process/precluster/gg.precluster.tax"
     resources:
         ncores=12,
-        time_min=500,
+        time_min=200,
         mem_mb=10000
     shell: 
         "bash {input.script} {input.gg_db} {input.gg_tax} {resources.ncores}"
 
 # cluster gg database to OTUS
-# rule cluster_gg_all:
+rule cluster_gg:
+    input:
+        gg_dist=rules.precluster_gg.output.dist,
+        gg_count=rules.precluster_gg.output.count_table
+    output:
+        reflist="data/process/gg/gg.precluster.opti_mcc.list"
+    params:
+        outdir="data/process/gg/"
+    resources:
+        ncores=12,
+        time_min=200,
+        mem_mb=10000
+    shell:
+        """
+        mkdir -p {params.outdir}
+        
+        mothur "#set.current(outputdir={params.outdir},processors={resources.ncores});
+        set.seed(seed=19900205);
+        cluster(column={input.gg_dist},count={input.gg_count});
+        make.shared(list=current,count=current,label=0.03)"
+        """
+#fit sequences to gg OTUS to create shared file
+rule cluster_fit_gg:
+    input:
+        precluster_fasta=rules.preclusterSequences.output.fasta,
+        precluster_count=rules.preclusterSequences.output.count_table,
+        precluster_tax=rules.preclusterSequences.output.tax,
+        precluster_dist=rules.preclusterSequences.output.dist,
+        reffasta=rules.precluster_gg.output.fasta,
+        refdist=rules.precluster_gg.output.dist,
+        reflist=rules.cluster_gg.output.reflist        
+    output:
+        #fit_shared="data/process/gg/shared/glne.precluster.fit.optifit_mcc.0.03.subsample.shared"
+        fit_shared="data/process/gg/shared/full/glne.precluster.fit.optifit_mcc.0.03.subsample.shared"
+    params:
+        outdir="data/process/gg/shared/full/",
+        subsize=10000
+    resources:
+        ncores=12,
+        time_min=500,
+        mem_mb=50000
+    shell: 
+        """
+        mkdir -p {params.outdir}
+        
+        mothur "#set.current(outputdir={params.outdir},processors={resources.ncores});
+        cluster.fit(fasta={input.precluster_fasta},count={input.precluster_count},reffasta={input.reffasta}, refcolumn={input.refdist}, reflist={input.reflist},method=open, printref=f);
+        make.shared(list=current, count=current, label=0.03);
+        sub.sample(shared=current, size={params.subsize})" 
+        """
+        
+#fit sequences to gg OTUS to create shared file
+# the smallest has 8180 seqs so subsample to 8000
+# rule cluster_fit_gg_subsample:
 #     input:
-#         gg_dist=rules.precluster_gg.output.dist,
-#         gg_count=rules.precluster_gg.output.count_table
+#         precluster_fasta=rules.preclusterSequences.output.fasta,
+#         precluster_count=rules.preclusterSequences.output.count_table,
+#         precluster_tax=rules.preclusterSequences.output.tax,
+#         precluster_dist=rules.preclusterSequences.output.dist,
+#         reffasta=rules.precluster_gg.output.fasta,
+#         refdist=rules.precluster_gg.output.dist,
+#         reflist=rules.cluster_gg.output.reflist        
 #     output:
-    
+#         fit_shared="data/process/gg/shared/subsample_8000/glne.precluster.fit.optifit_mcc.0.03.subsample.shared"
+#     params:
+#         outdir="data/process/gg/shared/subsample_8000/",
+#         subsize=8000
 #     resources:
 #         ncores=12,
-#         time_min=500
-#         mem_mb    
-#     shell:
-#         "bash {input.script}""
-    
-# # Creating subsampled shared file using all of the samples and closed-reference
-# # clusteromg with the SILVA database as reference
-# rule cluster_SILVA_all:
-#     input:
-#         script="code/bash/mothur_cluster_SILVA_all.sh",
-#         dist=rules.precluster_silva.output.dist,
-#         count_table=rules.precluster_silva.output.count_table
-#     output:
-#         shared="data/process/opticlust/shared/glne.precluster.opti_mcc.0.03.subsample.shared",
-#         lst="data/process/opticlust/shared/glne.precluster.opti_mcc.list"
-#     resources:
-#         ncores=12,
-#         time_min=60,
-#         mem_mb=30000
-#     shell:
-#         "bash {input.script} {input.precluster} {resources.ncores}"
-
-
+#         time_min=500,
+#         mem_mb=50000
+#     shell: 
+#         """
+#         mkdir -p {params.outdir}
+        
+#         mothur "#set.current(outputdir={params.outdir},processors={resources.ncores});
+#         cluster.fit(fasta={input.precluster_fasta},count={input.precluster_count},reffasta={input.reffasta}, refcolumn={input.refdist}, reflist={input.reflist},method=closed, printref=f);
+#         remove.seqs(count=current, accnos=current);
+#         make.shared(list=current, count=current, label=0.03);
+#         sub.sample(shared=current, size={params.subsize})" 
+#         """
 
 ##################################################################
 #
@@ -269,7 +338,7 @@ rule generate_splits_8020:
 # a training and test shared file for each split
 rule generate_data_OptiClust:
     input: 
-        script="code/bash/generate_data_OptiClust.sh",
+        script="code/bash/generate_data_gg.sh",
         shared=rules.cluster_OptiClust_all.output.shared,
         split="data/process/splits/split_{num}.csv"
     output:
@@ -327,6 +396,48 @@ rule fit_OptiFit_20:
     shell:
         "bash {input.script} {input.precluster} {input.split} {input.reffasta} {input.refdist} {input.reflist} {resources.ncores}"
 
+
+##################################################################
+#
+# Part N: Generate GG data
+#
+##################################################################
+
+#split shared file into train and test sets
+rule generate_gg_data_full:
+    input: 
+        script="code/bash/generate_data_gg.sh",
+        shared=rules.cluster_fit_gg.output.fit_shared,
+        split="data/process/splits/split_{num}.csv"
+    output:
+        train="data/process/gg/full/split_{num}/train/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
+        test="data/process/gg/full/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared"
+    resources:
+        ncores=12,
+        time_min=60,
+        mem_mb=30000
+    params:
+        outdir="data/process/gg/full/split_{num}/"
+    shell:
+        "bash {input.script} {input.shared} {input.split} {params.outdir} {resources.ncores}"
+        
+# rule generate_gg_data_subsample_8000:
+#     input: 
+#         script="code/bash/generate_data_gg.sh",
+#         shared=rules.cluster_fit_gg_subsample.output.fit_shared,
+#         split="data/process/splits/split_{num}.csv"
+#     output:
+#         train="data/process/gg/subsample_8000/split_{num}/train/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
+#         test="data/process/gg/subsample_8000/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared"
+#     resources:
+#         ncores=12,
+#         time_min=60,
+#         mem_mb=30000
+#     params:
+#         outdir="data/process/gg/subsample_8000/split_{num}/"
+#     shell:
+#         "bash {input.script} {input.shared} {input.split} {params.outdir} {resources.ncores}" 
+
 ##################################################################
 #
 # Part N: Preprocess Data to prepare for ML
@@ -340,8 +451,8 @@ rule preprocess_OptiClust:
         train=rules.generate_data_OptiClust.output.train,
         test=rules.generate_data_OptiClust.output.test
     output:
-        preprocTrain="data/learning/results/opticlust/preproc_train_split_{num}.csv",
-        preprocTest="data/learning/results/opticlust/preproc_test_split_{num}.csv" 
+        preprocTrain="results/ml/opticlust/preproc_train_split_{num}.csv",
+        preprocTest="results/ml/opticlust/preproc_test_split_{num}.csv" 
     resources:
         ncores=12,
         time_min="1:00:00",
@@ -356,8 +467,8 @@ rule preprocess_OptiFit:
         train=rules.cluster_OptiClust_80.output.shared,
         test=rules.fit_OptiFit_20.output.fit
     output:
-        preprocTrain="data/learning/results/optifit/preproc_train_split_{num}.csv",
-        preprocTest="data/learning/results/optifit/preproc_test_split_{num}.csv"
+        preprocTrain="results/ml/optifit/preproc_train_split_{num}.csv",
+        preprocTest="results/ml/optifit/preproc_test_split_{num}.csv"
     resources:
         ncores=12,
         time_min="1:00:00",
@@ -365,15 +476,31 @@ rule preprocess_OptiFit:
     shell:
         "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
 
-# rule preprocess_SILVA:
+rule preprocess_gg_full:
+    input: 
+        script="code/R/ml_preprocess_gg.R",
+        metadata=rules.download_metadata.output.metadata,
+        train=rules.generate_gg_data_full.output.train,
+        test=rules.generate_gg_data_full.output.test
+    output:
+        preprocTrain="results/ml/gg_full/preproc_train_split_{num}.csv",
+        preprocTest="results/ml/gg_full/preproc_test_split_{num}.csv"
+    resources:
+        ncores=12,
+        time_min="1:00:00",
+        mem_mb=50000
+    shell:
+        "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
+        
+# rule preprocess_gg_subsample_8000:
 #     input: 
-#         script="code/R/ml_preprocess_data.R",
+#         script="code/R/ml_preprocess_gg.R",
 #         metadata=rules.download_metadata.output.metadata,
-#         train=rules.
-#         test=rules.
+#         train=rules.generate_gg_data_subsample_8000.output.train,
+#         test=rules.generate_gg_data_subsample_8000.output.test
 #     output:
-#         preprocTrain="data/learning/results/SILVA/preproc_train_split_{num}.csv",
-#         preprocTest="data/learning/results/SILVA/preproc_test_split_{num}.csv"
+#         preprocTrain="results/ml/gg_subsample_8000/preproc_train_split_{num}.csv",
+#         preprocTest="results/ml/gg_subsample_8000/preproc_test_split_{num}.csv"
 #     resources:
 #         ncores=12,
 #         time_min="1:00:00",
@@ -396,10 +523,10 @@ rule runOptiClustModels:
         model="rf",
         outcome="dx"
     output:
-        performance="data/learning/results/opticlust/performance_split_{num}.csv",
-        model="data/learning/results/opticlust/model_split_{num}.rds",
-        prediction="data/learning/results/opticlust/prediction_results_split_{num}.csv",
-        hp_performance="data/learning/results/opticlust/hp_split_{num}.csv"
+        performance="results/ml/opticlust/performance_split_{num}.csv",
+        model="results/ml/opticlust/model_split_{num}.rds",
+        prediction="results/ml/opticlust/prediction_results_split_{num}.csv",
+        hp_performance="results/ml/opticlust/hp_split_{num}.csv"
     resources: 
         ncores=12,
         time_min="72:00:00",
@@ -417,17 +544,57 @@ rule runOptiFitModels:
         model="rf",
         outcome="dx"
     output:
-        performance="data/learning/results/optifit/performance_split_{num}.csv",
-        model="data/learning/results/optifit/model_split_{num}.rds",
-        prediction="data/learning/results/optifit/prediction_results_split_{num}.csv",
-        hp_performance="data/learning/results/optifit/hp_split_{num}.csv"
+        performance="results/ml/optifit/performance_split_{num}.csv",
+        model="results/ml/optifit/model_split_{num}.rds",
+        prediction="results/ml/optifit/prediction_results_split_{num}.csv",
+        hp_performance="results/ml/optifit/hp_split_{num}.csv"
     resources: 
         ncores=12,
         time_min="72:00:00",
         mem_mb=50000  
     shell:
         "Rscript --max-ppsize=500000 {input.script} {input.train} {input.test} {params.model} {params.outcome} {resources.ncores}"
-        
+       
+rule runGGmodels_full:
+    input:
+        script="code/R/ml_run_model.R",
+        train=rules.preprocess_gg_full.output.preprocTrain,
+        test=rules.preprocess_gg_full.output.preprocTest
+    params:
+        model="rf",
+        outcome="dx"
+    output:
+        performance="results/ml/gg_full/performance_split_{num}.csv",
+        model="results/ml/gg_full/model_split_{num}.rds",
+        prediction="results/ml/gg_full/prediction_results_split_{num}.csv",
+        hp_performance="results/ml/gg_full/hp_split_{num}.csv"
+    resources: 
+        ncores=12,
+        time_min="72:00:00",
+        mem_mb=50000  
+    shell:
+        "Rscript --max-ppsize=500000 {input.script} {input.train} {input.test} {params.model} {params.outcome} {resources.ncores}"
+
+# rule runGGmodels_subsample_8000:
+#     input:
+#         script="code/R/ml_run_model.R",
+#         train=rules.preprocess_gg_subsample_8000.output.preprocTrain,
+#         test=rules.preprocess_gg_subsample_8000.output.preprocTest
+#     params:
+#         model="rf",
+#         outcome="dx"
+#     output:
+#         performance="results/ml/gg_subsample_8000/performance_split_{num}.csv",
+#         model="results/ml/gg_subsample_8000/model_split_{num}.rds",
+#         prediction="results/ml/gg_subsample_8000/prediction_results_split_{num}.csv",
+#         hp_performance="results/ml/gg_subsample_8000/hp_split_{num}.csv"
+#     resources: 
+#         ncores=12,
+#         time_min="72:00:00",
+#         mem_mb=50000  
+#     shell:
+#         "Rscript --max-ppsize=500000 {input.script} {input.train} {input.test} {params.model} {params.outcome} {resources.ncores}"
+
 ##################################################################
 #
 # Part N: Merge Results
@@ -455,9 +622,9 @@ rule calcFracNonMapped:
 rule mergePredictionResults:
     input:
         script="code/R/merge_predictions.R",
-        opticlustPred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+        opticlustPred=expand("results/ml/opticlust/prediction_results_split_{num}.csv",
                              num = split_nums),
-        optifitPred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+        optifitPred=expand("results/ml/optifit/prediction_results_split_{num}.csv",
                            num = split_nums)
     output:
         mergedPrediction="data/learning/summary/merged_predictions.csv",
@@ -467,21 +634,23 @@ rule mergePredictionResults:
 rule mergePerformanceResults:
     input:
         script="code/R/mergePerformance.R",
-        opticlustPerf=expand("data/learning/results/opticlust/performance_split_{num}.csv",
+        opticlustPerf=expand("results/ml/opticlust/performance_split_{num}.csv",
                            num = split_nums),
-        optifitPerf=expand("data/learning/results/optifit/performance_split_{num}.csv",
-                           num = split_nums)
+        optifitPerf=expand("results/ml/optifit/performance_split_{num}.csv",
+                           num = split_nums),
+        ggFullPerf=expand("results/ml/gg_full/performance_split_{num}.csv",
+                          num = split_nums)
     output:
-        mergedPerf="data/learning/summary/merged_performance.csv"
+        mergedPerf="results/ml/summary/merged_performance.csv"
     shell:
-        "Rscript {input.script} {input.opticlustPerf} {input.optifitPerf}"
+        "Rscript {input.script} {input.opticlustPerf} {input.optifitPerf} {input.ggFullPerf}"
 
 rule mergeHPperformance:
     input:
         script="code/R/mergeHP.R",
-        opticlustHP=expand("data/learning/results/opticlust/hp_split_{num}.csv",
+        opticlustHP=expand("results/ml/opticlust/hp_split_{num}.csv",
                            num = split_nums),
-        optifitHP=expand("data/learning/results/optifit/hp_split_{num}.csv",
+        optifitHP=expand("results/ml/optifit/hp_split_{num}.csv",
                          num = split_nums)
     output:
         mergedHP="data/learning/summary/merged_HP.csv"
@@ -500,12 +669,12 @@ rule getMCCdata:
         mergedMCC="data/learning/summary/merged_MCC.csv"
     shell:
         "Rscript {input.script} {input.opticlustSensspec} {input.optifitTrainSensspec} {input.optifitTestSensspec}"
-    
+         
 rule get_sens_spec:
     input: 
-        opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+        opticlust_pred=expand("results/ml/opticlust/prediction_results_split_{num}.csv",
                               num = split_nums),
-        optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+        optifit_pred=expand("results/ml/optifit/prediction_results_split_{num}.csv",
                             num = split_nums)   
     output:
         allSensSpec="data/learning/summary/all_sens_spec.csv"
@@ -539,9 +708,9 @@ rule get_sens_spec:
 
 # rule calc_pct_correct:
 #     input:
-#         opticlust_pred=expand("data/learning/results/opticlust/prediction_results_split_{num}.csv",
+#         opticlust_pred=expand("results/ml/opticlust/prediction_results_split_{num}.csv",
 #                               num = split_nums),
-#         optifit_pred=expand("data/learning/results/optifit/prediction_results_split_{num}.csv",
+#         optifit_pred=expand("results/ml/optifit/prediction_results_split_{num}.csv",
 #                             num = split_nums)
 #     output:
 #         pct_correct="results/tables/pct_class_correct.csv"

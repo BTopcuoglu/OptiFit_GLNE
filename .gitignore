@@ -4,6 +4,10 @@
 !/data/metadata/SraRunTable.txt
 !/data/learning/summary/**
 
+#results
+results/ml/*
+!results/ml/summary/*
+
 # Log files
 logs/slurm/*
 logs/mothur/*

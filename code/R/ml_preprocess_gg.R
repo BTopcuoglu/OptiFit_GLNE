@@ -19,15 +19,11 @@ ncores   <- as.numeric(input[4])
 
 #for testing the pipeline
 # metadata <- "data/metadata/metadata.tsv"
-# #training <- "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
-# training <- "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
-# #testing  <- "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
-# testing <- "data/process/optifit/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared"
-# training <- "data/process/optifit/split_8/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
-# testing <- "data/process/optifit/split_8/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared"
+# training <- "data/process/gg/full/split_1/train/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared"
+# testing  <- "data/process/gg/full/split_1/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared"
 # ncores=12
 
-split <- unlist(str_split(training,"/"))[4]
+split <- unlist(str_split(training,"/"))[5]
 
 print(paste0("metadata file: ",metadata))
 print(paste0("training file: ",training))
@@ -35,10 +31,10 @@ print(paste0("testing file: ",testing))
 print(paste0("split: ",split))
 
 # Other variables
-if (str_detect(training, "optifit")) { # Setting output dir based on source of input
-  outDir <- "results/ml/optifit/"
+if (str_detect(training, "full")) { # Setting output dir based on source of input
+  outDir <- "results/ml/gg_full/"
 } else {
-  outDir <- "results/ml/opticlust/"
+  outDir <- "results/ml/gg_subsample_8000/"
 }
 
 ######################## DATA PREPARATION ########################
@@ -52,20 +48,16 @@ future::plan(future::multicore, workers = ncores)
 # Reading in shared file from training data
 train_shared <- read_tsv(training, col_types = cols(Group=col_character(),
                                                     .default = col_double())) %>%
-  select(-label, -numOtus)
+  select(-label, -numRefOtus) %>% 
+  #remove any de novo otus from clustering - should only have Ref_Otu...
+  select(-starts_with("Otu"))
 
-# Reading in shared file of the testing data
-if (str_detect(testing, "optifit")) { 
-  test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
-                                                  .default = col_double())) %>%
-    select(-label, -numOtus) %>%
-    select(Group,starts_with("Ref_")) %>% #select only OTUs in reference
-    rename_all(str_replace, "Ref_", "") #remove Ref_ label to match train data
-} else {
-  test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
-                                                  .default = col_double())) %>%
-    select(-label, -numOtus) 
-}
+# Reading in shared file from test data
+test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
+                                                .default = col_double())) %>%
+  select(-label, -numRefOtus)  %>% 
+  #remove any de novo otus from clustering - should only have Ref_Otu...
+  select(-starts_with("Otu"))
 
 
 # Create test set ---------------------------------------------------------

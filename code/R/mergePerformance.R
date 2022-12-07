@@ -8,13 +8,14 @@
 ### SETUP -------------------
 library(tidyverse)
 
-outDir <- "data/learning/summary/"
+outDir <- "results/ml/summary/"
 if(!dir.exists(outDir)){dir.create(outDir)}
 
 input <- commandArgs(trailingOnly = TRUE)
-# input1 <- list.files(path="data/learning/results/opticlust/",pattern="performance*",full.names=T)
-# input2 <- list.files(path="data/learning/results/optifit/",pattern="performance*",full.names=T)
-# input <- c(input1,input2)
+# input1 <- list.files(path="results/ml/opticlust/",pattern="performance*",full.names=T)
+# input2 <- list.files(path="results/ml/optifit/",pattern="performance*",full.names=T)
+# input3 <- list.files(path="results/ml/gg_full/",pattern="performance*",full.names=T)
+# input <- c(input1,input2,input3)
 
 ### FUNCTIONS -------------------
 read_perf <- function(file){
@@ -23,7 +24,7 @@ read_perf <- function(file){
     split <- file_parts[grepl(pattern="split",file_parts)]
     split <- gsub("performance_","",split)
     
-    algorithm <- file_parts[grepl(pattern="^opticlust$|^optifit$",file_parts)]
+    algorithm <- file_parts[grepl(pattern="^opticlust$|^optifit$|^gg",file_parts)]
     
     perf <- read_csv(file,na = c("","NA","NaN")) %>% #some of the Pos/Neg Pred Values were NaN 
         mutate(split=split,algorithm=algorithm)
