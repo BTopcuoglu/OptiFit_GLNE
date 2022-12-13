@@ -1,3 +1,7 @@
 metric,group1,group2,p_value
-cv_metric_AUC,opticlust,optifit,0.13338666133386662
-AUC,opticlust,optifit,0.38196180381961803
+cv_metric_AUC,opticlust,gg_full,9.999000099990002e-5
+cv_metric_AUC,opticlust,optifit,0.13688631136886312
+cv_metric_AUC,optifit,gg_full,0.013398660133986601
+AUC,opticlust,gg_full,0.0352964703529647
+AUC,opticlust,optifit,0.37046295370462956
+AUC,optifit,gg_full,0.23497650234976503
