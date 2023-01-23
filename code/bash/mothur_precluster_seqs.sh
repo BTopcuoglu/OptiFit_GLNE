@@ -12,16 +12,16 @@
 # Set the variables to be used in this script
 FILESFILE=${1:?ERROR: Need to define FILESFILE.} # File listing sample groups and sequence files
 SILVAV4=${2:?ERROR: Need to define SILVAV4.}
-RDPFASTA=${3:?ERROR: Need to define RDPFASTA.}
-RDPTAX=${4:?ERROR: Need to define RDPTAX.}
-NPROC=${5:?ERROR: Need to define NPROC.}
+SILVATAX=${3:?ERROR: Need to define SILVATAX.}
+RDPFASTA=${4:?ERROR: Need to define RDPFASTA.}
+RDPTAX=${5:?ERROR: Need to define RDPTAX.}
+GGV4=${6:?ERROR: Need to define GGV4.}
+GGTAX=${7:?ERROR: Need to define GGTAX.}
+NPROC=${8:?ERROR: Need to define NPROC.}
 
 # Other variables
 OUTDIR=data/process/precluster/
 TMP="${OUTDIR}"/tmp/
-#NPROC=$(nproc) # Setting number of processors to use based on available resources
-
-
 
 ###################
 # Run QC Analysis #

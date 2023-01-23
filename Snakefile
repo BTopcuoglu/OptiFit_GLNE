@@ -31,19 +31,21 @@ rule all:
         #        num = split_nums),
         # expand("data/process/gg/full/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
         #        num = split_nums)
-        # expand("data/process/gg/subsample_8000/split_{num}/train/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
-        #        num = split_nums),
-        # expand("data/process/gg/subsample_8000/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared",
-        #        num = split_nums)
         # expand("results/ml/gg_full/preproc_train_split_{num}.csv",
         #        num = split_nums)
         # expand("results/ml/gg_subsample_8000/preproc_train_split_{num}.csv",
         #        num = split_nums)
-        expand("results/ml/gg_full/performance_split_{num}.csv",
-               num = split_nums)
+        #
         # expand("results/ml/gg_subsample_8000/performance_split_{num}.csv",
         #        num = split_nums)
-        
+        # expand("data/process/vsearch/split_{num}/test/glne.vsearch.userLabel.pick.shared",
+        #        num = split_nums),
+        # expand("data/process/vsearch/split_{num}/train/glne.vsearch.userLabel.pick.shared",
+        #        num = split_nums)
+        # expand("results/ml/vsearch/preproc_test_split_{num}.csv",
+        #        num=split_nums)
+        expand("results/ml/vsearch/performance_split_{num}.csv",
+               num=split_nums)
         # "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared",
         # "data/process/opticlust/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared",
         #"data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared",
@@ -56,8 +58,6 @@ rule all:
         #"results/ml/optifit/performance_split_1.csv",
         # expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared",
         #        num = split_nums)
-        
-        
         # expand("results/ml/opticlust/prediction_results_split_{num}.csv",
         #       num = split_nums),
         # expand("results/ml/optifit/prediction_results_split_{num}.csv",
@@ -110,7 +110,7 @@ rule download_sra_sequences:
         read1="data/raw/{sequence}_1.fastq.gz",
         read2="data/raw/{sequence}_2.fastq.gz"
     resources:
-        time_min=45
+        time_min="00:45:00"
     shell:
         "bash {input.script} {params.sequence}"
 
@@ -139,7 +139,7 @@ rule format_16Sreferences:
     resources:  
         ncores=4,
         mem_mb=10000,
-        time_min=60
+        time_min="01:00:00"
     shell:
         "bash {input.script} {resources.ncores}"
 
@@ -174,7 +174,7 @@ rule preclusterSequences:
         dist="data/process/precluster/glne.precluster.dist"
     resources:
         ncores=12,
-        time_min=500,
+        time_min="08:00:00",
         mem_mb=10000
     shell:
         "bash {input.script} {input.files} {input.refs} {resources.ncores}"
@@ -196,7 +196,7 @@ rule cluster_OptiClust_all:
         lst="data/process/opticlust/shared/glne.precluster.opti_mcc.list"
     resources:
         ncores=12,
-        time_min=60,
+        time_min="01:00:00",
         mem_mb=30000
     shell:
         "bash {input.script} {input.precluster} {resources.ncores}"
@@ -220,7 +220,7 @@ rule precluster_gg:
         tax="data/process/precluster/gg.precluster.tax"
     resources:
         ncores=12,
-        time_min=200,
+        time_min="03:00:00",
         mem_mb=10000
     shell: 
         "bash {input.script} {input.gg_db} {input.gg_tax} {resources.ncores}"
@@ -236,7 +236,7 @@ rule cluster_gg:
         outdir="data/process/gg/"
     resources:
         ncores=12,
-        time_min=200,
+        time_min="03:00:00",
         mem_mb=10000
     shell:
         """
@@ -265,7 +265,7 @@ rule cluster_fit_gg:
         subsize=10000
     resources:
         ncores=12,
-        time_min=500,
+        time_min="08:00:00",
         mem_mb=50000
     shell: 
         """
@@ -346,7 +346,7 @@ rule generate_data_OptiClust:
         test="data/process/opticlust/split_{num}/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
     resources:
         ncores=12,
-        time_min=60,
+        time_min="01:00:00",
         mem_mb=30000
     shell:
         "bash {input.script} {input.shared} {input.split} {resources.ncores}"
@@ -371,7 +371,7 @@ rule cluster_OptiClust_80:
         refCount="data/process/optifit/split_{num}/train/glne.precluster.pick.count_table"
     resources:
         ncores=12,
-        time_min=60,
+        time_min="01:00:00",
         mem_mb=30000
     shell:
         "bash {input.script} {input.precluster} {input.split} {resources.ncores}"
@@ -391,7 +391,7 @@ rule fit_OptiFit_20:
         list='data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.list'
     resources:
         ncores=12,
-        time_min=120,
+        time_min="01:20:00",
         mem_mb=30000
     shell:
         "bash {input.script} {input.precluster} {input.split} {input.reffasta} {input.refdist} {input.reflist} {resources.ncores}"
@@ -414,7 +414,7 @@ rule generate_gg_data_full:
         test="data/process/gg/full/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared"
     resources:
         ncores=12,
-        time_min=60,
+        time_min="01:00:00",
         mem_mb=30000
     params:
         outdir="data/process/gg/full/split_{num}/"
@@ -431,7 +431,7 @@ rule generate_gg_data_full:
 #         test="data/process/gg/subsample_8000/split_{num}/test/glne.precluster.fit.optifit_mcc.0.03.subsample.0.03.pick.shared"
 #     resources:
 #         ncores=12,
-#         time_min=60,
+#         time_min="01:00:00",
 #         mem_mb=30000
 #     params:
 #         outdir="data/process/gg/subsample_8000/split_{num}/"
@@ -455,7 +455,7 @@ rule preprocess_OptiClust:
         preprocTest="results/ml/opticlust/preproc_test_split_{num}.csv" 
     resources:
         ncores=12,
-        time_min="1:00:00",
+        time_min="01:00:00",
         mem_mb=50000
     shell:
         "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
@@ -471,7 +471,7 @@ rule preprocess_OptiFit:
         preprocTest="results/ml/optifit/preproc_test_split_{num}.csv"
     resources:
         ncores=12,
-        time_min="1:00:00",
+        time_min="01:00:00",
         mem_mb=50000
     shell:
         "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
@@ -487,7 +487,7 @@ rule preprocess_gg_full:
         preprocTest="results/ml/gg_full/preproc_test_split_{num}.csv"
     resources:
         ncores=12,
-        time_min="1:00:00",
+        time_min="01:00:00",
         mem_mb=50000
     shell:
         "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
@@ -503,7 +503,7 @@ rule preprocess_gg_full:
 #         preprocTest="results/ml/gg_subsample_8000/preproc_test_split_{num}.csv"
 #     resources:
 #         ncores=12,
-#         time_min="1:00:00",
+#         time_min="01:00:00",
 #         mem_mb=50000
 #     shell:
 #         "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
@@ -597,6 +597,228 @@ rule runGGmodels_full:
 
 ##################################################################
 #
+# Part N: VSEARCH
+#
+##################################################################        
+# Running de novo clustering with vsearch.
+# adapted from https://github.com/SchlossLab/Sovacool_OptiFit_mSphere_2022/blob/main/subworkflows/4_vsearch/Snakefile
+dist_thresh = 0.03
+perc_identity = 1 - dist_thresh  # to match mothur's 0.03 dissimilarity threshold
+
+# hard-coded params, same as used in Pat's 2015 PeerJ paper and Kelly's 2022 paper
+min_seq_length = 30
+max_accepts = 16
+max_rejects = 64
+word_length = 8 # the default value of wordlength is already 8 but I'm paranoid
+
+# deunique seqs & replace underscores with hyphens in fasta headers
+#initial inputs are from the preclusterSequences step
+rule deunique:
+    input:
+        fna=rules.preclusterSequences.output.fasta,
+        count_table=rules.preclusterSequences.output.count_table 
+    output:
+        redund='data/process/vsearch/tmp/glne.precluster.redundant.fasta',
+        rename='data/process/vsearch/tmp/glne.precluster.redundant.renamed.fasta',
+        groups='data/process/vsearch/tmp/glne.precluster.redundant.groups',
+        groups_rename='data/process/vsearch/tmp/glne.precluster.redundant.renamed.groups' 
+    params:
+        outdir="data/process/vsearch/tmp/",
+    resources: 
+        ncores=12,
+        time_min="00:30:00",
+        mem_mb=10000  
+    shell:
+        """
+        mothur '#set.current(outputdir={params.outdir},processors={resources.ncores});
+            deunique.seqs(fasta={input.fna}, count={input.count_table})'
+            
+        sed "s/_/-/g" < {output.redund} > {output.rename}
+        sed "s/_/-/g" < {output.groups} > {output.groups_rename}
+        """
+
+rule degap:
+    input:
+        fna=rules.deunique.output.rename,
+        group=rules.deunique.output.groups_rename
+    output:
+        fna="data/process/vsearch/tmp/glne.precluster.ng.fasta",
+        count_table='data/process/vsearch/tmp/glne.precluster.ng.count_table',
+        dist='data/process/vsearch/tmp/glne.precluster.ng.dist'
+    params:
+        outdir="data/process/vsearch/tmp/",
+        cutoff=dist_thresh
+    resources:
+        ncores=12,
+        time_min="02:00:00",
+        mem_mb=10000     
+    shell:
+        """
+        mothur '#set.current(outputdir={params.outdir},processors={resources.ncores});
+            unique.seqs(fasta={input.fna});
+            count.seqs(name=current,group={input.group});
+            dist.seqs(fasta=current, cutoff={params.cutoff});
+            degap.seqs(fasta=current);
+            rename.file(fasta=current, count=current, column=current, prefix=glne.precluster.ng)'
+        """
+
+rule vsearch_sort:
+    input:
+        fna=rules.degap.output.fna
+    output:
+        fna="data/process/vsearch/tmp/glne.precluster.ng.sorted.fasta",
+        uc="data/process/vsearch/tmp/glne.precluster.ng.sorted.uc"
+    resources:
+        time_min="00:20:00",
+        mem_mb=10000   
+    shell:
+        """
+        vsearch \
+            --derep_fulllength {input.fna} \
+            --sizeout \
+            --minseqlength 30 \
+            --threads 1 \
+            --uc {output.uc} \
+            --output {output.fna} \
+            --strand both
+        """
+        
+rule vsearch_de_novo:
+    input: 
+        query=rules.vsearch_sort.output.fna
+    output:
+        uc="data/process/vsearch/tmp/glne.vsearch.uc"
+    params:
+        perc_identity=perc_identity,
+        min_seq_length=min_seq_length,
+        max_accepts=max_accepts,
+        max_rejects=max_rejects,
+        word_length=word_length
+    resources:
+        ncores=12,
+        time_min="02:00:00",
+        mem_mb=20000 
+    shell:
+        """
+        vsearch --cluster_smallmem {input.query} \
+            --usersort \
+            --uc {output.uc} \
+            --threads {resources.ncores} \
+            --id {params.perc_identity} \
+            --minseqlength {params.min_seq_length} \
+            --maxaccepts {params.max_accepts} \
+            --maxrejects {params.max_rejects} \
+            --wordlength {params.word_length} \
+            --strand both
+        """
+
+rule uc_to_list:
+    input:
+        code='code/py/uc_to_list.py',
+        uc=rules.vsearch_de_novo.output.uc
+    output:
+        list_file="data/process/vsearch/tmp/glne.vsearch.list"
+    script:
+        'code/py/uc_to_list.py'
+
+rule vsearch_make_shared:
+    input:
+        list_file=rules.uc_to_list.output.list_file, 
+        count_table=rules.degap.output.count_table
+    output:
+        shared="data/process/vsearch/shared/glne.vsearch.shared"
+    params:
+        outdir="data/process/vsearch/shared/"
+    resources:
+        mem_mb=20000 
+    shell:
+        """
+        mothur "#set.current(outputdir={params.outdir},processors={resources.ncores});
+            make.shared(list={input.list_file},count={input.count_table})"
+        """
+
+# rule sensspec_vsearch:
+#     input:
+#         list=rules.uc_to_list.output.list,
+#         count_table=rules.degap.output.count_table,
+#         dist=rules.degap.output.dist
+#     output:
+#         query_accnos="data/process/vsearch/tmp/glne.precluster.ng.accnos",
+#         list_accnos="data/process/vsearch/tmp/glne.vsearch.userLabel.pick.accnos",
+#         list="data/process/vsearch/tmp/glne.vsearch.userLabel.pick.list",
+#         tsv="data/process/vsearch/tmp/glne.vsearch.userLabel.pick.sensspec"
+#     params:
+#         outdir="data/process/vsearch/tmp/",
+#         label="userLabel",
+#         cutoff=dist_thresh
+#     resources:
+#         ncores=12,
+#         time_min="02:00:00",
+#         mem_mb=20000 
+#     shell:
+#         """
+#         mothur "#set.current(outputdir={params.outdir},processors={resources.ncores});
+#             list.seqs(count={input.count_table});
+#             get.seqs(list={input.list}, accnos=current);
+#             list.seqs(list=current);
+#             sens.spec(list=current, count=current, column={input.dist}, label={params.label}, cutoff={params.cutoff})"
+#         """
+        
+rule generate_data_vsearch:
+    input: 
+        script="code/bash/generate_data_vsearch.sh",
+        shared=rules.vsearch_make_shared.output.shared,
+        split="data/process/splits/split_{num}.csv"
+    output:
+        train="data/process/vsearch/split_{num}/train/glne.vsearch.userLabel.pick.shared",
+        test="data/process/vsearch/split_{num}/test/glne.vsearch.userLabel.pick.shared"
+    resources:
+        ncores=12,
+        time_min="01:00:00",
+        mem_mb=30000
+    params:
+        outdir="data/process/vsearch/split_{num}/"
+    shell:
+        "bash {input.script} {input.shared} {input.split} {params.outdir} {resources.ncores}"
+        
+rule preprocess_vsearch:
+    input: 
+        script="code/R/ml_preprocess_vsearch.R",
+        metadata=rules.download_metadata.output.metadata,
+        train=rules.generate_data_vsearch.output.train,
+        test=rules.generate_data_vsearch.output.test
+    output:
+        preprocTrain="results/ml/vsearch/preproc_train_split_{num}.csv",
+        preprocTest="results/ml/vsearch/preproc_test_split_{num}.csv"
+    resources:
+        ncores=12,
+        time_min="01:00:00",
+        mem_mb=50000
+    shell:
+        "Rscript --max-ppsize=500000 {input.script} {input.metadata} {input.train} {input.test} {resources.ncores}"
+       
+rule run_models_vsearch:
+    input:
+        script="code/R/ml_run_model.R",
+        train=rules.preprocess_vsearch.output.preprocTrain,
+        test=rules.preprocess_vsearch.output.preprocTest
+    params:
+        model="rf",
+        outcome="dx"
+    output:
+        performance="results/ml/vsearch/performance_split_{num}.csv",
+        model="results/ml/vsearch/model_split_{num}.rds",
+        prediction="results/ml/vsearch/prediction_results_split_{num}.csv",
+        hp_performance="results/ml/vsearch/hp_split_{num}.csv"
+    resources: 
+        ncores=12,
+        time_min="72:00:00",
+        mem_mb=50000  
+    shell:
+        "Rscript --max-ppsize=500000 {input.script} {input.train} {input.test} {params.model} {params.outcome} {resources.ncores}"
+
+##################################################################
+#
 # Part N: Merge Results
 #
 ##################################################################        
@@ -609,15 +831,15 @@ rule quantifySplitTogetherFreq:
     script:
         "code/R/quantifySplitTogether.R"
 
-rule calcFracNonMapped:
-    input:
-        script="code/R/calc_nonmapped.R",
-        OFshared=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared",
-                             num = split_nums)
-    output:
-        optifitNonMapped="results/tables/fracNonMapped.csv"
-    shell:
-        "Rscript {input.script} {input.OFshared}"
+# rule calcFracNonMapped:
+#     input:
+#         script="code/R/calc_nonmapped.R",
+#         OFshared=expand("data/process/optifit/split_{num}/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared",
+#                              num = split_nums)
+#     output:
+#         optifitNonMapped="results/tables/fracNonMapped.csv"
+#     shell:
+#         "Rscript {input.script} {input.OFshared}"
     
 rule mergePredictionResults:
     input:
@@ -639,11 +861,13 @@ rule mergePerformanceResults:
         optifitPerf=expand("results/ml/optifit/performance_split_{num}.csv",
                            num = split_nums),
         ggFullPerf=expand("results/ml/gg_full/performance_split_{num}.csv",
-                          num = split_nums)
+                          num = split_nums),
+        vsearchPerf=expand("results/ml/vsearch/performance_split_{num}.csv",
+                           num = split_nums)
     output:
         mergedPerf="results/ml/summary/merged_performance.csv"
     shell:
-        "Rscript {input.script} {input.opticlustPerf} {input.optifitPerf} {input.ggFullPerf}"
+        "Rscript {input.script} {input.opticlustPerf} {input.optifitPerf} {input.ggFullPerf} {input.vsearchPerf}"
 
 rule mergeHPperformance:
     input:
@@ -692,7 +916,7 @@ rule get_sens_spec:
 #         shared="data/process/opticlust/split_{num}/sub/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
 #     resources:
 #         ncores=12,
-#         time_min=60,
+#         time_min="01:00:00",
 #         mem_mb=30000
 #     shell:
 #         "bash {input.script} {input.dist} {input.count_table} {input.split} {resources.ncores}"

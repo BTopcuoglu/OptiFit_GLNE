@@ -17,3 +17,4 @@ dependencies:
   - r-doFuture=0.12
   - snakemake>=5.5
   - sra-tools>=2.10
+  - vsearch=2.15.2
