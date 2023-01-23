@@ -4,11 +4,11 @@
 !/data/metadata/SraRunTable.txt
 
 #results
-results/ml/opticlust/
-results/ml/optifit/
-results/ml/gg_full/
-results/ml/vsearch/
-!results/ml/summary/
+# results/ml/opticlust/
+# results/ml/optifit/
+# results/ml/gg_full/
+# results/ml/vsearch/
+# !results/ml/summary/
 
 # Log files
 logs/slurm/*
