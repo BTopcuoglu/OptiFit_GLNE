@@ -1,15 +1,8 @@
 mcc,split,algorithm,subset,state
-0.883656,NA,opticlust,NA,NA
+0.883597,NA,opticlust,NA,NA
 0.885424,split_1,optifit,train,NA
-0.881337,split_2,optifit,train,NA
-0.881922,split_3,optifit,train,NA
-0.880615,split_4,optifit,train,NA
-0.880758,split_5,optifit,train,NA
-0.885652,split_6,optifit,train,NA
-0.881399,split_7,optifit,train,NA
-0.881034,split_8,optifit,train,NA
-0.882638,split_9,optifit,train,NA
 0.879919,split_10,optifit,train,NA
+0.882855,split_100,optifit,train,NA
 0.881804,split_11,optifit,train,NA
 0.879602,split_12,optifit,train,NA
 0.879563,split_13,optifit,train,NA
@@ -19,6 +12,7 @@ mcc,split,algorithm,subset,state
 0.881638,split_17,optifit,train,NA
 0.879382,split_18,optifit,train,NA
 0.88175,split_19,optifit,train,NA
+0.881337,split_2,optifit,train,NA
 0.877734,split_20,optifit,train,NA
 0.882298,split_21,optifit,train,NA
 0.878912,split_22,optifit,train,NA
@@ -29,6 +23,7 @@ mcc,split,algorithm,subset,state
 0.879122,split_27,optifit,train,NA
 0.876549,split_28,optifit,train,NA
 0.884383,split_29,optifit,train,NA
+0.881922,split_3,optifit,train,NA
 0.878965,split_30,optifit,train,NA
 0.882479,split_31,optifit,train,NA
 0.883804,split_32,optifit,train,NA
@@ -39,6 +34,7 @@ mcc,split,algorithm,subset,state
 0.883058,split_37,optifit,train,NA
 0.884502,split_38,optifit,train,NA
 0.88045,split_39,optifit,train,NA
+0.880615,split_4,optifit,train,NA
 0.882162,split_40,optifit,train,NA
 0.877353,split_41,optifit,train,NA
 0.882402,split_42,optifit,train,NA
@@ -49,6 +45,7 @@ mcc,split,algorithm,subset,state
 0.881968,split_47,optifit,train,NA
 0.881136,split_48,optifit,train,NA
 0.882185,split_49,optifit,train,NA
+0.880758,split_5,optifit,train,NA
 0.878451,split_50,optifit,train,NA
 0.88061,split_51,optifit,train,NA
 0.880755,split_52,optifit,train,NA
@@ -59,6 +56,7 @@ mcc,split,algorithm,subset,state
 0.876658,split_57,optifit,train,NA
 0.883469,split_58,optifit,train,NA
 0.880692,split_59,optifit,train,NA
+0.885652,split_6,optifit,train,NA
 0.875278,split_60,optifit,train,NA
 0.883467,split_61,optifit,train,NA
 0.879291,split_62,optifit,train,NA
@@ -69,6 +67,7 @@ mcc,split,algorithm,subset,state
 0.882878,split_67,optifit,train,NA
 0.881476,split_68,optifit,train,NA
 0.883352,split_69,optifit,train,NA
+0.881399,split_7,optifit,train,NA
 0.879439,split_70,optifit,train,NA
 0.883484,split_71,optifit,train,NA
 0.878215,split_72,optifit,train,NA
@@ -79,6 +78,7 @@ mcc,split,algorithm,subset,state
 0.882059,split_77,optifit,train,NA
 0.882692,split_78,optifit,train,NA
 0.885011,split_79,optifit,train,NA
+0.881034,split_8,optifit,train,NA
 0.883131,split_80,optifit,train,NA
 0.881781,split_81,optifit,train,NA
 0.881586,split_82,optifit,train,NA
@@ -89,6 +89,7 @@ mcc,split,algorithm,subset,state
 0.88281,split_87,optifit,train,NA
 0.883354,split_88,optifit,train,NA
 0.880648,split_89,optifit,train,NA
+0.882638,split_9,optifit,train,NA
 0.882028,split_90,optifit,train,NA
 0.878691,split_91,optifit,train,NA
 0.884995,split_92,optifit,train,NA
@@ -99,27 +100,12 @@ mcc,split,algorithm,subset,state
 0.87823,split_97,optifit,train,NA
 0.881268,split_98,optifit,train,NA
 0.877129,split_99,optifit,train,NA
-0.882855,split_100,optifit,train,NA
 0.880178,split_1,optifit,test,combo
 0.86289,split_1,optifit,test,fit
-0.880431,split_2,optifit,test,combo
-0.878318,split_2,optifit,test,fit
-0.880303,split_3,optifit,test,combo
-0.875749,split_3,optifit,test,fit
-0.88065,split_4,optifit,test,combo
-0.881288,split_4,optifit,test,fit
-0.880543,split_5,optifit,test,combo
-0.880852,split_5,optifit,test,fit
-0.880275,split_6,optifit,test,combo
-0.862229,split_6,optifit,test,fit
-0.880553,split_7,optifit,test,combo
-0.879157,split_7,optifit,test,fit
-0.880092,split_8,optifit,test,combo
-0.87881,split_8,optifit,test,fit
-0.880151,split_9,optifit,test,combo
-0.872304,split_9,optifit,test,fit
 0.879828,split_10,optifit,test,combo
 0.881979,split_10,optifit,test,fit
+0.88015,split_100,optifit,test,combo
+0.871763,split_100,optifit,test,fit
 0.880149,split_11,optifit,test,combo
 0.875241,split_11,optifit,test,fit
 0.876403,split_12,optifit,test,combo
@@ -138,6 +124,8 @@ mcc,split,algorithm,subset,state
 0.869486,split_18,optifit,test,fit
 0.879942,split_19,optifit,test,combo
 0.875319,split_19,optifit,test,fit
+0.880431,split_2,optifit,test,combo
+0.878318,split_2,optifit,test,fit
 0.876632,split_20,optifit,test,combo
 0.874118,split_20,optifit,test,fit
 0.880614,split_21,optifit,test,combo
@@ -158,6 +146,8 @@ mcc,split,algorithm,subset,state
 0.880114,split_28,optifit,test,fit
 0.879994,split_29,optifit,test,combo
 0.868901,split_29,optifit,test,fit
+0.880303,split_3,optifit,test,combo
+0.875749,split_3,optifit,test,fit
 0.876914,split_30,optifit,test,combo
 0.86932,split_30,optifit,test,fit
 0.880059,split_31,optifit,test,combo
@@ -178,6 +168,8 @@ mcc,split,algorithm,subset,state
 0.865451,split_38,optifit,test,fit
 0.880509,split_39,optifit,test,combo
 0.88219,split_39,optifit,test,fit
+0.88065,split_4,optifit,test,combo
+0.881288,split_4,optifit,test,fit
 0.880285,split_40,optifit,test,combo
 0.874473,split_40,optifit,test,fit
 0.87671,split_41,optifit,test,combo
@@ -198,6 +190,8 @@ mcc,split,algorithm,subset,state
 0.881684,split_48,optifit,test,fit
 0.880089,split_49,optifit,test,combo
 0.873432,split_49,optifit,test,fit
+0.880543,split_5,optifit,test,combo
+0.880852,split_5,optifit,test,fit
 0.877365,split_50,optifit,test,combo
 0.873938,split_50,optifit,test,fit
 0.88042,split_51,optifit,test,combo
@@ -218,6 +212,8 @@ mcc,split,algorithm,subset,state
 0.869381,split_58,optifit,test,fit
 0.880836,split_59,optifit,test,combo
 0.881871,split_59,optifit,test,fit
+0.880275,split_6,optifit,test,combo
+0.862229,split_6,optifit,test,fit
 0.875272,split_60,optifit,test,combo
 0.876202,split_60,optifit,test,fit
 0.880096,split_61,optifit,test,combo
@@ -238,6 +234,8 @@ mcc,split,algorithm,subset,state
 0.876952,split_68,optifit,test,fit
 0.880083,split_69,optifit,test,combo
 0.8693,split_69,optifit,test,fit
+0.880553,split_7,optifit,test,combo
+0.879157,split_7,optifit,test,fit
 0.88032,split_70,optifit,test,combo
 0.885529,split_70,optifit,test,fit
 0.880197,split_71,optifit,test,combo
@@ -258,6 +256,8 @@ mcc,split,algorithm,subset,state
 0.873766,split_78,optifit,test,fit
 0.880066,split_79,optifit,test,combo
 0.863093,split_79,optifit,test,fit
+0.880092,split_8,optifit,test,combo
+0.87881,split_8,optifit,test,fit
 0.880153,split_80,optifit,test,combo
 0.870976,split_80,optifit,test,fit
 0.879762,split_81,optifit,test,combo
@@ -278,6 +278,8 @@ mcc,split,algorithm,subset,state
 0.871871,split_88,optifit,test,fit
 0.880295,split_89,optifit,test,combo
 0.88078,split_89,optifit,test,fit
+0.880151,split_9,optifit,test,combo
+0.872304,split_9,optifit,test,fit
 0.88032,split_90,optifit,test,combo
 0.87586,split_90,optifit,test,fit
 0.876696,split_91,optifit,test,combo
@@ -298,5 +300,5 @@ mcc,split,algorithm,subset,state
 0.87617,split_98,optifit,test,fit
 0.875105,split_99,optifit,test,combo
 0.869458,split_99,optifit,test,fit
-0.88015,split_100,optifit,test,combo
-0.871763,split_100,optifit,test,fit
+0.7905,NA,gg,NA,NA
+0.6407,NA,vsearch,NA,NA
