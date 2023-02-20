@@ -18,4 +18,4 @@ conda-frontend: "mamba"
 notemp: true
 default-resources: [ncores=1,
                     mem_mb=1000,
-                    time_min=15]
+                    time_min="00:15:00"]
