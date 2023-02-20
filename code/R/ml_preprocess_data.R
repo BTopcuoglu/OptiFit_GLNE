@@ -18,28 +18,21 @@ testing  <- input[3] # Subsampled shared from testing samples
 ncores   <- as.numeric(input[4])
 
 #for testing the pipeline
+# method = "vsearch_gg" # "opticlust_denovo","optifit_self","optifit_gg","vsearch_denovo","vsearch_gg"
 # metadata <- "data/metadata/metadata.tsv"
-# #training <- "data/process/opticlust/split_1/train/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
-# training <- "data/process/optifit/split_1/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
-# #testing  <- "data/process/opticlust/split_1/test/glne.precluster.opti_mcc.0.03.subsample.0.03.pick.shared"
-# testing <- "data/process/optifit/split_1/test/glne.precluster.pick.renamed.fit.optifit_mcc.shared"
-# training <- "data/process/optifit/split_8/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared"
-# testing <- "data/process/optifit/split_8/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared"
+# training <- paste0("data/process/",method,"/split_1/train/glne.",method,".shared")
+# testing <- paste0("data/process/",method,"/split_1/test/glne.",method,".shared")
 # ncores=12
 
 split <- unlist(str_split(training,"/"))[4]
+method <- unlist(str_split(training,"/"))[3]
 
 print(paste0("metadata file: ",metadata))
 print(paste0("training file: ",training))
 print(paste0("testing file: ",testing))
 print(paste0("split: ",split))
 
-# Other variables
-if (str_detect(training, "optifit")) { # Setting output dir based on source of input
-  outDir <- "results/ml/optifit/"
-} else {
-  outDir <- "results/ml/opticlust/"
-}
+outDir <- paste0("results/ml/",method,"/")
 
 ######################## DATA PREPARATION ########################
 # Features: 16S rRNA gene sequences(OTUs) in the stool
@@ -50,21 +43,59 @@ doFuture::registerDoFuture()
 future::plan(future::multicore, workers = ncores)
 
 # Reading in shared file from training data
-train_shared <- read_tsv(training, col_types = cols(Group=col_character(),
+if (method == "optifit_gg"){
+  train_shared <- read_tsv(training, col_types = cols(Group=col_character(),
                                                     .default = col_double())) %>%
-  select(-label, -numOtus)
+    select(-label, -numRefOtus)  %>% 
+    # remove de novo OTUs - only keep reference OTUs
+    select(Group,starts_with("Ref_"))
+} else if (method == "vsearch_denovo") {
+  train_shared <- read_tsv(training, col_types = cols(Group=col_character(),
+                                                      label=col_character(),
+                                                    .default = col_double())) %>%
+    select(-label, -numASVs)
+} else if (method == "vsearch_gg") {
+  train_shared <- read_tsv(training, col_types = cols(Group=col_character(),
+                                                      label=col_character(),
+                                                    .default = col_double())) %>%
+    select(-label, -numRefOtus)  %>% 
+    # remove de novo OTUs - only keep reference OTUs
+    select(Group,starts_with("Ref_"))
+} else if (method %in% c("opticlust_denovo", "optifit_self")){
+  train_shared <- read_tsv(training, col_types = cols(Group=col_character(),
+                                                    .default = col_double())) %>%
+    select(-label, -numOtus)
+} else {
+  stop(paste("unrecognized method",method))
+}
 
 # Reading in shared file of the testing data
-if (str_detect(testing, "optifit")) { 
+if (method == "optifit_self") { 
   test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
                                                   .default = col_double())) %>%
-    select(-label, -numOtus) %>%
     select(Group,starts_with("Ref_")) %>% #select only OTUs in reference
     rename_all(str_replace, "Ref_", "") #remove Ref_ label to match train data
-} else {
+} else if (method == "optifit_gg"){
+  test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
+                                                  .default = col_double())) %>%
+    select(Group,starts_with("Ref_")) #select only OTUs in reference
+} else if (method == "vsearch_denovo") {
+  test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
+                                                    label=col_character(),
+                                                    .default = col_double())) %>%
+    select(Group,starts_with("ASV"))
+
+} else if (method == "vsearch_gg") {
+  test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
+                                                    label=col_character(),
+                                                    .default = col_double())) %>%
+    select(Group,starts_with("Ref_")) #select only OTUs in reference
+} else if (method == "opticlust_denovo"){
   test_shared <- read_tsv(testing, col_types = cols(Group=col_character(),
                                                   .default = col_double())) %>%
     select(-label, -numOtus) 
+} else {
+  stop(paste("unrecognized method",method))
 }
 
 

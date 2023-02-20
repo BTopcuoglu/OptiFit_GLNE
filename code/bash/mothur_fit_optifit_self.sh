@@ -20,13 +20,13 @@ REFFASTA=${6:?ERROR: Need to define TRAINFASTA.} # Reference fasta file with tes
 REFDIST=${7:?ERROR: Need to define TRAINDIST.} # Reference dist file with test data removed
 REFLIST=${8:?ERROR: Need to define TRAINLIST.} # Reference list file with test data removed
 NPROC=${9:?ERROR: Need to define NPROC.} # number or processors to use
+OUTDIR=${10:?ERROR: Need to define OUTDIR.} # Output dir based on split number 
+SUBSIZE=${11:?ERROR: Need to define SUBSIZE.} # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
 # Other variables
 NUM=`basename $SPLIT .csv`
-OUTDIR=data/process/optifit/$NUM/test/ # Output dir based on split number 
-#NPROC=$(nproc) # Setting number of processors to use based on available resources
-SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
 
+OUTDIR=${OUTDIR}/${NUM}/test/
 echo $OUTDIR
 
 ###################
@@ -67,13 +67,6 @@ mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
 	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=open, printref=f);
 	make.shared(list=current, count=current, label=0.03);
 	sub.sample(shared=current, size="${SUBSIZE}")"
+    
+mv data/process/optifit_self/${NUM}/test/glne.precluster.pick.renamed.fit.optifit_mcc.0.03.subsample.shared data/process/optifit_self/${NUM}/test/glne.optifit_self.shared
 	
-# # Selecting test data to be fit, subsampling input files to account for 'closed' clustering method, and fitting sample to previous shared file
-# mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
-# 	get.groups(fasta="${FASTA}", count="${COUNT}", taxonomy="${TAXONOMY}",  groups=${testIDS%?}, column="${DIST}");
-# 	sub.sample(fasta=current, count=current, taxonomy=current, size="${SUBSIZE}");
-# 	rename.seqs(fasta=current,count=current);
-# 	cluster.fit(fasta=current, count=current, reffasta="${REFFASTA}", refcolumn="${REFDIST}", reflist="${REFLIST}", method=closed, printref=f);
-# 	remove.seqs(count=current, accnos=current);
-# 	make.shared(list=current, count=current, label=0.03);
-# 	list.seqs(list=current)"  # creates accnos file of seqs in OTUs

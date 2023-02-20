@@ -19,8 +19,9 @@ outcome <- input[4] # Classifaction to predict
 nprocs <- as.numeric(input[5])
 
 #for testing the pipeline
-# trainingProc <- "data/learning/results/opticlust/preproc_train_split_1.csv"
-# testingProc <- "data/learning/results/opticlust/preproc_test_split_1.csv"
+# method = "opticlust_denovo" # "opticlust_denovo","optifit_self","optifit_gg","vsearch_denovo","vsearch_gg"
+# trainingProc <- paste0("results/ml/",method,"/preproc_train_split_1.csv")
+# testingProc <- paste0("results/ml/",method,"/preproc_test_split_1.csv")
 # model <- "glmnet"
 # outcome <- "dx"
 # nprocs <- 12
@@ -98,11 +99,17 @@ results <- mikropml::run_ml(dataset = allData,
                             seed = sd,
                             hyperparameters = new_hp)
 
-performance <- results$performance
+# OUTPUTS ##########################################################
 
+# write out performance results
+performance <- results$performance
+write_csv(performance,file = paste0(outDir, "performance_", split, ".csv"))
+
+# write out prediction probabilities for sample
 prediction <- predict(results$trained_model,test,type = "prob")  %>% 
   bind_cols(.,testIDS) %>% 
   select(Group,dx,cancer,normal)
+write_csv(prediction,file = paste0(outDir, "prediction_", split, ".csv"))
 
 #hyperparameter performance
 hyperparameters <- get_hp_performance(results$trained_model)$dat
@@ -110,11 +117,5 @@ write_csv(hyperparameters,paste0(outDir,"hp_",split,".csv"))
 
 # write out model
 saveRDS(results$trained_model,file = paste0(outDir, "model_",split,".rds"))
-
-# write out performance results
-write_csv(performance,file = paste0(outDir, "performance_", split, ".csv"))
-
-# write out prediction probabilities for sample
-write_csv(prediction,file = paste0(outDir, "prediction_results_", split, ".csv"))
 
 ###################################################################

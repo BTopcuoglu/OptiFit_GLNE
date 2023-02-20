@@ -1,12 +1,15 @@
 library(tidyverse)
 
-### FUNCTIONS ###########################
 
-get_pred_file_list <- function(algorithm){
-  list.files(path=paste0("data/learning/results/",algorithm),
-             pattern="prediction_results_split_[0-9]*.csv",
-             full.names=T)
-}
+infiles <- unlist(snakemake@input)
+
+# infiles <- c(paste0("results/ml/opticlust_denovo/prediction_split_",seq(1,100),".csv"),
+#              paste0("results/ml/optifit_self/prediction_split_",seq(1,100),".csv"),
+#              paste0("results/ml/optifit_gg/prediction_split_",seq(1,100),".csv"),
+#              paste0("results/ml/vsearch_denovo/prediction_split_",seq(1,100),".csv"),
+#              paste0("results/ml/vsearch_gg/prediction_split_",seq(1,100),".csv"))
+
+### FUNCTIONS ###########################
 
 get_sensitivity <- function(lookup, x){
   if(x >= max(lookup$specificity)){
@@ -21,7 +24,11 @@ get_sensitivity <- function(lookup, x){
 }
 
 pool_sens_spec <- function(file_name,specificities){
-
+  algorithm <- str_replace(file_name,
+                           "results/ml/(.*)/prediction_split_(\\d*).csv", "\\1")
+  split <- str_replace(file_name,
+                       "results/ml/(.*)/prediction_split_(\\d*).csv", "\\2")
+  
   prob <- read_csv(file_name,col_types = cols(Group=col_character(),
                                               dx=col_character(),
                                               .default=col_double()))
@@ -43,23 +50,16 @@ pool_sens_spec <- function(file_name,specificities){
     select(sensitivity, specificity, fpr)
 
   map_dfr(specificities,get_sensitivity,lookup=lookup) %>%
-    mutate(algorithm = str_replace(file_name,
-                               "data/learning/results/(.*)/prediction_results_split_(\\d*).csv", "\\1"),
-           split = str_replace(file_name,
-                              "data/learning/results/(.*)/prediction_results_split_(\\d*).csv", "\\2"))
+    mutate(algorithm = algorithm,
+           split = split)
 }
 
-loop_sens_spec <- function(algorithm,specificities){
-  get_pred_file_list(algorithm) %>%
-    map_dfr(pool_sens_spec,specificities)
-}
 
 ### VARIABLES ###########################
 
-algorithms <- c("optifit","opticlust")
 specificities <- seq(0, 1, 0.01)
 
 ### MAIN ################################
 
-all_sens_spec <- map_dfr(algorithms,loop_sens_spec,specificities)
-write_csv(all_sens_spec,"data/learning/summary/all_sens_spec.csv")
+all_sens_spec <- map_dfr(infiles,pool_sens_spec,specificities)
+write_csv(all_sens_spec,snakemake@output[["outfile"]])

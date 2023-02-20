@@ -18,12 +18,10 @@ DIST=${4:?ERROR: Need to define DIST.} # Preclustered distance file
 SPLIT=${5:?ERROR: Need to define SPLIT.} #file defining test/train split
 NUM=`basename $SPLIT .csv`
 NPROC=${6:?ERROR: Need to define NPROC.} # number or processors to use
+OUTDIR=${7:?ERROR: Need to define OUTDIR}
+SUBSIZE=${8:?ERROR: Need to define SUBSIZE.}
 
-
-# Other variables
-OUTDIR=data/process/optifit/$NUM/train/ # Output dir based on split number
-#NPROC=$(nproc) # Setting number of processors to use based on available resources
-SUBSIZE=10000 # Number of reads to subsample to, based on Baxter, et al., Genome Med, 2016
+OUTDIR=${OUTDIR}/${NUM}/train/
 
 ###################
 ### GROUP SETUP ###
@@ -62,3 +60,6 @@ mothur "#set.current(outputdir="${OUTDIR}"/, processors="${NPROC}");
 	cluster(column=current, count=current);
 	make.shared(list=current, count=current, label=0.03);
 	sub.sample(shared=current, label=0.03, size="${SUBSIZE}")"
+    
+#rename file for consistency 
+mv data/process/optifit_self/${NUM}/train/glne.precluster.pick.opti_mcc.0.03.subsample.shared data/process/optifit_self/${NUM}/train/glne.optifit_self.shared

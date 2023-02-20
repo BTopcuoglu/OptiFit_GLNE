@@ -2,7 +2,8 @@ library(tidyverse)
 library(cowplot)
 
 data <- read_csv(snakemake@input[["senspec"]])
-#data <- read_csv("data/learning/summary/all_sens_spec.csv")
+colors <- snakemake@params[["colors"]]
+#data <- read_csv("results/ml/summary/all_sens_spec.csv")
 
 avg_sens <- data %>%
   group_by(specificity,algorithm) %>%
@@ -18,7 +19,9 @@ avg_sens <- data %>%
   mutate(fpr = 1-specificity)
 
 plot <- avg_sens %>%
-  mutate(algorithm = factor(algorithm,levels=c("opticlust","optifit"),labels=c("OptiClust","OptiFit"))) %>% 
+  mutate(algorithm = factor(algorithm,
+                            levels=c("opticlust_denovo","optifit_self","optifit_gg","vsearch_denovo","vsearch_gg"),
+                            labels=c("OptiClust de novo","OptiFit Self","OptiFit GreenGenes","VSEARCH de novo", "VSEARCH GreenGenes"))) %>% 
   ggplot(aes(x=fpr,y=mean_sensitivity,
              ymin=lower_sens,ymax=upper_sens)) +
   geom_line(aes(color=algorithm),lwd=1.25,alpha=0.7) +
@@ -29,18 +32,19 @@ plot <- avg_sens %>%
   scale_y_continuous(expand = c(0,0)) +
   xlab("False Positive Rate") +
   ylab("Average True Positive Rate") +
-  theme_classic() +
-  theme(legend.position = c(0.28,0.98),
-        legend.box = "vertical",
+  theme_classic(base_size=18) +
+  theme(legend.position = c(0.75,0.25),
+        #legend.box = "vertical",
         axis.text.x = element_text(vjust = -0.5,size=14),
         axis.title.x = element_text(vjust= -0.5,size=14),
         axis.text.y = element_text(size=14),
         axis.title.y = element_text(size=14),
-        legend.text=element_text(size=12)) +
-  guides(color = guide_legend(nrow = 1,title=""),
-         fill = guide_legend(nrow = 1,title="")) +
-  scale_color_manual(values=c("#48A3DC","#F79271")) +
-  scale_fill_manual(values=c("#48A3DC","#F79271")) 
+        legend.text=element_text(size=11)) +
+  guides(color = guide_legend(nrow = 5,title=""),
+         fill = guide_legend(nrow = 5,title="")) +
+  scale_color_manual(values=colors) +
+  scale_fill_manual(values=colors) +
+  ggtitle(" ")
 
 plot_grid(plot,labels=c("C"),label_x=c(-0.01))
-ggsave("results/figures/avg_roc.png",height=5,width=5,bg='#ffffff')
+ggsave("results/figures/avg_roc.png",height=5,scale=1.2,width=5,bg='#ffffff')

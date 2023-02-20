@@ -1,8 +1,9 @@
 library(tidyverse)
 
-data <- read_csv(snakemake@input[["mergedPerf"]])
-#data <- read_csv("data/learning/summary/merged_performance.csv")
+data <- read_csv(snakemake@input[["merged_performance"]])
+#data <- read_csv("results/ml/summary/merged_performance.csv")
 
+outfile <- snakemake@output[["outfile"]]
 
 ### FUNCTIONS
 
@@ -102,4 +103,4 @@ compare_models <- function(merged_data,metric,group_name){
 pvals <- bind_rows(c(metric="cv_metric_AUC",compare_models(data,"cv_metric_AUC","algorithm")),
                    c(metric="AUC",compare_models(data,"AUC","algorithm"))) 
 
-write_csv(pvals,"results/tables/pvalues.csv")
+write_csv(pvals,outfile)
