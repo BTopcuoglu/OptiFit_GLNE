@@ -720,6 +720,17 @@ rule calculate_pvalues:
     script:
         "code/R/calculate_pvalues.R"
 
+rule calculate_nOTU:
+    input:
+        expand("results/ml/{method}/preproc_train_split_{split}.csv",
+               method = methods,split = split_nums)
+    output:
+        outfile="results/ml/summary/merged_nOTU.csv"
+    resources:
+        time_min="00:60:00"
+    script:
+        "code/R/calculate_nOTU.R"
+        
 ##################################################################
 #
 # Part 12: Plots
