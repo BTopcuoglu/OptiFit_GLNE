@@ -86,7 +86,7 @@ grps <- c(paste0("TR",seq(1,nrow(train))),
 sd <- as.numeric(str_replace(split,"split_",""))
 
 #set hyperparameters
-new_hp = list(mtry = c(68,137,274,350))
+new_hp = list(mtry = c(30,68,137,274,350))
 
 # Run the model
 results <- mikropml::run_ml(dataset = allData,
