@@ -36,7 +36,18 @@ rule all:
     input:
         expand("results/ml/summary/merged_{metric}.csv",
                metric = metrics),
-        "results/tables/pvalues.csv"
+        #results
+        "results/tables/pvalues.csv",
+        "results/ml/summary/merged_nOTU.csv",
+        "results/tables/n_features.csv",
+        "results/tables/counts.csv",
+        #figures
+        "results/figures/split_8020.png",
+        "results/figures/mcc_scores.png",
+        "results/figures/hp_performance.png",
+        "results/figures/avg_auroc.png",
+        "results/figures/avg_roc.png",
+        
     shell:
         '''
         if $(ls | grep -q "mothur.*logfile"); then
@@ -730,7 +741,38 @@ rule calculate_nOTU:
         time_min="00:60:00"
     script:
         "code/R/calculate_nOTU.R"
-        
+
+rule calculate_features:
+    input:
+        expand("results/ml/{method}/preproc_train_split_{split}.csv",
+               method = methods,split = split_nums),
+        expand("data/process/{method}/split_{split}/train/glne.{method}.shared",
+               method = methods,split = split_nums),
+        expand("data/process/{method}/split_{split}/test/glne.{method}.shared",
+               method = methods,split = split_nums)
+    output:
+        "results/tables/n_features.csv"
+    resources:
+        time_min="03:00:00"
+    script:
+        "code/R/calculate_test_feats.R"
+
+rule calculate_counts:
+    input:
+        expand("results/ml/{method}/preproc_train_split_{split}.csv",
+               method = methods,split = split_nums),
+        expand("data/process/{method}/split_{split}/train/glne.{method}.shared",
+               method = methods,split = split_nums),
+        expand("data/process/{method}/split_{split}/test/glne.{method}.shared",
+               method = methods,split = split_nums)
+    output:
+        "results/tables/counts.csv"
+    resources:
+        time_min="03:00:00",
+        mem_mb=10000
+    script:
+        "code/R/calculate_counts.R"
+    
 ##################################################################
 #
 # Part 12: Plots
