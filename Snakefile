@@ -786,7 +786,8 @@ rule plot8020splits:
     input:
         splits=rules.generate_splits_8020.output.splits
     output:
-        split_plot="results/figures/split_8020.png"
+        split_plot="results/figures/split_8020.png",
+        frequency="results/tables/train_test_frequency.csv"
     params:
         outdir="results/figures/"
     script:

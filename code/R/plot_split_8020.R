@@ -13,6 +13,7 @@ split_files <- files  %>%
 counts <- split_files  %>% 
     group_by(group)  %>% 
     count(train_test)  
+write_csv(counts,"results/tables/train_test_frequency.csv")
 
 set.seed(1234)
 plot <- counts  %>% 
