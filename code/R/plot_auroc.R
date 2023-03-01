@@ -15,7 +15,7 @@ data <- data %>%
                              algorithm == "vsearch_gg" ~ "VSEARCH GreenGenes",
                              algorithm == "optifit_self" ~ "OptiFit Self",
                              TRUE ~ NA)) %>% 
-  mutate(algorithm = factor(algorithm,levels=order))
+  mutate(algorithm = factor(algorithm,levels=rev(order)))
 
 means <- data %>% 
   select(cv_metric_AUC,AUC,algorithm) %>% 
