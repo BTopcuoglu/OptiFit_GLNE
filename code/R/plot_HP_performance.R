@@ -3,9 +3,20 @@ library(tidyverse)
 outDir <- snakemake@params[["outdir"]]
 if(!dir.exists(outDir)){dir.create(outDir)}
 
-mergedHP <- read_csv(snakemake@input[["hp"]])
+mergedHP <- read_csv(snakemake@input[["hp"]]) 
 colors <- snakemake@params[["colors"]]
+order <- snakemake@params[["order"]]
+names(colors) <- order
 
+mergedHP <- mergedHP %>% 
+  mutate(algorithm=case_when(algorithm == "opticlust_denovo" ~ "OptiClust de novo",
+                             algorithm == "optifit_gg" ~ "OptiFit GreenGenes",
+                             algorithm == "vsearch_denovo" ~ "VSEARCH de novo",
+                             algorithm == "vsearch_gg" ~ "VSEARCH GreenGenes",
+                             algorithm == "optifit_self" ~ "OptiFit Self",
+                             TRUE ~ NA)) %>% 
+  mutate(algorithm = factor(algorithm,levels=order)) 
+  
 plot <- mergedHP  %>% 
   group_by(mtry,algorithm)  %>% 
   summarise("mean_AUC" = mean(AUC),
@@ -22,7 +33,7 @@ plot <- mergedHP  %>%
       width = .001) +
     ylab("Mean AUC") +
     ggtitle("Hyperparameter Performance") +
-    scale_color_manual(values=colors)
+    scale_color_manual(values=colors,name="Algorithm")
 ggsave(paste0(outDir,"hp_performance.png"),width=10)
 
 
@@ -42,6 +53,6 @@ plot2 <- mergedHP  %>%
       width = .001) +
     ylab("Mean AUC") +
     ggtitle("Hyperparameter Performance") +
-    scale_color_manual(values=c("#20639b","#3caea3","#f5ad5b","#ed553b","#a989ba")) +
+    scale_color_manual(values=colors) +
     theme(legend.position="none")
 ggsave(paste0(outDir,"hp_performance_grid.png"),width=13)

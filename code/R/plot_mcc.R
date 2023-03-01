@@ -4,10 +4,9 @@ library(ggplot2)
 mcc_file <- snakemake@input[["mcc"]]
 colors <- snakemake@params[["colors"]]
 outfile <- snakemake@output[["plot"]]
+order <- snakemake@params[["order"]]
 
-# mcc_file <- "results/ml/summary/merged_mcc.csv"
-# colors <- c("#20639b","#3caea3","#f5ad5b","#ed553b","#a989ba")
-# outfile <- "results/figures/mcc_scores.png"
+names(colors) <- order
 
 mcc <- read_csv(mcc_file) %>% 
     mutate(Group=case_when(algorithm == "opticlust_denovo" ~ "OptiClust de novo",
@@ -18,12 +17,8 @@ mcc <- read_csv(mcc_file) %>%
                            state == "fit" ~ "OptiFit Self - Fit",
                            TRUE ~ "OptiFit Self"))   %>% 
   filter(!(Group %in% c("OptiFit Self - Reference","OptiFit Self - Fit"))) %>%
-  mutate(Group = factor(Group,
-                        levels=c("OptiClust de novo","OptiFit Self","OptiFit GreenGenes",
-                                 "VSEARCH de novo","VSEARCH GreenGenes")))
-                        # levels=c("VSEARCH GreenGenes","VSEARCH de novo","OptiFit GreenGenes",
-                        #          "OptiFit Self","OptiClust de novo")))
-
+  mutate(Group = factor(Group,levels=rev(order)))
+                        
 plot <- mcc  %>% 
   ggplot(aes(y=Group,x=mcc,fill=Group)) +
     geom_jitter(height=0.2,width=0,alpha=0.7,size=5,shape=21,color="black") +
@@ -34,7 +29,8 @@ plot <- mcc  %>%
     theme(panel.grid.major.x = element_line(color="grey85"),
           panel.grid.minor.x = element_line(color="grey92"),
           panel.grid.major.y = element_blank(),
-          text = element_text(size = 13)) +
+          text = element_text(size = 13),
+          legend.position="none") +
     scale_fill_manual(values=colors)
 
-ggsave(outfile,height=7,width=10)
+ggsave(outfile,width=8,height=5)

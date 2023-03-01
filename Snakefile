@@ -29,7 +29,9 @@ subsample_size = 10000
 # results to merge
 metrics=["performance","prediction","hp"]
 #for plotting
-group_colors = ["#20639b","#3caea3","#f5ad5b","#ed553b","#a989ba"]
+group_colors = ["#a989ba","#20639b","#3caea3","#f5ad5b","#ed553b"]
+group_order = ["OptiFit Self","OptiClust de novo","OptiFit GreenGenes",
+               "VSEARCH de novo","VSEARCH GreenGenes"]
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
@@ -798,7 +800,8 @@ rule plot_mcc:
     output:
         plot="results/figures/mcc_scores.png"
     params:
-        colors=group_colors
+        colors=group_colors,
+        order=group_order
     script:
         "code/R/plot_mcc.R"
 
@@ -810,7 +813,8 @@ rule plotHPperformance:
         hp_plot="results/figures/hp_performance.png"
     params:
         outdir="results/figures/",
-        colors=group_colors
+        colors=group_colors,
+        order=group_order
     script:
         "code/R/plot_HP_performance.R"
             
@@ -821,7 +825,8 @@ rule plotAUROC:
     output:
         fig_auc="results/figures/avg_auroc.png"
     params:
-        colors=group_colors
+        colors=group_colors,
+        order=group_order
     script:
         "code/R/plot_auroc.R"
         
@@ -831,7 +836,8 @@ rule plotAvgROC:
     output:
         fig_roc="results/figures/avg_roc.png"
     params:
-        colors=group_colors
+        colors=group_colors,
+        order=group_order
     script:
         "code/R/plot_avgROC.R"
 

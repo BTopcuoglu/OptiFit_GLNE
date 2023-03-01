@@ -1,10 +1,20 @@
 library(tidyverse)
 library(cowplot)
 
-data <- read_csv(snakemake@input[["senspec"]])
+data <- read_csv(snakemake@input[["senspec"]]) 
 colors <- snakemake@params[["colors"]]
-#data <- read_csv("results/ml/summary/all_sens_spec.csv")
+order <- snakemake@params[["order"]]
 
+names(colors) <- order
+data <- data %>% 
+  mutate(algorithm=case_when(algorithm == "opticlust_denovo" ~ "OptiClust de novo",
+                             algorithm == "optifit_gg" ~ "OptiFit GreenGenes",
+                             algorithm == "vsearch_denovo" ~ "VSEARCH de novo",
+                             algorithm == "vsearch_gg" ~ "VSEARCH GreenGenes",
+                             algorithm == "optifit_self" ~ "OptiFit Self",
+                             TRUE ~ NA)) %>% 
+  mutate(algorithm = factor(algorithm,levels=rev(order)))
+  
 avg_sens <- data %>%
   group_by(specificity,algorithm) %>%
   summarise(mean_sensitivity = mean(sensitivity),
@@ -19,13 +29,10 @@ avg_sens <- data %>%
   mutate(fpr = 1-specificity)
 
 plot <- avg_sens %>%
-  mutate(algorithm = factor(algorithm,
-                            levels=c("opticlust_denovo","optifit_self","optifit_gg","vsearch_denovo","vsearch_gg"),
-                            labels=c("OptiClust de novo","OptiFit Self","OptiFit GreenGenes","VSEARCH de novo", "VSEARCH GreenGenes"))) %>% 
   ggplot(aes(x=fpr,y=mean_sensitivity,
              ymin=lower_sens,ymax=upper_sens)) +
-  geom_line(aes(color=algorithm),lwd=1.25,alpha=0.7) +
-  geom_ribbon(aes(fill=algorithm),alpha=0.15) +
+  geom_line(aes(color=algorithm),lwd=1.25,alpha=0.8) +
+  # geom_ribbon(aes(fill=algorithm),alpha=0.15) +
   coord_equal() +
   geom_abline(intercept = 0,lty="dashed",color="grey50") +
   scale_x_continuous(expand = c(0,0)) +
@@ -42,8 +49,8 @@ plot <- avg_sens %>%
         legend.text=element_text(size=11)) +
   guides(color = guide_legend(nrow = 5,title=""),
          fill = guide_legend(nrow = 5,title="")) +
-  scale_color_manual(values=colors) +
-  scale_fill_manual(values=colors) +
+  scale_color_manual(values=colors,breaks=order) +
+  #scale_fill_manual(values=colors) +
   ggtitle(" ")
 
 plot_grid(plot,labels=c("C"),label_x=c(-0.01))

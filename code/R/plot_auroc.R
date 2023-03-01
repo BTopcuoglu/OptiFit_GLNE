@@ -1,13 +1,21 @@
 library(tidyverse)
 library(cowplot)
 
-data <- read_csv(snakemake@input[["perf"]])
+data <- read_csv(snakemake@input[["perf"]]) 
 pvals <- read_csv(snakemake@input[["pvals"]])
 output <- snakemake@output[["fig_auc"]]
 colors <- snakemake@params[["colors"]]
-#data <- read_csv("results/ml/summary/merged_performance.csv")
-#pvals <- read_csv("results/tables/pvalues.csv")
-#colors <- c("#20639b","#3caea3","#f5ad5b","#ed553b","#a989ba")
+order <- snakemake@params[["order"]]
+
+names(colors) <- order
+data <- data %>% 
+  mutate(algorithm=case_when(algorithm == "opticlust_denovo" ~ "OptiClust de novo",
+                             algorithm == "optifit_gg" ~ "OptiFit GreenGenes",
+                             algorithm == "vsearch_denovo" ~ "VSEARCH de novo",
+                             algorithm == "vsearch_gg" ~ "VSEARCH GreenGenes",
+                             algorithm == "optifit_self" ~ "OptiFit Self",
+                             TRUE ~ NA)) %>% 
+  mutate(algorithm = factor(algorithm,levels=order))
 
 means <- data %>% 
   select(cv_metric_AUC,AUC,algorithm) %>% 
@@ -15,10 +23,8 @@ means <- data %>%
          Test=AUC) %>% 
   pivot_longer(!algorithm,names_to="type",values_to = "AUC") %>% 
   group_by(algorithm,type) %>% 
-  summarise(mean_AUC = round(mean(AUC),digits=3)) %>% 
-  mutate(type = factor(type,levels=c("Train","Test")),
-         algorithm = factor(algorithm,levels=c("opticlust_denovo","optifit_self","optifit_gg","vsearch_denovo","vsearch_gg"),
-                            labels = c("OptiClust de novo","OptiFit Self","OptiFit GreenGenes","VSEARCH de novo", "VSEARCH GreenGenes")))
+  summarise(mean_AUC = format(round(mean(AUC),digits=3), nsmall=3))  %>% 
+  mutate(type = factor(type,levels=c("Train","Test")))
 
 set.seed(1234)
 plot <- data %>% 
@@ -26,23 +32,20 @@ plot <- data %>%
   rename(Train=cv_metric_AUC,
          Test=AUC) %>% 
   pivot_longer(!algorithm,names_to="type",values_to = "AUC") %>% 
-  mutate(type = factor(type,levels=c("Train","Test"),
-                       labels=),
-         algorithm = factor(algorithm,levels=rev(c("opticlust_denovo","optifit_self","optifit_gg","vsearch_denovo","vsearch_gg")),
-                            labels = rev(c("OptiClust de novo","OptiFit Self","OptiFit GreenGenes","VSEARCH de novo", "VSEARCH GreenGenes")))) %>% 
+  mutate(type = factor(type,levels=c("Train","Test"))) %>% 
   ggplot(aes(y=algorithm,x=AUC,color=algorithm)) +
     geom_jitter(height=0.2,width=0,alpha = 0.4,size=2) + 
     stat_summary(fun = mean, geom="pointrange",
                  fun.max = function(x) mean(x) + sd(x),
                  fun.min = function(x) mean(x) - sd(x),
-                 color="black") +
+                 color="black",size=1,linewidth=1) +
     theme_bw(base_size=18) +
     xlab("AUROC") +
     ylab("") +
     facet_grid(.~type) +
     theme(legend.position = "none",
           panel.spacing = unit(2, "lines")) +
-    geom_text(data=means,aes(y=algorithm,x=mean_AUC,label=mean_AUC),
+    geom_text(data=means,aes(y=algorithm,x=as.numeric(mean_AUC),label=mean_AUC),
               vjust=4,size=4.2,color="black") +
     scale_color_manual(values=colors) 
 
