@@ -1,5 +1,7 @@
 library(tidyverse)
 library(cowplot)
+library(glue)
+library(ggtext)
 
 data <- read_csv(snakemake@input[["perf"]]) 
 pvals <- read_csv(snakemake@input[["pvals"]])
@@ -44,12 +46,20 @@ plot <- data %>%
     ylab("") +
     facet_grid(.~type) +
     theme(legend.position = "none",
-          panel.spacing = unit(2, "lines")) +
+          panel.spacing = unit(2, "lines"),
+          #axis.text.y = element_markdown(margin = margin(r=15))) +
+          axis.text.y = element_markdown(hjust=1,margin=margin(r=15))) +
     geom_text(data=means,aes(y=algorithm,x=as.numeric(mean_AUC),label=mean_AUC),
               vjust=4,size=4.2,color="black") +
-    scale_color_manual(values=colors) 
+    scale_color_manual(values=colors) +
+    scale_y_discrete(breaks=rev(order),
+                     labels=c(glue("VSEARCH<br>*de novo*"),
+                              glue("VSEARCH<br>GreenGenes"),
+                              glue("OptiFit<br>GreenGenes"),
+                              glue("OptiClust<br>*de novo*"),
+                              glue("OptiFit<br>Self")))
 
-cowplot::plot_grid(plot,NULL,labels = c("A","B"),label_x=c(0.24,-38),
+cowplot::plot_grid(plot,NULL,labels = c("A","B"),label_x=c(0.15,-43),
                    label_y = c(0.98),rel_widths = c(100,1),label_size=14)
 ggsave(output,height=5,width=8,scale=1.2,bg='#ffffff')
 
@@ -77,3 +87,4 @@ ggsave(output,height=5,width=8,scale=1.2,bg='#ffffff')
 # #               vjust=4,size=4.2,color="black") +
 #     scale_color_manual(values=colors)  
     
+
