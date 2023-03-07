@@ -8,9 +8,9 @@ order <- snakemake@params[["order"]]
 names(colors) <- order
 data <- data %>% 
   mutate(algorithm=case_when(algorithm == "opticlust_denovo" ~ "OptiClust de novo",
-                             algorithm == "optifit_gg" ~ "OptiFit GreenGenes",
+                             algorithm == "optifit_gg" ~ "OptiFit Greengenes",
                              algorithm == "vsearch_denovo" ~ "VSEARCH de novo",
-                             algorithm == "vsearch_gg" ~ "VSEARCH GreenGenes",
+                             algorithm == "vsearch_gg" ~ "VSEARCH Greengenes",
                              algorithm == "optifit_self" ~ "OptiFit Self",
                              TRUE ~ NA)) %>% 
   mutate(algorithm = factor(algorithm,levels=rev(order)))

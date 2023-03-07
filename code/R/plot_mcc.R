@@ -10,9 +10,9 @@ names(colors) <- order
 
 mcc <- read_csv(mcc_file) %>% 
     mutate(Group=case_when(algorithm == "opticlust_denovo" ~ "OptiClust de novo",
-                           algorithm == "optifit_gg" ~ "OptiFit GreenGenes",
+                           algorithm == "optifit_gg" ~ "OptiFit Greengenes",
                            algorithm == "vsearch_denovo" ~ "VSEARCH de novo",
-                           algorithm == "vsearch_gg" ~ "VSEARCH GreenGenes",
+                           algorithm == "vsearch_gg" ~ "VSEARCH Greengenes",
                            subset == "train" ~ "OptiFit Self - Reference",
                            state == "fit" ~ "OptiFit Self - Fit",
                            TRUE ~ "OptiFit Self"))   %>% 
