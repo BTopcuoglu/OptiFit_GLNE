@@ -30,8 +30,8 @@ subsample_size = 10000
 metrics=["performance","prediction","hp"]
 #for plotting
 group_colors = ["#a989ba","#20639b","#3caea3","#f5ad5b","#ed553b"]
-group_order = ["OptiFit Self","OptiClust de novo","OptiFit GreenGenes",
-               "VSEARCH de novo","VSEARCH GreenGenes"]
+group_order = ["OptiFit Self","OptiClust de novo","OptiFit Greengenes",
+               "VSEARCH de novo","VSEARCH Greengenes"]
 
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
@@ -87,7 +87,7 @@ rule download_metadata:
     shell:
         "bash {input.script}"
 
-# Downloading and formatting SILVA, RDP, and GreenGenes reference databases. 
+# Downloading and formatting SILVA, RDP, and Greengenes reference databases. 
 rule format_16Sreferences:
     input:
         script="code/bash/mothur_format_16Sreferences.sh",
