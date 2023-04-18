@@ -1,5 +1,5 @@
 ---
-title: "**Machine learning classification using self-reference-based OTU clustering**"
+title: "**Machine learning classification by fitting amplicon sequences to existing OTUs**"
 output:
   rmarkdown::pdf_document:
     keep_tex: yes
@@ -37,7 +37,7 @@ format_decimal <- function(number,digits){
 
 ```
 
-Running title: Reference-based OTU clustering for ML classification
+Running title: self-reference-based OTU clustering for ML classification
 
 \vspace{10mm}
 
@@ -119,19 +119,14 @@ do not require retraining or the use of a reference database.
 
 \newpage
 
-There is increasing evidence for an association between the composition of the gut microbiome and a variety of diseases, such as crohn's disease and colorectal cancer. The signatures that associate with disease have shown potential to aid in diagnosis of disease throught gut microbiome profiling and machine learning. Taxonomic composition of microbial
+There is increasing evidence for an association between the composition of the gut microbiome and a variety of diseases, such as crohn's disease and colorectal cancer [@Morgan2012;@Sobhani2011]. There is great potential diagnose of disease with gut microbiome sequence data and machine learning. Taxonomic composition of microbial
 communities can be assessed using amplicon sequencing of the 16S rRNA
 gene, which is the input to classification models. Analysis of 16S rRNA
 gene sequence data generally relies on assigning sequences into
 operational taxonomic units (OTUs). The process of OTU clustering can
 either be reference-based or *de novo*. The quality of OTUs generated
 with reference-based clustering is generally poor compared to those
-generated with *de novo* clustering @westcott2015. While *de novo*
-clustering produces high-quality OTU clusters where sequences are
-accurately grouped based on similarity thresholds, the resulting OTU
-clusters depend on the sequences within the dataset and the addition of
-new data has the potential to redefine OTU cluster composition. The
-unstable nature of *de novo* OTU clustering complicates deployment of
+generated with *de novo* clustering @westcott2015. While *de novo* clustering produces high-quality OTU clusters where sequences are accurately grouped based on similarity thresholds, the resulting OTU clusters depend on the sequences within the dataset and the addition of new data has the potential to redefine OTU cluster composition. The unstable nature of *de novo* OTU clustering complicates deployment of
 machine learning models since integration of additional data requires
 reclustering all the data and retraining the model. The ability to
 integrate new data into a validated model without reclustering and
@@ -145,15 +140,14 @@ OptiFit to cluster new sequence data into existing OTU clusters for the
 purpose of classifying disease based on gut microbiome composition.
 
 We compared the ability of several approaches for assigning 16S rRNA
-gene seequences to OTUs including, *de novo*, database-reference-based,
-and self-reference-based with OptiFit. To test how the model performance
+gene sequences to OTUs including, *de novo* and reference-based clustering. For reference-based clustering, we used closed-reference clustering to a public database (database-reference-based) and to OTUs generated froma subset of the samples (self-reference-based). To test how the model performance
 compared between these approaches, we used a publicly available dataset
 of 16S rRNA gene sequences from stool samples of healthy subjects (n =
 226) as well as subjects with screen-relevant neoplasia (SRN) consisting
 of advanced adenoma and carcinoma (n = 229) @baxter2016. For the *de
 novo* workflows, all the 16S rRNA sequence data was clustered into OTUs.
 The OTU clustering was conducted using two common algorithms: 1) the
-OptiClust algorithm in mothur @westcott2017 and 2) the VSEARCH algorithm
+OptiClust algorithm in mothur [@westcott2017] and 2) the VSEARCH algorithm
 used in QIIME2 [@rognes2016; @bolyen2019]. For both algorithms, the
 resulting abundance data was then split into training and testing sets,
 where the training set was used to tune hyperparameters and ultimately
@@ -228,13 +222,10 @@ each method. Indeed, the MCC scores were similar between the OptiClust
 *de novo* (MCC = `r opticlust_denovo_mcc`) and OptiFit self-reference
 workflows (average MCC = `r optifit_self_avg_mcc %>% pull(mean_mcc)`,
 standard deviation = `r optifit_self_avg_mcc %>% pull(sd_mcc)`).
-Previously, we observed that *de novo* clustering tends to produce
-higher MCC scores than reference-based clustering @sovacool2022.
-Consistent with prior findings the reference-based methods produced
+Consistent with prior findings, the reference-based methods produced
 lower MCC scores (OptiFit Greengenes MCC = `r optifit_gg_mcc`; VSEARCH
-Greengenes MCC = `r vsearch_gg_mcc`) than the *de novo* methods with the
-same algorithm (OptiClust *de novo* MCC = `r opticlust_denovo_mcc`;
-VSEARCH *de novo* MCC = `r vsearch_denovo_mcc`). Another metric we
+Greengenes MCC = `r vsearch_gg_mcc`) than the *de novo* methods (OptiClust *de novo* MCC = `r opticlust_denovo_mcc`;
+VSEARCH *de novo* MCC = `r vsearch_denovo_mcc`) @sovacool2022. Another metric we
 examined for the OptiFit workflow was the fraction of sequences from the
 test set that mapped to the reference OTUs. Since sequences that did not
 map to reference OTUs were eliminated, if a high percentage of reads did
@@ -286,17 +277,15 @@ the training data from the workflows to train a model to predict SRNs
 and used the model on the held out data. Using the predicted and actual
 diagnosis classification, we calculated the area under the receiver
 operating characteristic curve (AUROC) for each data split. During
-cross-validation (CV) training, the model performance was equivalent
-between OptFit self-reference and OptiClust *de novo* (p-value =
+cross-validation (CV) training, the performance of the OptFit self-reference and OptiClust *de novo* models were not significantly different (p-value =
 `r get_pval(pvals, "cv_metric_AUC", "opticlust_denovo", "optifit_self")`;
-Figure 2A) while while performance for both VSEARCH methods was lower
+Figure 2A), while performance for both VSEARCH methods was significantly lower
 than the OptiClust *de novo*, OptiFit self, and OptiFit Greengenes
 methods (p-values \< 0.05). The trained model was then applied to the
 test data classifying samples as either control or SRN. Both VSEARCH
-methods perform slightly worse than the OptiClust \*de novo\* method
-(both p-values \< 0.05). However the performance on the test data was
-equivalent between the OptiClust *de novo*, OptiFit Greengenes, and
-OptiFit self-reference approaches (p-value \> 0.05; Figures 2B and 2C).
+methods perform slightly worse than the OptiClust *de novo* method
+(both p-values \< 0.05). However the performance on the test data for the OptiClust *de novo*, OptiFit Greengenes, and
+OptiFit self-reference approaches were not significantly different (p-value \> 0.05; Figures 2B and 2C).
 These results indicate that new data could be fit to existing OTU
 clusters using OptiFit without impacting model performance.
 
@@ -359,7 +348,7 @@ training or test sets. Each sample was in the training set an average of
 `r format_decimal(n_test_train %>% pull(sd_train),digits = 1)`) and the
 test set an average of `r n_test_train %>% pull(avg_test)` times
 (standard deviation =
-`r format_decimal(n_test_train %>% pull(sd_test),digits = 1)`\`).
+`r format_decimal(n_test_train %>% pull(sd_test),digits = 1)`).
 
 ***Reference-based workflows.***
 
@@ -373,9 +362,8 @@ test set an average of `r n_test_train %>% pull(avg_test)` times
     removed. This process was repeated for each of the 100 splits
     resulting in 100 training and testing datasets.
 2.  OptiFit Greengenes: Reference sequences from the Greengenes database
-    v13_8\_99 @desantis2006 were downloaded and processed with mothur by
-    trimming to the V4 region and clustered *de novo* with OptiClust
-    @westcott2017. The preprocessed data was fit to the clustered
+    v13_8_99 @desantis2006 were downloaded and processed with mothur by
+    trimming to the V4 region and clustered *de novo* with OptiClust [@westcott2017]. The preprocessed data was fit to the clustered
     reference data using OptiFit with the method open to allow any
     sequences that did not map to the existing reference clusters would
     form new OTUs. The data was then subsampled to 10,000 reads and any
@@ -416,14 +404,14 @@ training set was preprocessed to normalize OTU counts (scale and
 center), collapse correlated OTUs, and remove OTUs with zero variance.
 The preprocessing from the training set was then applied to the test
 set. Any OTUs in the test set that were not in the training set were
-removed. P values comparing model performance were calculated as
+removed. P-values comparing model performance were calculated as
 previously described @topçuoglu2020. The averaged ROC curves were
 plotted by taking the average and standard deviation of the sensitivity
 at each specificity value.
 
 ***Code Availability.***
 
-The analysis workflow was implemented in Snakemake @koster2012. Scripts
+The analysis workflow was implemented in Snakemake [@koster2012]. Scripts
 for analysis were written in R @R2020 and GNU bash @GNUbash. The
 software used includes mothur v1.47.0 @schloss2009, VSEARCH v2.15.2
 @rognes2016, RStudio @RStudio2019, the Tidyverse metapackage

@@ -36,4 +36,4 @@ Is OptiFit only usable with OptiClust as the precursor?
 
 What is the relevance of the MCC evaluation? What if an alternative method had lower MCC but better pred
 
-\textcolor{blue}{The MCC score is a measure of OTU cluster quality based on the similarity of sequences and whether they are appropriately clustered together or not. Since we added additional methods, we can see that some methods do have lower MCC but equal model performance. This likely indicates that the model depends on well clustered OTUs. We've added some discussion on this to the paper (lines: ).}
+\textcolor{blue}{The MCC score is a measure of OTU cluster quality based on the similarity of sequences and whether they are appropriately clustered together or not. Since we added additional methods, we can see that some methods do have lower MCC but equal model performance. This likely indicates that the model depends on well clustered OTUs. We've added some discussion on this to the paper (lines: 104-107).}
