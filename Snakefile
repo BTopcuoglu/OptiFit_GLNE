@@ -36,6 +36,11 @@ group_order = ["OptiFit Self","OptiClust de novo","OptiFit Greengenes",
 # Master rule for controlling workflow. Cleans up mothur log files when complete.
 rule all:
     input:
+        expand("data/process/vsearch_gg/split_1/train/glne.vsearch_gg.shared"),
+        expand("data/process/vsearch_denovo/split_1/train/glne.vsearch_denovo.shared"),
+        expand("results/ml/{method}/performance_split_{num}.csv",
+               num = split_nums, method = methods),
+        
         expand("results/ml/summary/merged_{metric}.csv",
                metric = metrics),
         #results
@@ -563,7 +568,7 @@ rule vsearch_make_shared:
         """
         mothur "#set.current(outputdir={params.outdir},processors={resources.ncores});
             make.shared(list={input.list_file},count={input.count_table});
-            sub.sample(shared=current, size={params.subsize}));
+            sub.sample(shared=current, size={params.subsize});
             rename.file(shared=current,prefix={params.method})"
         """
 
@@ -713,6 +718,8 @@ rule get_sens_spec:
                num = split_nums)   
     output:
         outfile="results/ml/summary/all_sens_spec.csv"
+    resources: 
+        time_min="60:00:00"
     script:
         "code/R/get_sens_spec.R"
 
@@ -770,7 +777,7 @@ rule calculate_counts:
     output:
         "results/tables/counts.csv"
     resources:
-        time_min="03:00:00",
+        time_min="06:00:00",
         mem_mb=10000
     script:
         "code/R/calculate_counts.R"

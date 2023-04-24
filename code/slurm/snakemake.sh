@@ -9,7 +9,7 @@
 #SBATCH --account=pschloss1
 #SBATCH --partition=standard
 #SBATCH --mail-user=armourc@umich.edu
-#SBATCH --mail-type=FAIL
+#SBATCH --mail-type=FAIL,END
 #SBATCH --output=%x-%j.out
 #SBATCH --export=ALL
 
@@ -31,4 +31,4 @@ conda activate glne
 mkdir -p logs/slurm/
 
 # Initiating snakemake and running workflow in cluster mode
-time snakemake --profile config/slurm/ --latency-wait 90 --rerun-incomplete
+time snakemake --profile config/slurm/ --latency-wait 90 --rerun-incomplete 
