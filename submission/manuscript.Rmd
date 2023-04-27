@@ -65,9 +65,7 @@ USA
 $\dagger$ To whom correspondence should be addressed:
 [pschloss\@umich.edu](mailto:pschloss@umich.edu)
 
-\vspace{10mm}
 
-**observation format** (max 1200 words, 2 figures, 25 ref)
 
 \newpage
 
@@ -119,7 +117,7 @@ do not require retraining or the use of a reference database.
 
 \newpage
 
-There is increasing evidence for an association between the composition of the gut microbiome and a variety of diseases, such as crohn's disease and colorectal cancer [@Morgan2012;@Sobhani2011]. There is great potential diagnose of disease with gut microbiome sequence data and machine learning. Taxonomic composition of microbial
+There is increasing evidence for an association between the composition of the gut microbiome and a variety of diseases, such as crohn's disease and colorectal cancer [@Morgan2012;@Sobhani2011]. There is great potential to diagnose disease with gut microbiome sequence data and machine learning. Taxonomic composition of microbial
 communities can be assessed using amplicon sequencing of the 16S rRNA
 gene, which is the input to classification models. Analysis of 16S rRNA
 gene sequence data generally relies on assigning sequences into
@@ -140,7 +138,7 @@ OptiFit to cluster new sequence data into existing OTU clusters for the
 purpose of classifying disease based on gut microbiome composition.
 
 We compared the ability of several approaches for assigning 16S rRNA
-gene sequences to OTUs including, *de novo* and reference-based clustering. For reference-based clustering, we used closed-reference clustering to a public database (database-reference-based) and to OTUs generated froma subset of the samples (self-reference-based). To test how the model performance
+gene sequences to OTUs including, *de novo* and reference-based clustering. For reference-based clustering, we used closed-reference clustering to a public database (database-reference-based) and to OTUs generated from a subset of the samples (self-reference-based). To test how the model performance
 compared between these approaches, we used a publicly available dataset
 of 16S rRNA gene sequences from stool samples of healthy subjects (n =
 226) as well as subjects with screen-relevant neoplasia (SRN) consisting
@@ -235,7 +233,7 @@ since on average
 `r avg_frac_mapped %>% filter(methods == "optifit_self", set == "test") %>% pull(mean_frac) %>% round(digits=1)`%
 (standard deviation =
 `r avg_frac_mapped %>% filter(methods == "optifit_self", set == "test") %>% pull(sd_frac) %>% round(digits=2)`%)
-of sequences in the test set mapped to the reference OTUs. This number
+of sequences in the subsampled test set mapped to the reference OTUs. This number
 is higher than the average fraction of reads mapped in the OptiFit
 Greengenes workflow (
 `r avg_frac_mapped %>% filter(methods == "optifit_gg",set == "test") %>% pull(mean_frac) %>% round(digits=1)`%
@@ -265,11 +263,14 @@ pvals <- read_csv("../results/tables/pvalues.csv",col_types = cols(p_value = col
                                                                    .default = col_character())) 
 
 get_pval <- function(pvals,met,g1,g2){
-  pvals %>% 
+  val <- pvals %>% 
     filter(metric == met) %>% 
     filter(group1 == g1 & group2 == g2 | group1 == g2 & group2 == g1) %>% 
-    pull(p_value) %>% round(digits = 3)
+    pull(p_value) 
+  
+  format(round(val,digits = 3),nsmall=3)
 }
+#get_pval(pvals,"AUC","opticlust_denovo","vsearch_gg")
 ```
 
 We next assessed model performance using OTU relative abundances from
@@ -277,15 +278,12 @@ the training data from the workflows to train a model to predict SRNs
 and used the model on the held out data. Using the predicted and actual
 diagnosis classification, we calculated the area under the receiver
 operating characteristic curve (AUROC) for each data split. During
-cross-validation (CV) training, the performance of the OptFit self-reference and OptiClust *de novo* models were not significantly different (p-value =
+cross-validation (CV) training, the performance of the OptiFit self-reference and OptiClust *de novo* models were not significantly different (p-value =
 `r get_pval(pvals, "cv_metric_AUC", "opticlust_denovo", "optifit_self")`;
 Figure 2A), while performance for both VSEARCH methods was significantly lower
 than the OptiClust *de novo*, OptiFit self, and OptiFit Greengenes
 methods (p-values \< 0.05). The trained model was then applied to the
-test data classifying samples as either control or SRN. Both VSEARCH
-methods perform slightly worse than the OptiClust *de novo* method
-(both p-values \< 0.05). However the performance on the test data for the OptiClust *de novo*, OptiFit Greengenes, and
-OptiFit self-reference approaches were not significantly different (p-value \> 0.05; Figures 2B and 2C).
+test data classifying samples as either control or SRN. The VSEARCH Greengenes method performed slightly worse than the OptiClust *de novo* method (p-value = `r get_pval(pvals,"AUC","opticlust_denovo","vsearch_gg")`). However the performance on the test data for the OptiClust *de novo*, OptiFit Greengenes, OptiFit self-reference, and VSEARCH *de novo* approaches were not significantly different (p-values \> 0.05; Figures 2B and 2C).
 These results indicate that new data could be fit to existing OTU
 clusters using OptiFit without impacting model performance.
 
