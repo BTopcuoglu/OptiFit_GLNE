@@ -1,15 +1,15 @@
-## Streamlined implementation of a machine learning model to classify screen relevant neoplasia using reference-based OTU clustering
+## Machine learning classification by fitting amplicon sequences to existing OTUs
 
-Machine learning classification of disease based on the gut microbiome often relies on clustering 16S rRNA gene sequences into operational taxonomic units (OTUs) to quantify microbial composition. The abundance of each OTU is then used to train a classification model. The standard de novo approach to clustering sequences into OTUs leverages the similarity of the sequences to each other rather than to a reference database. However, such an approach depends on the sequences in the dataset and therefore OTU assignments can change if new data are added. This lack of stability complicates classification because in order to use the model to classify additional samples, the new sequences must be reclustered with the old data and the model must be retrained with the new OTU assignments. The new reference-based clustering algorithm, OptiFit, addresses this issue by fitting new sequences into existing OTUs. While OptiFit can produce high quality OTU clusters, it is unclear whether this method for fitting new sequence data into existing OTUs will impact the performance of classification models. We used OptiFit to cluster additional data into existing OTU clusters and then evaluated model performance in classifying a dataset containing samples from patients with and without colonic screen relevant neoplasia (SRN). We compared the performance of this model to the standard procedure of de novo clustering all the data together. We found that both approaches performed equally well in classifying SRNs. Moving forward, when OTUs are used in classification problems, OptiFit can streamline the process of classifying new samples by avoiding the need to retrain models using reclustered sequences.
+The ability to use 16S rRNA gene sequence data to train machine learning classification models offers the opportunity diagnose patients based on the composition of their microbiome. In some applications the taxonomic resolution that provides the best models may require the use of de novo OTUs whose composition changes when new data are added. We previously developed a new reference-based approach, OptiFit, that fits new sequence data to existing de novo OTUs without changing the composition of the original OTUs. While OptiFit produces OTUs that are as high quality as de novo OTUs, it is unclear whether this method for fitting new sequence data into existing OTUs will impact the performance of classification models relative to models trained and tested only using de novo OTUs. We used OptiFit to cluster sequences into existing OTUs and evaluated model performance in classifying a dataset containing samples from patients with and without colonic screen relevant neoplasia (SRN). We compared the performance of this model to standard methods including de novo and database-reference-based clustering. We found that using OptiFit performed as well or better in classifying SRNs. OptiFit can streamline the process of classifying new samples by avoiding the need to retrain models using reclustered sequences.
 
 ### Citation
 > Armour CR, Sovacool KL, Close WL, Topçuoğlu BD, Wiens J, Schloss PD.
-> 2022. Streamlined implementation of a machine learning model to classify screen relevant neoplasia using reference-based OTU clustering. 
-> https://doi.org/10.1101/2022.09.01.506299
+> 2023. Machine learning classification by fitting amplicon sequences to existing OTUs
+> (URL)
 ### Quickstart
 1. Clone this repository.
    ```
-   git clone https://github.com/SchlossLab/Armour_OptiFitGLNE_mBio_2023
+   git clone https://github.com/SchlossLab/Armour_OptiFitGLNE_XXXX_2023
    ```
 2. Install the dependencies.
    ```
@@ -32,7 +32,6 @@ Machine learning classification of disease based on the gut microbiome often rel
 
 ### Directory Structure
 
-	project
 	|- README          # the top level description of content (this doc)
 	|- CONTRIBUTING    # instructions for how to contribute to your project
 	|- LICENSE         # the license for this project
