@@ -3,6 +3,8 @@
 *.smk linguist-language=Python
 *.R linguist-language=R
 *.html linguist-detectable=false
-#paper/paper.tex linguist-vendored=true
-#paper/references.bib linguist-vendored=true
-#code/tests/data/* linguist-vendored=true
+
+*.Rmd linguist-language=R
+manuscript.tex linguist-vendored=true
+mbio.csl linguist-vendored=true
+references.bib linguist-vendored=true
