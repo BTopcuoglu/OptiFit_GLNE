@@ -1,0 +1,714 @@
+% Options for packages loaded elsewhere
+\PassOptionsToPackage{unicode}{hyperref}
+\PassOptionsToPackage{hyphens}{url}
+%
+\documentclass[
+]{article}
+\usepackage{amsmath,amssymb}
+\usepackage{lmodern}
+\usepackage{iftex}
+\ifPDFTeX
+  \usepackage[T1]{fontenc}
+  \usepackage[utf8]{inputenc}
+  \usepackage{textcomp} % provide euro and other symbols
+\else % if luatex or xetex
+  \usepackage{unicode-math}
+  \defaultfontfeatures{Scale=MatchLowercase}
+  \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+% Use upquote if available, for straight quotes in verbatim environments
+\IfFileExists{upquote.sty}{\usepackage{upquote}}{}
+\IfFileExists{microtype.sty}{% use microtype if available
+  \usepackage[]{microtype}
+  \UseMicrotypeSet[protrusion]{basicmath} % disable protrusion for tt fonts
+}{}
+\makeatletter
+\@ifundefined{KOMAClassName}{% if non-KOMA class
+  \IfFileExists{parskip.sty}{%
+    \usepackage{parskip}
+  }{% else
+    \setlength{\parindent}{0pt}
+    \setlength{\parskip}{6pt plus 2pt minus 1pt}}
+}{% if KOMA class
+  \KOMAoptions{parskip=half}}
+\makeatother
+\usepackage{xcolor}
+\usepackage[margin=1.0in]{geometry}
+\usepackage{graphicx}
+\makeatletter
+\def\maxwidth{\ifdim\Gin@nat@width>\linewidth\linewidth\else\Gin@nat@width\fi}
+\def\maxheight{\ifdim\Gin@nat@height>\textheight\textheight\else\Gin@nat@height\fi}
+\makeatother
+% Scale images if necessary, so that they will not overflow the page
+% margins by default, and it is still possible to overwrite the defaults
+% using explicit options in \includegraphics[width, height, ...]{}
+\setkeys{Gin}{width=\maxwidth,height=\maxheight,keepaspectratio}
+% Set default figure placement to htbp
+\makeatletter
+\def\fps@figure{htbp}
+\makeatother
+\setlength{\emergencystretch}{3em} % prevent overfull lines
+\providecommand{\tightlist}{%
+  \setlength{\itemsep}{0pt}\setlength{\parskip}{0pt}}
+\setcounter{secnumdepth}{-\maxdimen} % remove section numbering
+\newlength{\cslhangindent}
+\setlength{\cslhangindent}{1.5em}
+\newlength{\csllabelwidth}
+\setlength{\csllabelwidth}{3em}
+\newlength{\cslentryspacingunit} % times entry-spacing
+\setlength{\cslentryspacingunit}{\parskip}
+\newenvironment{CSLReferences}[2] % #1 hanging-ident, #2 entry spacing
+ {% don't indent paragraphs
+  \setlength{\parindent}{0pt}
+  % turn on hanging indent if param 1 is 1
+  \ifodd #1
+  \let\oldpar\par
+  \def\par{\hangindent=\cslhangindent\oldpar}
+  \fi
+  % set entry spacing
+  \setlength{\parskip}{#2\cslentryspacingunit}
+ }%
+ {}
+\usepackage{calc}
+\newcommand{\CSLBlock}[1]{#1\hfill\break}
+\newcommand{\CSLLeftMargin}[1]{\parbox[t]{\csllabelwidth}{#1}}
+\newcommand{\CSLRightInline}[1]{\parbox[t]{\linewidth - \csllabelwidth}{#1}\break}
+\newcommand{\CSLIndent}[1]{\hspace{\cslhangindent}#1}
+\usepackage{helvet}
+\renewcommand*\familydefault{\sfdefault}
+\usepackage{setspace}
+\doublespacing
+\usepackage[left]{lineno}
+\usepackage{multirow}
+\usepackage[none]{hyphenat}
+\ifLuaTeX
+  \usepackage{selnolig}  % disable illegal ligatures
+\fi
+\IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
+\IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
+\urlstyle{same} % disable monospaced font for URLs
+\hypersetup{
+  pdftitle={Machine learning classification by fitting amplicon sequences to existing OTUs},
+  hidelinks,
+  pdfcreator={LaTeX via pandoc}}
+
+\title{\textbf{Machine learning classification by fitting amplicon
+sequences to existing OTUs}}
+\author{}
+\date{\vspace{-2.5em}}
+
+\begin{document}
+\maketitle
+
+Running title: self-reference-based OTU clustering for ML classification
+
+\vspace{10mm}
+
+Courtney R. Armour\({^1}\), Kelly L. Sovacool\({^2}\), William L.
+Close\(^{1,*}\), Begüm D. Topçuoğlu\(^{1,\#}\), Jenna Wiens\({^3}\),
+Patrick D. Schloss \(^{1,\dagger}\)
+
+\vspace{10mm}
+
+\({^1}\) Department of Microbiology and Immunology, University of
+Michigan, Ann Arbor, Michigan, USA
+
+\({^2}\) Department of Computational Medicine and Bioinformatics,
+University of Michigan, Ann Arbor, Michigan, USA
+
+\({^3}\) Department of Electrical Engineering and Computer Science,
+University of Michigan, Ann Arbor, Michigan, USA
+
+\({^*}\) Current Affiliation: Bio-Rad Laboratories, Hercules,
+California, USA
+
+\({^\#}\) Current Affiliation: Bristol Myers Squibb, Summit, New Jersey,
+USA
+
+\(\dagger\) To whom correspondence should be addressed:
+\href{mailto:pschloss@umich.edu}{\nolinkurl{pschloss@umich.edu}}
+
+\newpage
+
+\linenumbers
+
+\hypertarget{abstract}{%
+\subsection{Abstract}\label{abstract}}
+
+The ability to use 16S rRNA gene sequence data to train machine learning
+classification models offers the opportunity diagnose patients based on
+the composition of their microbiome. In some applications the taxonomic
+resolution that provides the best models may require the use of \emph{de
+novo} OTUs whose composition changes when new data are added. We
+previously developed a new reference-based approach, OptiFit, that fits
+new sequence data to existing \emph{de novo} OTUs without changing the
+composition of the original OTUs. While OptiFit produces OTUs that are
+as high quality as \emph{de novo} OTUs, it is unclear whether this
+method for fitting new sequence data into existing OTUs will impact the
+performance of classification models relative to models trained and
+tested only using \emph{de novo} OTUs. We used OptiFit to cluster
+sequences into existing OTUs and evaluated model performance in
+classifying a dataset containing samples from patients with and without
+colonic screen relevant neoplasia (SRN). We compared the performance of
+this model to standard methods including \emph{de novo} and
+database-reference-based clustering. We found that using OptiFit
+performed as well or better in classifying SRNs. OptiFit can streamline
+the process of classifying new samples by avoiding the need to retrain
+models using reclustered sequences.
+
+\newpage
+
+\hypertarget{importance}{%
+\subsection{Importance}\label{importance}}
+
+There is great potential for using microbiome data to aid in diagnosis.
+A challenge with \emph{de novo} OTU-based classification models is that
+16S rRNA gene sequences are often assigned to OTUs based on similarity
+to other sequences in the dataset. If data are generated from new
+patients, the old and new sequences must be reclustered to OTUs and the
+classification model retrained. Yet there is a desire to have a single,
+validated model that can be widely deployed. To overcome this obstacle,
+we applied the OptiFit clustering algorithm to fit new sequence data to
+existing OTUs allowing for reuse of the model. A random forest model
+implemented using OptiFit performed as well as the traditional reassign
+and retrain approach. This result shows that it is possible to train and
+apply machine learning models based on OTU relative abundance data that
+do not require retraining or the use of a reference database.
+
+\newpage
+
+There is increasing interest in training machine learning models to
+diagnose diseases such as Crohn's disease and colorectal cancer using
+the relative abundance of clusters of similar 16S rRNA gene sequences
+(\protect\hyperlink{ref-baxter2016}{1},
+\protect\hyperlink{ref-gevers2014}{2}). These models have been used to
+identify sequence clusters that are important for distinguishing between
+individuals from different disease categories
+(\protect\hyperlink{ref-duvallet2017}{3}). There is also an opportunity
+to train models and apply them to classify samples from new individuals.
+For example, a model for colorectal cancer could be trained, ``locked
+down'', and applied to samples from new patients.
+
+To apply these models to new samples the composition of the clusters
+would need to be independent of the new data. For example, amplicon
+sequence variants (ASVs) are defined without consideration of sequences
+in other samples, phylotypes are defined by clustering sequences that
+have the same taxonomy (e.g., to the same family) when classified using
+a taxonomy database, and closed reference operational taxonomic units
+(OTUs) are defined by mapping sequences to a collection of reference
+OTUs. In contrast, \emph{de novo} approaches cluster sequences based on
+their similarity to other sequences in the dataset and can change when
+new data are added. Although it would be preferrable to select an
+approach that generates stable clusters, there may be cases where OTUs
+generated by a \emph{de novo} approach outperform those of the other
+taxonomic levels. In fact, we recently trained machine learning models
+for classifying patients with and without screen relevant neoplasias
+(SRNs) in their colons and found that OTUs generated \emph{de novo}
+using the OptiClust algorithm performed better than those generated
+using ASVs or at higher taxonomic levels
+(\protect\hyperlink{ref-Armour2022}{4}).
+
+It could be possible to construct reference OTUs and map new sequences
+to those OTUs to attain similar performance as was seen with the
+OptiClust-generated OTUs. The traditional approach to reference-based
+clustering of sequences to OTUs has multiple drawbacks and does not
+produce clusters as good as those generated using OptiClust
+(\protect\hyperlink{ref-sovacool2022}{5}). Sovacool \emph{et al}
+recently described OptiFit, a method for fitting new sequence data into
+existing OTUs that overcomes the limitations of traditional
+reference-based clustering (\protect\hyperlink{ref-sovacool2022}{5}).
+OptiFit allows researchers to fit new data into existing OTUs defined
+from the same dataset resulting in clusters that are as good as if they
+had all been clustered with OptiClust. We tested whether
+OptiClust-generated OTUs could be used to train models that were then
+used to classify held out samples after clustering their sequences to
+the model's OTUs using OptiFit.
+
+To test how the model performance compared between using \emph{de novo}
+and reference-based clustering approaches, we used a publicly available
+dataset of 16S rRNA gene sequences from stool samples of healthy
+subjects (n = 226) as well as subjects with screen-relevant neoplasia
+(SRN) consisting of advanced adenoma and carcinoma (n = 229)
+(\protect\hyperlink{ref-baxter2016}{1}). For the \emph{de novo}
+workflows, the 16S rRNA sequence data from all samples were clustered
+into OTUs using the OptiClust algorithm in mothur 1 and the VSEARCH
+algorithm used in QIIME2 (\protect\hyperlink{ref-rognes2016}{6},
+\protect\hyperlink{ref-bolyen2019}{7}). For both algorithms, the
+resulting abundance data was then split into training and testing sets,
+where the training set was used to tune hyperparameters and ultimately
+train and select the model. The model was applied to the testing set and
+performance evaluated (Figure 1A). For traditional reference-based
+clustering (database-reference-based), we used OptiFit to fit the
+sequence data into OTUs based on the commonly used greengenes reference
+database. To compare with another commonly used method, we also used
+VSEARCH to map sequences to reference OTUs from the greengenes database
+with the parameters used by QIIME2. Again, the data was then split into
+training and testing sets, hyperparameters tuned, and performance
+evaluated on the testing set (Figure 1B). In the OptiFit self-reference
+workflow (self-reference-based), the data was split into a training and
+a testing set. The training set was clustered into OTUs and used to
+train a classification model. The OptiFit algorithm was used to fit
+sequence data of samples not part of the training data into the training
+OTUs and classified using the best hyperparameters (Figure 1C). For each
+of the workflows the process was repeated for 100 random splits of the
+data to account for variation caused by the choice of the random number
+generator seed.
+
+We first examined the quality of the resulting OTU clusters from each
+method using the Matthews correlation coefficient (MCC). MCC is an
+objective metric used to measure OTU cluster quality based on the
+similarity of all pairs of sequences and whether they are appropriately
+clustered or not (\protect\hyperlink{ref-westcott2015}{8}). We expected
+the MCC scores produced by the OptiFit workflow to be similar to that of
+\emph{de novo} clustering using the OptiClust algorithm. In the OptiFit
+workflow the test data was fit to the clustered training data for each
+of the 100 data splits resulting in an MCC score for each split of the
+data. In the remaining workflows, the data was only clustered once and
+then split into the training and testing sets resulting in a single MCC
+score for each method. Indeed, the MCC scores were similar between the
+OptiClust \emph{de novo} (MCC = 0.884) and OptiFit self-reference
+workflows (average MCC = 0.879, standard deviation = 0.002). Consistent
+with prior findings, the reference-based methods produced lower MCC
+scores (OptiFit greengenes MCC = 0.786; VSEARCH greengenes MCC = 0.531)
+than the \emph{de novo} methods (OptiClust \emph{de novo} MCC = 0.884;
+VSEARCH \emph{de novo} MCC = 0.641)
+(\protect\hyperlink{ref-sovacool2022}{5}). Another metric we examined
+for the OptiFit workflow was the fraction of sequences from the test set
+that mapped to the reference OTUs. Since sequences that did not map to
+reference OTUs were eliminated, if a high percentage of reads did not
+map to an OTU we expected this loss of data to negatively impact
+classification performance. We found that loss of data was not an issue
+since on average 99.8\% (standard deviation = 0.7\%) of sequences in the
+subsampled test set mapped to the reference OTUs. This number is higher
+than the average fraction of reads mapped in the OptiFit greengenes
+workflow (mean = 96.8\%, standard deviation = 3.5). These results
+indicate that the OptiFit self-reference method performed as well as the
+OptiClust \emph{de novo} method and better than using an external
+database.
+
+We next assessed model performance using OTU relative abundances from
+the training data from the workflows to train a model to predict SRNs
+and used the model on the held-out data. Using the predicted and actual
+diagnosis classification, we calculated the area under the receiver
+operating characteristic curve (AUROC) for each data split. During
+cross-validation (CV) training, the performance of the OptiFit
+self-reference and OptiClust \emph{de novo} models were not
+significantly different (p-value = 0.066; Figure 2A), while performance
+for both VSEARCH methods was significantly lower than the OptiClust
+\emph{de novo}, OptiFit self, and OptiFit greengenes methods (p-values
+\textless{} 0.05). The trained model was then applied to the test data
+classifying samples as either control or SRN. The VSEARCH greengenes
+method performed slightly worse than the OptiClust \emph{de novo} method
+(p-value = 0.030). However, the performance on the test data for the
+OptiClust \emph{de novo}, OptiFit greengenes, OptiFit self-reference,
+and VSEARCH \emph{de novo} approaches were not significantly different
+(p-values \textgreater{} 0.05; Figures 2B and 2C). These results
+indicate that new data could be fit to existing OTU clusters using
+OptiFit without impacting model performance.
+
+Random forest machine learning models trained using OptiClust-generated
+OTUs and tested using OptiFit-generated OTUs performed as well as a
+model trained using entirely \emph{de novo} OTU assignments. A potential
+problem with reference-based clustering methods is that sequences that
+do not map to the reference OTUs are discarded, resulting in a possible
+loss of information. However, we demonstrated that the training samples
+represented the most important OTUs for classifying samples. Missing
+important OTUs is more of a risk when using a database-reference-based
+method since not all environments are well represented in public
+databases. Despite this and the lower quality OTUs, the
+database-reference-based approach performed as well as the models
+generated using OptiFit. This likely indicates that the sequences that
+were important to the model were well characterized by the greengenes
+reference OTUs. However, a less well studied system may not be as well
+characterized by a reference-database which would make the ability to
+utilize one's own data a reference an exciting possibility. Our results
+highlight that OptiFit overcomes a significant limitation with machine
+learning models trained using \emph{de novo} OTUs. This is an important
+result for those applications where models trained using \emph{de novo}
+OTUs outperform models generated using methods that produce clusters
+that do not depend on which sequences are included in the dataset.
+
+\hypertarget{materials-and-methods}{%
+\subsection{Materials and Methods}\label{materials-and-methods}}
+
+\textbf{Dataset.} Raw 16S rRNA gene sequence data from the V4 region
+were previously generated from human stool samples. Sequences were
+downloaded from the NCBI Sequence Read Archive (accession no. SRP062005)
+(\protect\hyperlink{ref-baxter2016}{1}). This dataset contains stool
+samples from 490 subjects. For this analysis, samples from subjects
+identified in the metadata as normal, high risk normal, or adenoma were
+categorized as ``normal'', while samples from subjects identified as
+advanced adenoma or carcinoma were categorized as ``screen relevant
+neoplasia'' (SRN). The resulting dataset consisted of 261 normal samples
+and 229 SRN samples.
+
+\textbf{Data processing.} The full dataset was preprocessed with mothur
+(v1.47) (\protect\hyperlink{ref-schloss2009}{9}) to join forward and
+reverse reads, merge duplicate reads, align to the SILVA reference
+database (v132) (\protect\hyperlink{ref-quast2013}{10}), precluster,
+remove chimeras with UCHIME (\protect\hyperlink{ref-edgar2011}{11}),
+assign taxonomy, and remove non-bacterial reads following the Schloss
+Lab MiSeq standard operating procedure described on the mothur website
+(\url{https://mothur.org/wiki/miseq_sop/}). 100 splits of the 490
+samples were generated where 80\% of the samples (392 samples) were
+randomly assigned to the training set and the remaining 20\% (98
+samples) were assigned to the test set. Using 100 splits of the data
+accounts for the variation that may be observed depending on the samples
+that are in the training or test sets. Each sample was in the training
+set an average of 80 times (standard deviation = 4.1) and the test set
+an average of 20 times (standard deviation = 4.1).
+
+\textbf{\emph{Reference-based workflows.}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\tightlist
+\item
+  OptiFit Self: The preprocess data was split into the training and
+  testing sets. The training set was clustered into OTUs using
+  OptiClust, then the test set was fit to the OTUs of the training set
+  using the OptiFit algorithm (\protect\hyperlink{ref-sovacool2022}{5}).
+  The OptiFit algorithm was run with method open so that any sequences
+  that did not map to the existing OTU clusters would form new OTUs. The
+  data was then subsampled to 10,000 reads and any novel OTUs from the
+  test set were removed. This process was repeated for each of the 100
+  splits resulting in 100 training and testing datasets.
+\item
+  OptiFit Greengenes: Reference sequences from the Greengenes database
+  v13\_8\_99 (\protect\hyperlink{ref-desantis2006}{12}) were downloaded
+  and processed with mothur by trimming to the V4 region and clustered
+  \emph{de novo} with OptiClust
+
+  \begin{enumerate}
+  \def\labelenumii{\arabic{enumii}.}
+  \tightlist
+  \item
+    The preprocessed data was fit to the clustered reference data using
+    OptiFit with the method open to allow any sequences that did not map
+    to the existing reference clusters would form new OTUs. The data was
+    then subsampled to 10,000 reads and any novel OTUs from the test set
+    were removed. The dataset was then split into two sets where 80\% of
+    the samples were assigned to the training set and 20\% to the
+    testing set. This process was repeated for each of the 100 splits
+    resulting in 100 training and testing datasets.
+  \end{enumerate}
+\item
+  VSEARCH Greengenes: Preprocessed data was clustered using VSEARCH
+  v2.15.2 (\protect\hyperlink{ref-rognes2016}{6}) directly to
+  unprocessed Greengenes 97\% OTU reference alignment consistent with
+  how VSEARCH is typically used by the QIIME2 software for
+  reference-based clustering (\protect\hyperlink{ref-bolyen2019}{7}).
+  The data was then subsampled to 10,000 reads and any novel OTUs from
+  the test set were removed. The dataset was then split into two sets
+  where 80\% of the samples were assigned to the training set and 20\%
+  to the testing set. This process was repeated for each of the 100
+  splits resulting in 100 training and testing datasets.
+\end{enumerate}
+
+\textbf{\emph{De novo workflows.}}
+
+\begin{enumerate}
+\def\labelenumi{\arabic{enumi}.}
+\setcounter{enumi}{3}
+\tightlist
+\item
+  OptiClust \emph{de novo}: All the preprocessed data was clustered
+  together with OptiClust 1 to generate OTUs. The data was subsampled to
+  10,000 reads per sample and the resulting abundance tables were split
+  into the training and testing sets. The process was repeated for each
+  of the 100 splits resulting in 100 training and testing datasets.
+\item
+  VSEARCH \emph{de novo}: All the preprocessed data was clustered using
+  VSEARCH v2.15.2 (\protect\hyperlink{ref-rognes2016}{6}) with 97\%
+  identity and then subsampled to 10,000 reads per sample. The process
+  was repeated for each of the 100 splits resulting in 100 training and
+  testing datasets for both workflows.
+\end{enumerate}
+
+\textbf{Machine Learning.} A random forest model was trained with the R
+package mikrompl (v 1.2.0)
+(\protect\hyperlink{ref-topuxe7uoglu2021}{13}) to predict the diagnosis
+(SRN or normal) for the samples in the test set for each data split. The
+training set was preprocessed to normalize OTU counts (scale and
+center), collapse correlated OTUs, and remove OTUs with zero variance.
+The preprocessing from the training set was then applied to the test
+set. Any OTUs in the test set that were not in the training set were
+removed. P-values comparing model performance were calculated as
+previously described (\protect\hyperlink{ref-topuxe7uoglu2020}{14}). The
+averaged ROC curves were plotted by taking the average and standard
+deviation of the sensitivity at each specificity value.
+
+\textbf{Code Availability.} The analysis workflow was implemented in
+Snakemake (\protect\hyperlink{ref-koster2012}{15}). Scripts for analysis
+were written in R (\protect\hyperlink{ref-R2020}{16}) and GNU bash
+(\protect\hyperlink{ref-GNUbash}{17}). The software used includes mothur
+v1.47.0 (\protect\hyperlink{ref-schloss2009}{9}), VSEARCH v2.15.2
+(\protect\hyperlink{ref-rognes2016}{6}), RStudio
+(\protect\hyperlink{ref-RStudio2019}{18}), the Tidyverse metapackage
+(\protect\hyperlink{ref-wickham2019}{19}), R Markdown
+(\protect\hyperlink{ref-xie_r_2018}{20}), the SRA toolkit
+(\protect\hyperlink{ref-noauthor_sra-tools_nodate}{21}), and conda
+(\protect\hyperlink{ref-noauthor_anaconda_2016}{22}). The complete
+workflow and supporting files required to reproduce this study are
+available at:
+\url{https://github.com/SchlossLab/Armour_OptiFitGLNE_XXXX_2023}
+
+\hypertarget{acknowledgments}{%
+\subsection{Acknowledgments}\label{acknowledgments}}
+
+This work was supported through a grant from the NIH (R01CA215574).
+
+\newpage
+
+\hypertarget{references}{%
+\subsection{References}\label{references}}
+
+\setlength{\parindent}{-0.25in}
+\setlength{\leftskip}{0.25in}
+
+\noindent
+
+\hypertarget{refs}{}
+\begin{CSLReferences}{0}{1}
+\leavevmode\vadjust pre{\hypertarget{ref-baxter2016}{}}%
+\CSLLeftMargin{1. }%
+\CSLRightInline{\textbf{Baxter NT}, \textbf{Ruffin MT}, \textbf{Rogers
+MAM}, \textbf{Schloss PD}. 2016. Microbiota-based model improves the
+sensitivity of fecal immunochemical test for detecting colonic lesions.
+Genome Medicine \textbf{8}:37.
+doi:\href{https://doi.org/10.1186/s13073-016-0290-3}{10.1186/s13073-016-0290-3}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-gevers2014}{}}%
+\CSLLeftMargin{2. }%
+\CSLRightInline{\textbf{Gevers D}, \textbf{Kugathasan S}, \textbf{Denson
+LA}, \textbf{Vázquez-Baeza Y}, \textbf{Van~Treuren W}, \textbf{Ren B},
+\textbf{Schwager E}, \textbf{Knights D}, \textbf{Song SJ},
+\textbf{Yassour M}, \textbf{Morgan XC}, \textbf{Kostic AD}, \textbf{Luo
+C}, \textbf{González A}, \textbf{McDonald D}, \textbf{Haberman Y},
+\textbf{Walters T}, \textbf{Baker S}, \textbf{Rosh J}, \textbf{Stephens
+M}, \textbf{Heyman M}, \textbf{Markowitz J}, \textbf{Baldassano R},
+\textbf{Griffiths A}, \textbf{Sylvester F}, \textbf{Mack D}, \textbf{Kim
+S}, \textbf{Crandall W}, \textbf{Hyams J}, \textbf{Huttenhower C},
+\textbf{Knight R}, \textbf{Xavier RJ}. 2014. The treatment-naive
+microbiome in new-onset crohn{'}s disease. Cell Host \& Microbe
+\textbf{15}:382--392.
+doi:\href{https://doi.org/10.1016/j.chom.2014.02.005}{10.1016/j.chom.2014.02.005}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-duvallet2017}{}}%
+\CSLLeftMargin{3. }%
+\CSLRightInline{\textbf{Duvallet C}, \textbf{Gibbons SM}, \textbf{Gurry
+T}, \textbf{Irizarry RA}, \textbf{Alm EJ}. 2017. Meta-analysis of gut
+microbiome studies identifies disease-specific and shared responses.
+Nature Communications \textbf{8}:1784.
+doi:\href{https://doi.org/10.1038/s41467-017-01973-8}{10.1038/s41467-017-01973-8}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-Armour2022}{}}%
+\CSLLeftMargin{4. }%
+\CSLRightInline{\textbf{Armour CR}, \textbf{Topçuoğlu BD},
+\textbf{Garretto A}, \textbf{Schloss PD}. 2022. A goldilocks principle
+for the gut microbiome: Taxonomic resolution matters for
+microbiome-based classification of colorectal cancer. MBio
+\textbf{13}:e0316121.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-sovacool2022}{}}%
+\CSLLeftMargin{5. }%
+\CSLRightInline{\textbf{Sovacool KL}, \textbf{Westcott SL},
+\textbf{Mumphrey MB}, \textbf{Dotson GA}, \textbf{Schloss PD}. 2022.
+OptiFit: An improved method for fitting amplicon sequences to existing
+OTUs. mSphere \textbf{7}:e00916--21.
+doi:\href{https://doi.org/10.1128/msphere.00916-21}{10.1128/msphere.00916-21}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rognes2016}{}}%
+\CSLLeftMargin{6. }%
+\CSLRightInline{\textbf{Rognes T}, \textbf{Flouri T}, \textbf{Nichols
+B}, \textbf{Quince C}, \textbf{Mahé F}. 2016. VSEARCH: a versatile open
+source tool for metagenomics. PeerJ \textbf{4}:e2584.
+doi:\href{https://doi.org/10.7717/peerj.2584}{10.7717/peerj.2584}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-bolyen2019}{}}%
+\CSLLeftMargin{7. }%
+\CSLRightInline{\textbf{Bolyen E}, \textbf{Rideout JR}, \textbf{Dillon
+MR}, \textbf{Bokulich NA}, \textbf{Abnet CC}, \textbf{Al-Ghalith GA},
+\textbf{Alexander H}, \textbf{Alm EJ}, \textbf{Arumugam M},
+\textbf{Asnicar F}, \textbf{Bai Y}, \textbf{Bisanz JE},
+\textbf{Bittinger K}, \textbf{Brejnrod A}, \textbf{Brislawn CJ},
+\textbf{Brown CT}, \textbf{Callahan BJ}, \textbf{Caraballo-Rodríguez
+AM}, \textbf{Chase J}, \textbf{Cope EK}, \textbf{Da Silva R},
+\textbf{Diener C}, \textbf{Dorrestein PC}, \textbf{Douglas GM},
+\textbf{Durall DM}, \textbf{Duvallet C}, \textbf{Edwardson CF},
+\textbf{Ernst M}, \textbf{Estaki M}, \textbf{Fouquier J},
+\textbf{Gauglitz JM}, \textbf{Gibbons SM}, \textbf{Gibson DL},
+\textbf{Gonzalez A}, \textbf{Gorlick K}, \textbf{Guo J},
+\textbf{Hillmann B}, \textbf{Holmes S}, \textbf{Holste H},
+\textbf{Huttenhower C}, \textbf{Huttley GA}, \textbf{Janssen S},
+\textbf{Jarmusch AK}, \textbf{Jiang L}, \textbf{Kaehler BD},
+\textbf{Kang KB}, \textbf{Keefe CR}, \textbf{Keim P}, \textbf{Kelley
+ST}, \textbf{Knights D}, \textbf{Koester I}, \textbf{Kosciolek T},
+\textbf{Kreps J}, \textbf{Langille MGI}, \textbf{Lee J}, \textbf{Ley R},
+\textbf{Liu Y-X}, \textbf{Loftfield E}, \textbf{Lozupone C},
+\textbf{Maher M}, \textbf{Marotz C}, \textbf{Martin BD},
+\textbf{McDonald D}, \textbf{McIver LJ}, \textbf{Melnik AV},
+\textbf{Metcalf JL}, \textbf{Morgan SC}, \textbf{Morton JT},
+\textbf{Naimey AT}, \textbf{Navas-Molina JA}, \textbf{Nothias LF},
+\textbf{Orchanian SB}, \textbf{Pearson T}, \textbf{Peoples SL},
+\textbf{Petras D}, \textbf{Preuss ML}, \textbf{Pruesse E},
+\textbf{Rasmussen LB}, \textbf{Rivers A}, \textbf{Robeson MS},
+\textbf{Rosenthal P}, \textbf{Segata N}, \textbf{Shaffer M},
+\textbf{Shiffer A}, \textbf{Sinha R}, \textbf{Song SJ}, \textbf{Spear
+JR}, \textbf{Swafford AD}, \textbf{Thompson LR}, \textbf{Torres PJ},
+\textbf{Trinh P}, \textbf{Tripathi A}, \textbf{Turnbaugh PJ},
+\textbf{Ul-Hasan S}, \textbf{Hooft JJJ van der}, \textbf{Vargas F},
+\textbf{Vázquez-Baeza Y}, \textbf{Vogtmann E}, \textbf{Hippel M von},
+\textbf{Walters W}, \textbf{Wan Y}, \textbf{Wang M}, \textbf{Warren J},
+\textbf{Weber KC}, \textbf{Williamson CHD}, \textbf{Willis AD},
+\textbf{Xu ZZ}, \textbf{Zaneveld JR}, \textbf{Zhang Y}, \textbf{Zhu Q},
+\textbf{Knight R}, \textbf{Caporaso JG}. 2019. Reproducible,
+interactive, scalable and extensible microbiome data science using QIIME
+2. Nature Biotechnology \textbf{37}:852--857.
+doi:\href{https://doi.org/10.1038/s41587-019-0209-9}{10.1038/s41587-019-0209-9}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-westcott2015}{}}%
+\CSLLeftMargin{8. }%
+\CSLRightInline{\textbf{Westcott SL}, \textbf{Schloss PD}. 2015. De novo
+clustering methods outperform reference-based methods for assigning 16S
+rRNA gene sequences to operational taxonomic units. PeerJ
+\textbf{3}:e1487.
+doi:\href{https://doi.org/10.7717/peerj.1487}{10.7717/peerj.1487}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-schloss2009}{}}%
+\CSLLeftMargin{9. }%
+\CSLRightInline{\textbf{Schloss PD}, \textbf{Westcott SL},
+\textbf{Ryabin T}, \textbf{Hall JR}, \textbf{Hartmann M},
+\textbf{Hollister EB}, \textbf{Lesniewski RA}, \textbf{Oakley BB},
+\textbf{Parks DH}, \textbf{Robinson CJ}, \textbf{Sahl JW}, \textbf{Stres
+B}, \textbf{Thallinger GG}, \textbf{Van Horn DJ}, \textbf{Weber CF}.
+2009. Introducing mothur: Open-source, platform-independent,
+community-supported software for describing and comparing microbial
+communities. Applied and Environmental Microbiology
+\textbf{75}:7537--7541.
+doi:\href{https://doi.org/10.1128/AEM.01541-09}{10.1128/AEM.01541-09}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-quast2013}{}}%
+\CSLLeftMargin{10. }%
+\CSLRightInline{\textbf{Quast C}, \textbf{Pruesse E}, \textbf{Yilmaz P},
+\textbf{Gerken J}, \textbf{Schweer T}, \textbf{Yarza P}, \textbf{Peplies
+J}, \textbf{Glöckner FO}. 2013. The SILVA ribosomal RNA gene database
+project: Improved data processing and web-based tools. Nucleic Acids
+Research \textbf{41}:D590--D596.
+doi:\href{https://doi.org/10.1093/nar/gks1219}{10.1093/nar/gks1219}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-edgar2011}{}}%
+\CSLLeftMargin{11. }%
+\CSLRightInline{\textbf{Edgar RC}, \textbf{Haas BJ}, \textbf{Clemente
+JC}, \textbf{Quince C}, \textbf{Knight R}. 2011. UCHIME improves
+sensitivity and speed of chimera detection. Bioinformatics
+\textbf{27}:2194--2200.
+doi:\href{https://doi.org/10.1093/bioinformatics/btr381}{10.1093/bioinformatics/btr381}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-desantis2006}{}}%
+\CSLLeftMargin{12. }%
+\CSLRightInline{\textbf{DeSantis TZ}, \textbf{Hugenholtz P},
+\textbf{Larsen N}, \textbf{Rojas M}, \textbf{Brodie EL}, \textbf{Keller
+K}, \textbf{Huber T}, \textbf{Dalevi D}, \textbf{Hu P}, \textbf{Andersen
+GL}. 2006. Greengenes, a chimera-checked 16S rRNA gene database and
+workbench compatible with ARB. Applied and Environmental Microbiology
+\textbf{72}:5069--5072.
+doi:\href{https://doi.org/10.1128/AEM.03006-05}{10.1128/AEM.03006-05}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-topuxe7uoglu2021}{}}%
+\CSLLeftMargin{13. }%
+\CSLRightInline{\textbf{Topçuoğlu BD}, \textbf{Lapp Z}, \textbf{Sovacool
+KL}, \textbf{Snitkin E}, \textbf{Wiens J}, \textbf{Schloss PD}. 2021.
+mikropml: User-Friendly R Package for Supervised Machine Learning
+Pipelines. Journal of Open Source Software \textbf{6}:3073.
+doi:\href{https://doi.org/10.21105/joss.03073}{10.21105/joss.03073}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-topuxe7uoglu2020}{}}%
+\CSLLeftMargin{14. }%
+\CSLRightInline{\textbf{Topçuoğlu BD}, \textbf{Lesniak NA},
+\textbf{Ruffin MT}, \textbf{Wiens J}, \textbf{Schloss PD}. 2020. A
+framework for effective application of machine learning to
+microbiome-based classification problems. mBio \textbf{11}:e00434--20.
+doi:\href{https://doi.org/10.1128/mBio.00434-20}{10.1128/mBio.00434-20}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-koster2012}{}}%
+\CSLLeftMargin{15. }%
+\CSLRightInline{\textbf{Koster J}, \textbf{Rahmann S}. 2012.
+Snakemake--a scalable bioinformatics workflow engine. Bioinformatics
+\textbf{28}:2520--2522.
+doi:\href{https://doi.org/10.1093/bioinformatics/bts480}{10.1093/bioinformatics/bts480}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-R2020}{}}%
+\CSLLeftMargin{16. }%
+\CSLRightInline{\textbf{R Core Team}. 2020.
+\href{https://www.R-project.org/}{R: A language and environment for
+statistical computing}. R Foundation for Statistical Computing, Vienna,
+Austria.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-GNUbash}{}}%
+\CSLLeftMargin{17. }%
+\CSLRightInline{\textbf{GNU Project}.
+\href{https://www.gnu.org/software/bash/\%20manual/bash.html/}{Bash
+reference manual}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-RStudio2019}{}}%
+\CSLLeftMargin{18. }%
+\CSLRightInline{\textbf{RStudio Team}. 2019.
+\href{http://www.rstudio.com/}{RStudio: Integrated development
+environment for r}. RStudio, Inc., Boston, MA.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-wickham2019}{}}%
+\CSLLeftMargin{19. }%
+\CSLRightInline{\textbf{Wickham H}, \textbf{Averick M}, \textbf{Bryan
+J}, \textbf{Chang W}, \textbf{McGowan LD}, \textbf{François R},
+\textbf{Grolemund G}, \textbf{Hayes A}, \textbf{Henry L}, \textbf{Hester
+J}, \textbf{Kuhn M}, \textbf{Pedersen TL}, \textbf{Miller E},
+\textbf{Bache SM}, \textbf{Müller K}, \textbf{Ooms J}, \textbf{Robinson
+D}, \textbf{Seidel DP}, \textbf{Spinu V}, \textbf{Takahashi K},
+\textbf{Vaughan D}, \textbf{Wilke C}, \textbf{Woo K}, \textbf{Yutani H}.
+2019. Welcome to the Tidyverse. Journal of Open Source Software
+\textbf{4}:1686.
+doi:\href{https://doi.org/10.21105/joss.01686}{10.21105/joss.01686}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-xie_r_2018}{}}%
+\CSLLeftMargin{20. }%
+\CSLRightInline{\textbf{Xie Y}, \textbf{Allaire JJ}, \textbf{Grolemund
+G}. 2018. R {Markdown}: {The Definitive Guide}. {Taylor \& Francis, CRC
+Press}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-noauthor_sra-tools_nodate}{}}%
+\CSLLeftMargin{21. }%
+\CSLRightInline{{SRA}-{Tools} - {NCBI}.
+http://ncbi.github.io/sra-tools/.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-noauthor_anaconda_2016}{}}%
+\CSLLeftMargin{22. }%
+\CSLRightInline{2016. Anaconda {Software Distribution}. Anaconda
+Documentation. Anaconda Inc.}
+
+\end{CSLReferences}
+
+\setlength{\parindent}{0in}
+\setlength{\leftskip}{0in}
+
+\newpage
+
+\hypertarget{figure-legends}{%
+\subsection{Figure Legends}\label{figure-legends}}
+
+\textbf{Figure1: Overview of clustering workflows.} The \emph{de novo}
+and database-reference-based workflows were conducted using two
+approaches: OptiClust with mothur and VSEARCH as is used in the QIIME
+pipeline.
+
+\textbf{Figure 2: Model performance of OptiFit self-reference workflow
+is as good or better than other methods.} \textbf{A)} Area under the
+receiver operating characteristic (AUROC) curve during cross-validation
+(train) for the various workflows. \textbf{B)} AUROC on the test data
+for the various workflows. The mean and standard deviation of the AUROC
+is represented by the black dot and whiskers in panels A and B. The mean
+AUROC is printed below the points. \textbf{C)} Averaged receiver
+operating characteristic (ROC) curves. Lines represent the average true
+positive rate for the range of false positive rates.
+
+\end{document}
