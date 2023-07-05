@@ -372,8 +372,7 @@ times (standard deviation = 4.1).
     resulting in 100 training and testing datasets.
 2.  OptiFit Greengenes: Reference sequences from the Greengenes database
     v13_8\_99 @desantis2006 were downloaded and processed with mothur by
-    trimming to the V4 region and clustered *de novo* with OptiClust
-    @westcott2017. The preprocessed data was fit to the clustered
+    trimming to the V4 region and clustered *de novo* with OptiClust @westcott2017. The preprocessed data was fit to the clustered
     reference data using OptiFit with the method open to allow any
     sequences that did not map to the existing reference clusters would
     form new OTUs. The data was then subsampled to 10,000 reads and any

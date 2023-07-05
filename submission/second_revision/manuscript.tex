@@ -5,16 +5,19 @@
 \documentclass[
 ]{article}
 \usepackage{amsmath,amssymb}
-\usepackage{lmodern}
 \usepackage{iftex}
 \ifPDFTeX
   \usepackage[T1]{fontenc}
   \usepackage[utf8]{inputenc}
   \usepackage{textcomp} % provide euro and other symbols
 \else % if luatex or xetex
-  \usepackage{unicode-math}
+  \usepackage{unicode-math} % this also loads fontspec
   \defaultfontfeatures{Scale=MatchLowercase}
   \defaultfontfeatures[\rmfamily]{Ligatures=TeX,Scale=1}
+\fi
+\usepackage{lmodern}
+\ifPDFTeX\else
+  % xetex/luatex font selection
 \fi
 % Use upquote if available, for straight quotes in verbatim environments
 \IfFileExists{upquote.sty}{\usepackage{upquote}}{}
@@ -86,7 +89,7 @@
 \fi
 \IfFileExists{bookmark.sty}{\usepackage{bookmark}}{\usepackage{hyperref}}
 \IfFileExists{xurl.sty}{\usepackage{xurl}}{} % add URL line breaks if available
-\urlstyle{same} % disable monospaced font for URLs
+\urlstyle{same}
 \hypersetup{
   pdftitle={Machine learning classification by fitting amplicon sequences to existing OTUs},
   hidelinks,
@@ -231,9 +234,10 @@ subjects (n = 226) as well as subjects with screen-relevant neoplasia
 (SRN) consisting of advanced adenoma and carcinoma (n = 229)
 (\protect\hyperlink{ref-baxter2016}{1}). For the \emph{de novo}
 workflows, the 16S rRNA sequence data from all samples were clustered
-into OTUs using the OptiClust algorithm in mothur 1 and the VSEARCH
-algorithm used in QIIME2 (\protect\hyperlink{ref-rognes2016}{6},
-\protect\hyperlink{ref-bolyen2019}{7}). For both algorithms, the
+into OTUs using the OptiClust algorithm in mothur
+(\protect\hyperlink{ref-westcott2017}{6}) and the VSEARCH algorithm used
+in QIIME2 (\protect\hyperlink{ref-rognes2016}{7},
+\protect\hyperlink{ref-bolyen2019}{8}). For both algorithms, the
 resulting abundance data was then split into training and testing sets,
 where the training set was used to tune hyperparameters and ultimately
 train and select the model. The model was applied to the testing set and
@@ -258,7 +262,7 @@ We first examined the quality of the resulting OTU clusters from each
 method using the Matthews correlation coefficient (MCC). MCC is an
 objective metric used to measure OTU cluster quality based on the
 similarity of all pairs of sequences and whether they are appropriately
-clustered or not (\protect\hyperlink{ref-westcott2015}{8}). We expected
+clustered or not (\protect\hyperlink{ref-westcott2015}{9}). We expected
 the MCC scores produced by the OptiFit workflow to be similar to that of
 \emph{de novo} clustering using the OptiClust algorithm. In the OptiFit
 workflow the test data was fit to the clustered training data for each
@@ -343,10 +347,10 @@ neoplasia'' (SRN). The resulting dataset consisted of 261 normal samples
 and 229 SRN samples.
 
 \textbf{Data processing.} The full dataset was preprocessed with mothur
-(v1.47) (\protect\hyperlink{ref-schloss2009}{9}) to join forward and
+(v1.47) (\protect\hyperlink{ref-schloss2009}{10}) to join forward and
 reverse reads, merge duplicate reads, align to the SILVA reference
-database (v132) (\protect\hyperlink{ref-quast2013}{10}), precluster,
-remove chimeras with UCHIME (\protect\hyperlink{ref-edgar2011}{11}),
+database (v132) (\protect\hyperlink{ref-quast2013}{11}), precluster,
+remove chimeras with UCHIME (\protect\hyperlink{ref-edgar2011}{12}),
 assign taxonomy, and remove non-bacterial reads following the Schloss
 Lab MiSeq standard operating procedure described on the mothur website
 (\url{https://mothur.org/wiki/miseq_sop/}). 100 splits of the 490
@@ -375,29 +379,24 @@ an average of 20 times (standard deviation = 4.1).
   splits resulting in 100 training and testing datasets.
 \item
   OptiFit Greengenes: Reference sequences from the Greengenes database
-  v13\_8\_99 (\protect\hyperlink{ref-desantis2006}{12}) were downloaded
+  v13\_8\_99 (\protect\hyperlink{ref-desantis2006}{13}) were downloaded
   and processed with mothur by trimming to the V4 region and clustered
   \emph{de novo} with OptiClust
-
-  \begin{enumerate}
-  \def\labelenumii{\arabic{enumii}.}
-  \tightlist
-  \item
-    The preprocessed data was fit to the clustered reference data using
-    OptiFit with the method open to allow any sequences that did not map
-    to the existing reference clusters would form new OTUs. The data was
-    then subsampled to 10,000 reads and any novel OTUs from the test set
-    were removed. The dataset was then split into two sets where 80\% of
-    the samples were assigned to the training set and 20\% to the
-    testing set. This process was repeated for each of the 100 splits
-    resulting in 100 training and testing datasets.
-  \end{enumerate}
+  (\protect\hyperlink{ref-westcott2017}{6}). The preprocessed data was
+  fit to the clustered reference data using OptiFit with the method open
+  to allow any sequences that did not map to the existing reference
+  clusters would form new OTUs. The data was then subsampled to 10,000
+  reads and any novel OTUs from the test set were removed. The dataset
+  was then split into two sets where 80\% of the samples were assigned
+  to the training set and 20\% to the testing set. This process was
+  repeated for each of the 100 splits resulting in 100 training and
+  testing datasets.
 \item
   VSEARCH Greengenes: Preprocessed data was clustered using VSEARCH
-  v2.15.2 (\protect\hyperlink{ref-rognes2016}{6}) directly to
+  v2.15.2 (\protect\hyperlink{ref-rognes2016}{7}) directly to
   unprocessed Greengenes 97\% OTU reference alignment consistent with
   how VSEARCH is typically used by the QIIME2 software for
-  reference-based clustering (\protect\hyperlink{ref-bolyen2019}{7}).
+  reference-based clustering (\protect\hyperlink{ref-bolyen2019}{8}).
   The data was then subsampled to 10,000 reads and any novel OTUs from
   the test set were removed. The dataset was then split into two sets
   where 80\% of the samples were assigned to the training set and 20\%
@@ -413,13 +412,14 @@ an average of 20 times (standard deviation = 4.1).
 \tightlist
 \item
   OptiClust \emph{de novo}: All the preprocessed data was clustered
-  together with OptiClust 1 to generate OTUs. The data was subsampled to
-  10,000 reads per sample and the resulting abundance tables were split
-  into the training and testing sets. The process was repeated for each
-  of the 100 splits resulting in 100 training and testing datasets.
+  together with OptiClust (\protect\hyperlink{ref-westcott2017}{6}) to
+  generate OTUs. The data was subsampled to 10,000 reads per sample and
+  the resulting abundance tables were split into the training and
+  testing sets. The process was repeated for each of the 100 splits
+  resulting in 100 training and testing datasets.
 \item
   VSEARCH \emph{de novo}: All the preprocessed data was clustered using
-  VSEARCH v2.15.2 (\protect\hyperlink{ref-rognes2016}{6}) with 97\%
+  VSEARCH v2.15.2 (\protect\hyperlink{ref-rognes2016}{7}) with 97\%
   identity and then subsampled to 10,000 reads per sample. The process
   was repeated for each of the 100 splits resulting in 100 training and
   testing datasets for both workflows.
@@ -427,28 +427,28 @@ an average of 20 times (standard deviation = 4.1).
 
 \textbf{Machine Learning.} A random forest model was trained with the R
 package mikrompl (v 1.2.0)
-(\protect\hyperlink{ref-topuxe7uoglu2021}{13}) to predict the diagnosis
+(\protect\hyperlink{ref-topuxe7uoglu2021}{14}) to predict the diagnosis
 (SRN or normal) for the samples in the test set for each data split. The
 training set was preprocessed to normalize OTU counts (scale and
 center), collapse correlated OTUs, and remove OTUs with zero variance.
 The preprocessing from the training set was then applied to the test
 set. Any OTUs in the test set that were not in the training set were
 removed. P-values comparing model performance were calculated as
-previously described (\protect\hyperlink{ref-topuxe7uoglu2020}{14}). The
+previously described (\protect\hyperlink{ref-topuxe7uoglu2020}{15}). The
 averaged ROC curves were plotted by taking the average and standard
 deviation of the sensitivity at each specificity value.
 
 \textbf{Code Availability.} The analysis workflow was implemented in
-Snakemake (\protect\hyperlink{ref-koster2012}{15}). Scripts for analysis
-were written in R (\protect\hyperlink{ref-R2020}{16}) and GNU bash
-(\protect\hyperlink{ref-GNUbash}{17}). The software used includes mothur
-v1.47.0 (\protect\hyperlink{ref-schloss2009}{9}), VSEARCH v2.15.2
-(\protect\hyperlink{ref-rognes2016}{6}), RStudio
-(\protect\hyperlink{ref-RStudio2019}{18}), the Tidyverse metapackage
-(\protect\hyperlink{ref-wickham2019}{19}), R Markdown
-(\protect\hyperlink{ref-xie_r_2018}{20}), the SRA toolkit
-(\protect\hyperlink{ref-noauthor_sra-tools_nodate}{21}), and conda
-(\protect\hyperlink{ref-noauthor_anaconda_2016}{22}). The complete
+Snakemake (\protect\hyperlink{ref-koster2012}{16}). Scripts for analysis
+were written in R (\protect\hyperlink{ref-R2020}{17}) and GNU bash
+(\protect\hyperlink{ref-GNUbash}{18}). The software used includes mothur
+v1.47.0 (\protect\hyperlink{ref-schloss2009}{10}), VSEARCH v2.15.2
+(\protect\hyperlink{ref-rognes2016}{7}), RStudio
+(\protect\hyperlink{ref-RStudio2019}{19}), the Tidyverse metapackage
+(\protect\hyperlink{ref-wickham2019}{20}), R Markdown
+(\protect\hyperlink{ref-xie_r_2018}{21}), the SRA toolkit
+(\protect\hyperlink{ref-noauthor_sra-tools_nodate}{22}), and conda
+(\protect\hyperlink{ref-noauthor_anaconda_2016}{23}). The complete
 workflow and supporting files required to reproduce this study are
 available at:
 \url{https://github.com/SchlossLab/Armour_OptiFitGLNE_XXXX_2023}
@@ -518,15 +518,22 @@ OptiFit: An improved method for fitting amplicon sequences to existing
 OTUs. mSphere \textbf{7}:e00916--21.
 doi:\href{https://doi.org/10.1128/msphere.00916-21}{10.1128/msphere.00916-21}.}
 
-\leavevmode\vadjust pre{\hypertarget{ref-rognes2016}{}}%
+\leavevmode\vadjust pre{\hypertarget{ref-westcott2017}{}}%
 \CSLLeftMargin{6. }%
+\CSLRightInline{\textbf{Westcott SL}, \textbf{Schloss PD}. 2017.
+OptiClust, an improved method for assigning amplicon-based sequence data
+to operational taxonomic units. mSphere \textbf{2}:e00073--17.
+doi:\href{https://doi.org/10.1128/mSphereDirect.00073-17}{10.1128/mSphereDirect.00073-17}.}
+
+\leavevmode\vadjust pre{\hypertarget{ref-rognes2016}{}}%
+\CSLLeftMargin{7. }%
 \CSLRightInline{\textbf{Rognes T}, \textbf{Flouri T}, \textbf{Nichols
 B}, \textbf{Quince C}, \textbf{Mahé F}. 2016. VSEARCH: a versatile open
 source tool for metagenomics. PeerJ \textbf{4}:e2584.
 doi:\href{https://doi.org/10.7717/peerj.2584}{10.7717/peerj.2584}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-bolyen2019}{}}%
-\CSLLeftMargin{7. }%
+\CSLLeftMargin{8. }%
 \CSLRightInline{\textbf{Bolyen E}, \textbf{Rideout JR}, \textbf{Dillon
 MR}, \textbf{Bokulich NA}, \textbf{Abnet CC}, \textbf{Al-Ghalith GA},
 \textbf{Alexander H}, \textbf{Alm EJ}, \textbf{Arumugam M},
@@ -568,7 +575,7 @@ interactive, scalable and extensible microbiome data science using QIIME
 doi:\href{https://doi.org/10.1038/s41587-019-0209-9}{10.1038/s41587-019-0209-9}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-westcott2015}{}}%
-\CSLLeftMargin{8. }%
+\CSLLeftMargin{9. }%
 \CSLRightInline{\textbf{Westcott SL}, \textbf{Schloss PD}. 2015. De novo
 clustering methods outperform reference-based methods for assigning 16S
 rRNA gene sequences to operational taxonomic units. PeerJ
@@ -576,7 +583,7 @@ rRNA gene sequences to operational taxonomic units. PeerJ
 doi:\href{https://doi.org/10.7717/peerj.1487}{10.7717/peerj.1487}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-schloss2009}{}}%
-\CSLLeftMargin{9. }%
+\CSLLeftMargin{10. }%
 \CSLRightInline{\textbf{Schloss PD}, \textbf{Westcott SL},
 \textbf{Ryabin T}, \textbf{Hall JR}, \textbf{Hartmann M},
 \textbf{Hollister EB}, \textbf{Lesniewski RA}, \textbf{Oakley BB},
@@ -589,7 +596,7 @@ communities. Applied and Environmental Microbiology
 doi:\href{https://doi.org/10.1128/AEM.01541-09}{10.1128/AEM.01541-09}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-quast2013}{}}%
-\CSLLeftMargin{10. }%
+\CSLLeftMargin{11. }%
 \CSLRightInline{\textbf{Quast C}, \textbf{Pruesse E}, \textbf{Yilmaz P},
 \textbf{Gerken J}, \textbf{Schweer T}, \textbf{Yarza P}, \textbf{Peplies
 J}, \textbf{Glöckner FO}. 2013. The SILVA ribosomal RNA gene database
@@ -598,7 +605,7 @@ Research \textbf{41}:D590--D596.
 doi:\href{https://doi.org/10.1093/nar/gks1219}{10.1093/nar/gks1219}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-edgar2011}{}}%
-\CSLLeftMargin{11. }%
+\CSLLeftMargin{12. }%
 \CSLRightInline{\textbf{Edgar RC}, \textbf{Haas BJ}, \textbf{Clemente
 JC}, \textbf{Quince C}, \textbf{Knight R}. 2011. UCHIME improves
 sensitivity and speed of chimera detection. Bioinformatics
@@ -606,7 +613,7 @@ sensitivity and speed of chimera detection. Bioinformatics
 doi:\href{https://doi.org/10.1093/bioinformatics/btr381}{10.1093/bioinformatics/btr381}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-desantis2006}{}}%
-\CSLLeftMargin{12. }%
+\CSLLeftMargin{13. }%
 \CSLRightInline{\textbf{DeSantis TZ}, \textbf{Hugenholtz P},
 \textbf{Larsen N}, \textbf{Rojas M}, \textbf{Brodie EL}, \textbf{Keller
 K}, \textbf{Huber T}, \textbf{Dalevi D}, \textbf{Hu P}, \textbf{Andersen
@@ -616,7 +623,7 @@ workbench compatible with ARB. Applied and Environmental Microbiology
 doi:\href{https://doi.org/10.1128/AEM.03006-05}{10.1128/AEM.03006-05}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-topuxe7uoglu2021}{}}%
-\CSLLeftMargin{13. }%
+\CSLLeftMargin{14. }%
 \CSLRightInline{\textbf{Topçuoğlu BD}, \textbf{Lapp Z}, \textbf{Sovacool
 KL}, \textbf{Snitkin E}, \textbf{Wiens J}, \textbf{Schloss PD}. 2021.
 mikropml: User-Friendly R Package for Supervised Machine Learning
@@ -624,7 +631,7 @@ Pipelines. Journal of Open Source Software \textbf{6}:3073.
 doi:\href{https://doi.org/10.21105/joss.03073}{10.21105/joss.03073}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-topuxe7uoglu2020}{}}%
-\CSLLeftMargin{14. }%
+\CSLLeftMargin{15. }%
 \CSLRightInline{\textbf{Topçuoğlu BD}, \textbf{Lesniak NA},
 \textbf{Ruffin MT}, \textbf{Wiens J}, \textbf{Schloss PD}. 2020. A
 framework for effective application of machine learning to
@@ -632,33 +639,33 @@ microbiome-based classification problems. mBio \textbf{11}:e00434--20.
 doi:\href{https://doi.org/10.1128/mBio.00434-20}{10.1128/mBio.00434-20}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-koster2012}{}}%
-\CSLLeftMargin{15. }%
+\CSLLeftMargin{16. }%
 \CSLRightInline{\textbf{Koster J}, \textbf{Rahmann S}. 2012.
 Snakemake--a scalable bioinformatics workflow engine. Bioinformatics
 \textbf{28}:2520--2522.
 doi:\href{https://doi.org/10.1093/bioinformatics/bts480}{10.1093/bioinformatics/bts480}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-R2020}{}}%
-\CSLLeftMargin{16. }%
+\CSLLeftMargin{17. }%
 \CSLRightInline{\textbf{R Core Team}. 2020.
 \href{https://www.R-project.org/}{R: A language and environment for
 statistical computing}. R Foundation for Statistical Computing, Vienna,
 Austria.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-GNUbash}{}}%
-\CSLLeftMargin{17. }%
+\CSLLeftMargin{18. }%
 \CSLRightInline{\textbf{GNU Project}.
 \href{https://www.gnu.org/software/bash/\%20manual/bash.html/}{Bash
 reference manual}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-RStudio2019}{}}%
-\CSLLeftMargin{18. }%
+\CSLLeftMargin{19. }%
 \CSLRightInline{\textbf{RStudio Team}. 2019.
 \href{http://www.rstudio.com/}{RStudio: Integrated development
 environment for r}. RStudio, Inc., Boston, MA.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-wickham2019}{}}%
-\CSLLeftMargin{19. }%
+\CSLLeftMargin{20. }%
 \CSLRightInline{\textbf{Wickham H}, \textbf{Averick M}, \textbf{Bryan
 J}, \textbf{Chang W}, \textbf{McGowan LD}, \textbf{François R},
 \textbf{Grolemund G}, \textbf{Hayes A}, \textbf{Henry L}, \textbf{Hester
@@ -671,18 +678,18 @@ D}, \textbf{Seidel DP}, \textbf{Spinu V}, \textbf{Takahashi K},
 doi:\href{https://doi.org/10.21105/joss.01686}{10.21105/joss.01686}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-xie_r_2018}{}}%
-\CSLLeftMargin{20. }%
+\CSLLeftMargin{21. }%
 \CSLRightInline{\textbf{Xie Y}, \textbf{Allaire JJ}, \textbf{Grolemund
 G}. 2018. R {Markdown}: {The Definitive Guide}. {Taylor \& Francis, CRC
 Press}.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-noauthor_sra-tools_nodate}{}}%
-\CSLLeftMargin{21. }%
+\CSLLeftMargin{22. }%
 \CSLRightInline{{SRA}-{Tools} - {NCBI}.
 http://ncbi.github.io/sra-tools/.}
 
 \leavevmode\vadjust pre{\hypertarget{ref-noauthor_anaconda_2016}{}}%
-\CSLLeftMargin{22. }%
+\CSLLeftMargin{23. }%
 \CSLRightInline{2016. Anaconda {Software Distribution}. Anaconda
 Documentation. Anaconda Inc.}
 
